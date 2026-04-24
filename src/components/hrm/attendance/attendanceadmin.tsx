@@ -512,7 +512,7 @@ const AttendanceAdminComponent = () => {
               </div>
             </div>
             <div className="card-body p-0">
-              <Table dataSource={datas} columns={columns} Selection={true} rowKey="id"  />
+              <Table dataSource={datas} columns={columns} Selection={true} key="id"  />
             </div>
           </div>
         </div>
