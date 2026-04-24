@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/', // the URL you want in browser
-        destination: '/login',   // actual page under /pages/index.tsx
+        destination: '/login-2',   // actual page under /pages/index.tsx
       },
      ];
   },
