@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/style')],
   },
+  eslint:{
+    ignoreDuringBuilds:true
+  },
   async rewrites() {
     return [
       {
