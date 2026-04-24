@@ -65,8 +65,8 @@ const Attendance = () => {
   // ✅ TODAY API (array fix)
   const fetchTodayAttendance = async () => {
     try {
-      // const res = await axiosInstance.get(`/attendance/today`);
-      const res=await axios.get(`/api/proxy/attendance/today`)
+      const res = await axiosInstance.get(`/attendance/today`);
+
 
       const todayData = res.data.data?.[0]; // 🔥 main fix
       setAttendance(todayData);
@@ -90,16 +90,12 @@ const Attendance = () => {
     try {
       setLoading(true);
       const { latitude, longitude, accuracy } = await getLocation();
-      // const res = await axiosInstance.post(`/attendance/check-in`, {
-      //   latitude,
-      //   longitude,
-      //   accuracy,
-      // });
-      const res = await axios.post(`/api/proxy/attendance/check-in`, {
+      const res = await axiosInstance.post(`/attendance/check-in`, {
         latitude,
         longitude,
         accuracy,
       });
+     
 
       setAttendance(res.data.data.attendance);
 
@@ -116,11 +112,11 @@ const Attendance = () => {
     try {
       setLoading(true);
       const { latitude, longitude, accuracy } = await getLocation();
-       const res = await axios.post(`/api/proxy/attendance/check-out`, {
-        latitude,
-        longitude,
-        accuracy,
-      });
+        const res = await axiosInstance.post(`/attendance/check-out`, {
+      latitude,
+      longitude,
+      accuracy,
+    });
 
       setAttendance(res.data.data.attendance);
 

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { all_routes } from "@/routes/all_routes";
 import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
 
 // Define a type for attendance admin data
 interface AttendanceAdminData {
@@ -31,7 +32,13 @@ const AttendanceAdminComponent = () => {
   const fetchTodayAttendance = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/attendance/company-day?date=2026-04-22");
+      const today = new Date().toISOString().split("T")[0];
+
+const res = await axiosInstance.get("/attendance/company-day", {
+  params: { date: today },
+});
+        
+
       setAttendance(res.data.data);
     } catch (error) {}
   };
