@@ -299,7 +299,7 @@ const DepartmentComponent = () => {
             <div className="card-body p-0">
               <Table
                 dataSource={data}
-                rowKey="id"
+                key="id"
                 columns={columns}
                 Selection={true}
               />
