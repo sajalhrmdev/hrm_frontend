@@ -6,8 +6,10 @@ import axiosInstance from "@/utils/axiosInstance";
 import { useFakeProgress } from "@/hooks/useFakeProgress";
 import { log } from "console";
 import { Tooltip } from "react-tooltip";
+import MonthlyAttendance from "./MonthlyAttendance";
 
 const Attendance = () => {
+  const [showMonthly, setShowMonthly] = useState(false);
   const [time, setTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"IN" | "OUT">("OUT");
@@ -148,6 +150,7 @@ const Attendance = () => {
   return (
     <>
       <div className="container d-flex justify-content-center align-items-center vh-100 bg-light">
+
         <div
           className="card border-0 shadow-lg p-4"
           style={{
@@ -158,6 +161,12 @@ const Attendance = () => {
         >
           {/* HEADER */}
           <div className="text-center mb-3">
+                    <button
+  className="btn btn-primary mb-3"
+  onClick={(prev) => setShowMonthly(prev => !prev)}
+>
+  {showMonthly ? " Close Attendance" : "📅 View Monthly Attendance"}
+</button>
             <h5
               className="fw-bold mb-2"
               style={{
@@ -431,6 +440,14 @@ const Attendance = () => {
         )}
       </div> */}
         </div>
+
+       {showMonthly && (
+  <div>
+   
+
+    <MonthlyAttendance />
+  </div>
+)}
       </div>
       <style jsx>{`
         .progress-ring {
