@@ -1,16 +1,20 @@
 "use client";
 
 import Table from "../../../../core/common/dataTable/index";
-import CommonSelect from '../../../../core/common/commonSelect';
-import { leaveadmin_details } from '../../../../core/data/json/leaveadmin_details';
-import PredefinedDateRanges from '../../../../core/common/datePicker';
-import ImageWithBasePath from '../../../../core/common/imageWithBasePath';
-import { DatePicker } from 'antd';
-import CollapseHeader from '../../../../core/common/collapse-header/collapse-header';
+import CommonSelect from "../../../../core/common/commonSelect";
+import { leaveadmin_details } from "../../../../core/data/json/leaveadmin_details";
+import PredefinedDateRanges from "../../../../core/common/datePicker";
+import ImageWithBasePath from "../../../../core/common/imageWithBasePath";
+import { DatePicker } from "antd";
+import CollapseHeader from "../../../../core/common/collapse-header/collapse-header";
 import Link from "next/link";
 import { all_routes } from "@/routes/all_routes";
+import AllocateLeaveBalanceModal from "./leaveBalance";
+import { useState } from "react";
+import LeaveApprovalTable from "./LeaveApprovalTable";
 
 const LeaveAdminComponent = () => {
+  const [open, setOpen] = useState(false);
 
   const data = leaveadmin_details;
   const columns = [
@@ -19,11 +23,12 @@ const LeaveAdminComponent = () => {
       dataIndex: "Employee",
       render: (_text: String, record: any) => (
         <div className="d-flex align-items-center file-name-icon">
-          <Link
-            href="#"
-            className="avatar avatar-md border avatar-rounded"
-          >
-            <ImageWithBasePath src={`assets/img/users/${record.Image}`} className="img-fluid" alt="img" />
+          <Link href="#" className="avatar avatar-md border avatar-rounded">
+            <ImageWithBasePath
+              src={`assets/img/users/${record.Image}`}
+              className="img-fluid"
+              alt="img"
+            />
           </Link>
           <div className="ms-2">
             <h6 className="fw-medium">
@@ -32,8 +37,6 @@ const LeaveAdminComponent = () => {
             <span className="fs-12 fw-normal ">{record.Role}</span>
           </div>
         </div>
-
-
       ),
       sorter: (a: any, b: any) => a.Employee.length - b.Employee.length,
     },
@@ -55,7 +58,6 @@ const LeaveAdminComponent = () => {
             <i className="ti ti-info-circle text-info" />
           </Link>
         </div>
-
       ),
       sorter: (a: any, b: any) => a.LeaveType.length - b.LeaveType.length,
     },
@@ -82,14 +84,16 @@ const LeaveAdminComponent = () => {
           <Link
             href="#"
             className="me-2"
-            data-bs-toggle="modal" data-inert={true}
+            data-bs-toggle="modal"
+            data-inert={true}
             data-bs-target="#edit_leaves"
           >
             <i className="ti ti-edit" />
           </Link>
           <Link
             href="#"
-            data-bs-toggle="modal" data-inert={true}
+            data-bs-toggle="modal"
+            data-inert={true}
             data-bs-target="#delete_modal"
           >
             <i className="ti ti-trash" />
@@ -97,7 +101,7 @@ const LeaveAdminComponent = () => {
         </div>
       ),
     },
-  ]
+  ];
   const employeename = [
     { value: "Select", label: "Select" },
     { value: "Anthony Lewis", label: "Anthony Lewis" },
@@ -117,16 +121,17 @@ const LeaveAdminComponent = () => {
     { value: "Second Half", label: "Second Half" },
   ];
 
-   const getModalContainer = (node: HTMLElement): HTMLElement => {
-    if (typeof window === 'undefined') {
+  const getModalContainer = (node: HTMLElement): HTMLElement => {
+    if (typeof window === "undefined") {
       return document.body; // Return document.body during SSR
     }
-    const modalElement = document.getElementById('modal-datepicker');
+    const modalElement = document.getElementById("modal-datepicker");
     return modalElement ? modalElement : document.body; // Fallback to document.body if modalElement is null
   };
 
   return (
     <>
+     <div>
       {/* Page Wrapper */}
       <div className="page-wrapper">
         <div className="content">
@@ -161,19 +166,13 @@ const LeaveAdminComponent = () => {
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         <i className="ti ti-file-type-pdf me-1" />
                         Export as PDF
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         <i className="ti ti-file-type-xls me-1" />
                         Export as Excel{" "}
                       </Link>
@@ -182,7 +181,7 @@ const LeaveAdminComponent = () => {
                 </div>
               </div>
               <div className="mb-2">
-                <Link
+                {/* <Link
                   href="#"
                   data-bs-toggle="modal" data-inert={true}
                   data-bs-target="#add_leaves"
@@ -190,7 +189,13 @@ const LeaveAdminComponent = () => {
                 >
                   <i className="ti ti-circle-plus me-2" />
                   Add Leave
-                </Link>
+                </Link> */}
+                <button onClick={() => setOpen(true)}>Leave Balance</button>
+
+                <AllocateLeaveBalanceModal
+                  open={open}
+                  onClose={() => setOpen(false)}
+                />
               </div>
               <div className="head-icons ms-2">
                 <CollapseHeader />
@@ -298,26 +303,17 @@ const LeaveAdminComponent = () => {
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Medical Leave
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Casual Leave
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Annual Leave
                       </Link>
                     </li>
@@ -333,42 +329,27 @@ const LeaveAdminComponent = () => {
                   </Link>
                   <ul className="dropdown-menu  dropdown-menu-end p-3">
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Recently Added
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Ascending
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Desending
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Last Month
                       </Link>
                     </li>
                     <li>
-                      <Link
-                        href="#"
-                        className="dropdown-item rounded-1"
-                      >
+                      <Link href="#" className="dropdown-item rounded-1">
                         Last 7 Days
                       </Link>
                     </li>
@@ -415,7 +396,7 @@ const LeaveAdminComponent = () => {
                     <div className="mb-3">
                       <label className="form-label">Employee Name</label>
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={employeename}
                         defaultValue={employeename[0]}
                       />
@@ -425,7 +406,7 @@ const LeaveAdminComponent = () => {
                     <div className="mb-3">
                       <label className="form-label">Leave Type</label>
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={leavetype}
                         defaultValue={leavetype[0]}
                       />
@@ -490,7 +471,7 @@ const LeaveAdminComponent = () => {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={selectChoose}
                         defaultValue={selectChoose[0]}
                       />
@@ -533,7 +514,11 @@ const LeaveAdminComponent = () => {
                 >
                   Cancel
                 </button>
-                <button type="button" data-bs-dismiss="modal" className="btn btn-primary">
+                <button
+                  type="button"
+                  data-bs-dismiss="modal"
+                  className="btn btn-primary"
+                >
                   Add Leave
                 </button>
               </div>
@@ -564,7 +549,7 @@ const LeaveAdminComponent = () => {
                     <div className="mb-3">
                       <label className="form-label">Employee Name</label>
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={employeename}
                         defaultValue={employeename[1]}
                       />
@@ -574,7 +559,7 @@ const LeaveAdminComponent = () => {
                     <div className="mb-3">
                       <label className="form-label">Leave Type</label>
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={leavetype}
                         defaultValue={leavetype[1]}
                       />
@@ -639,7 +624,7 @@ const LeaveAdminComponent = () => {
                   <div className="col-md-6">
                     <div className="mb-3">
                       <CommonSelect
-                        className='select'
+                        className="select"
                         options={selectChoose}
                         defaultValue={selectChoose[1]}
                       />
@@ -727,7 +712,11 @@ const LeaveAdminComponent = () => {
                 >
                   Cancel
                 </button>
-                <button type="button" data-bs-dismiss="modal" className="btn btn-primary">
+                <button
+                  type="button"
+                  data-bs-dismiss="modal"
+                  className="btn btn-primary"
+                >
                   Save Changes
                 </button>
               </div>
@@ -736,10 +725,13 @@ const LeaveAdminComponent = () => {
         </div>
       </div>
       {/* /Edit Leaves */}
+    </div>
+    <div className="page-wrapper">
+      <LeaveApprovalTable />
+    </div>
     </>
+   
+  );
+};
 
-
-  )
-}
-
-export default LeaveAdminComponent
+export default LeaveAdminComponent;

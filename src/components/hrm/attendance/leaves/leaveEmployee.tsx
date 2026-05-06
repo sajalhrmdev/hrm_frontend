@@ -9,6 +9,8 @@ import { leaveemployee_details } from '../../../../core/data/json/leaveemployee_
 import CollapseHeader from '../../../../core/common/collapse-header/collapse-header';
 import { all_routes } from "@/routes/all_routes";
 import Link from "next/link";
+import ApplyLeaveModal from "./applyLeave";
+import { useState } from "react";
 
 // Add type for leave employee data
 interface LeaveEmployeeData {
@@ -24,6 +26,7 @@ interface LeaveEmployeeData {
 }
 
 const LeaveEmployeeComponent = () => {
+  const [open, setOpen] = useState(false);
 
   const data: LeaveEmployeeData[] = leaveemployee_details;
   const columns = [
@@ -239,7 +242,7 @@ const LeaveEmployeeComponent = () => {
                 </div>
               </div>
               <div className="mb-2">
-                <button
+                {/* <button
                   type="button"
                   data-bs-toggle="modal"
                   data-bs-target="#add_leaves"
@@ -247,7 +250,15 @@ const LeaveEmployeeComponent = () => {
                 >
                   <i className="ti ti-circle-plus me-2" />
                   Add Leave
-                </button>
+                </button> */}
+                <button onClick={() => setOpen(true)}>
+  Apply Leave
+</button>
+
+<ApplyLeaveModal
+  open={open}
+  onClose={() => setOpen(false)}
+/>
               </div>
               <div className="head-icons ms-2">
                 <CollapseHeader />
