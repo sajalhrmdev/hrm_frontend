@@ -685,6 +685,12 @@ export const SidebarDataTest = [
                 submenu: false,
                 showSubRoute: false,
               },
+                {
+                label: 'Leave Type',
+                link: routes.leavetype,
+                submenu: false,
+                showSubRoute: false,
+              },
             ],
           },
 

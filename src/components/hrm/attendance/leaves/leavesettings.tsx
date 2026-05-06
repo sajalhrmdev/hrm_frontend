@@ -8,6 +8,8 @@ import { SelectWithImage } from '../../../../core/common/selectWithImage';
 import CollapseHeader from '../../../../core/common/collapse-header/collapse-header';
 import Link from 'next/link';
 import { all_routes } from '@/routes/all_routes';
+import LeaveTypeForm from './LeaveTypeForm';
+import LeaveTypeList from './LeaveTypeList';
 
 const LeaveSettingsComponent = () => {
 
@@ -44,6 +46,7 @@ const LeaveSettingsComponent = () => {
 
   return (
     <>
+    <div>
       {/* Page Wrapper */}
       <div className="page-wrapper">
         <div className="content">
@@ -306,15 +309,7 @@ const LeaveSettingsComponent = () => {
           </div>
           {/* /Leaves Info */}
         </div>
-        <div className="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
-          <p className="mb-0">2014 - 2026 © SmartHR.</p>
-          <p>
-            Designed &amp; Developed By{" "}
-            <Link href="#" className="text-primary">
-              Dreams
-            </Link>
-          </p>
-        </div>
+       
       </div>
       {/* /Page Wrapper */}
       {/* New Custom Policy */}
@@ -3140,7 +3135,23 @@ const LeaveSettingsComponent = () => {
         </div>
       </div>
       {/* /Edit Custom Policy Modal */}
+    </div>
+    <div className="page-wrapper">
+ <LeaveTypeList/>
+    </div>
+   
+    <LeaveTypeForm/>
+     <div className="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+          <p className="mb-0">2014 - 2026 © SmartHR.</p>
+          <p>
+            Designed &amp; Developed By{" "}
+            <Link href="#" className="text-primary">
+              Dreams
+            </Link>
+          </p>
+        </div>
     </>
+    
 
 
 

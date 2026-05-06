@@ -92,131 +92,201 @@ const MonthlyAttendance: React.FC = () => {
 
   const calendar = generateCalendar();
 
-  return loading ? (
-    <p style={{ textAlign: "center", marginTop: "20px" }}>Loading...</p>
-  ) : (
-    <div className="card p-3">
-      {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
+return loading ? (
+  <div style={{ textAlign: "center", marginTop: "40px" }}>
+    <div className="loader"></div>
+    <p style={{ marginTop: "10px", color: "#666" }}>Loading attendance...</p>
+  </div>
+) : (
+  <div className="attendance-card">
+    {/* HEADER */}
+    <div className="header">
+      <h3>📅 Monthly Attendance</h3>
+
+      <input
+        type="month"
+        value={`${year}-${String(month).padStart(2, "0")}`}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          const value = e.target.value;
+          if (!value) return;
+
+          const [y, m] = value.split("-");
+          setYear(Number(y));
+          setMonth(Number(m));
         }}
-      >
-        <h3>📅 Monthly Attendance</h3>
-
-        <input
-          type="month"
-          value={`${year}-${String(month).padStart(2, "0")}`}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            const value = e.target.value;
-            if (!value) return;
-
-            const [y, m] = value.split("-");
-            setYear(Number(y));
-            setMonth(Number(m));
-          }}
-        />
-      </div>
-
-      {/* 🔥 WEEK HEADER */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          marginBottom: "10px",
-          textAlign: "center",
-          fontWeight: "bold",
-          color: "#555",
-        }}
-      >
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d}>{d}</div>
-        ))}
-      </div>
-
-      {/* TOOLTIP */}
-      <Tooltip
-        id="attendance-tooltip"
-        place="top"
-        positionStrategy="fixed"
-        offset={10}
-        delayShow={200}
       />
-
-      {/* CALENDAR */}
-     
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(7, 1fr)",
-          gap: "12px",
-        }}
-      >
-        {calendar.map((d, index) => {
-          if (!d) return <div key={index}></div>;
-
-          const content = d.record
-            ? `
-              <div style="font-size:12px">
-                <b>Date:</b> ${d.record.date.split("T")[0]} <br/>
-                <b>Status:</b> ${d.record.status} <br/>
-                <b>Work:</b> ${d.record.total_work_minutes} min <br/>
-                <b>OT:</b> ${d.record.overtime_minutes} min
-              </div>
-            `
-            : `
-              <div style="font-size:12px">
-                <b>Date:</b> ${year}-${String(month).padStart(2, "0")}-${String(
-                d.day
-              ).padStart(2, "0")} <br/>
-                <b>Status:</b> ABSENT
-              </div>
-            `;
-
-          return (
-            
-            <div
-              key={index}
-              data-tooltip-id="attendance-tooltip"
-              data-tooltip-html={content}
-              style={{
-                padding: "14px",
-                borderRadius: "14px",
-                textAlign: "center",
-                background: getColor(d.status),
-                color: "#fff",
-                fontWeight: "bold",
-                cursor: "pointer",
-                transition: "0.2s",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform =
-                  "scale(1.08)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform =
-                  "scale(1)";
-              }}
-            >
-              <div style={{ fontSize: "18px" }}>{d.day}</div>
-              <div style={{ fontSize: "11px" }}>{d.status}</div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* FIX Z-INDEX */}
-      <style>{`
-        .react-tooltip {
-          z-index: 9999 !important;
-        }
-      `}</style>
     </div>
-  );
+
+    {/* WEEK HEADER */}
+    <div className="week-header">
+      {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+        <div key={d}>{d}</div>
+      ))}
+    </div>
+
+    {/* TOOLTIP */}
+    <Tooltip
+      id="attendance-tooltip"
+      place="top"
+      positionStrategy="fixed"
+      offset={10}
+      delayShow={200}
+    />
+
+    {/* CALENDAR */}
+    <div className="calendar-grid">
+      {calendar.map((d, index) => {
+        if (!d) return <div key={index}></div>;
+
+        const content = d.record
+          ? `
+            <div>
+              <b>Date:</b> ${d.record.date.split("T")[0]} <br/>
+              <b>Status:</b> ${d.record.status} <br/>
+              <b>Work:</b> ${d.record.total_work_minutes} min <br/>
+              <b>OT:</b> ${d.record.overtime_minutes} min
+            </div>
+          `
+          : `
+            <div>
+              <b>Status:</b> ABSENT
+            </div>
+          `;
+
+        return (
+          <div
+            key={index}
+            className="calendar-item"
+            data-tooltip-id="attendance-tooltip"
+            data-tooltip-html={content}
+            style={{
+              background: getColor(d.status),
+              animationDelay: `${index * 0.03}s`,
+            }}
+          >
+            <div className="day">{d.day}</div>
+            <div className="status">{d.status}</div>
+          </div>
+        );
+      })}
+    </div>
+
+    {/* GLOBAL STYLE */}
+    <style>{`
+      .attendance-card {
+        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.7);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        animation: fadeIn 0.5s ease;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .header h3 {
+        font-weight: bold;
+        background: linear-gradient(90deg,#2563eb,#9333ea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header input {
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+
+      .week-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #555;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 12px;
+      }
+
+      .calendar-item {
+        padding: 14px;
+        border-radius: 16px;
+        text-align: center;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        transform: translateY(20px);
+        opacity: 0;
+        animation: fadeUp 0.5s ease forwards;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        transition: all 0.25s ease;
+      }
+
+      .calendar-item:hover {
+        transform: scale(1.1) translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      }
+
+      .day {
+        font-size: 20px;
+      }
+
+      .status {
+        font-size: 11px;
+        opacity: 0.9;
+      }
+
+      /* animations */
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* loader */
+      .loader {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ddd;
+        border-top: 4px solid #2563eb;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .react-tooltip {
+        z-index: 9999 !important;
+      }
+    `}</style>
+  </div>
+);
 };
 
 export default MonthlyAttendance;

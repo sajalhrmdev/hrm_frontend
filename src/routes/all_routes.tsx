@@ -356,6 +356,7 @@ export const all_routes = {
   leaveadmin: "/leaves",
   leaveemployee: "/leaves-employee",
   leavesettings: "/leave-settings",
+  leavetype:"/leaveType",
   attendanceadmin: "/attendance-admin",
   attendanceemployee: "/attendance-employee",
   timesheet: "/timesheets",
