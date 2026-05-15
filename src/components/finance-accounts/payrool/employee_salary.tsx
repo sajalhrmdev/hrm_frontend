@@ -8,6 +8,9 @@ import { employee_salary_details } from "../../../core/data/json/employee_salary
 import CollapseHeader from "../../../core/common/collapse-header/collapse-header";
 import Link from "next/link";
 import { all_routes } from "@/routes/all_routes";
+import EmployeeSalaryAssign from "./EmployeeSalaryAssign";
+import PayrollRunPage from "./PayrollRunPage";
+import PayrollDetailsPage from "@/app/(pages)/(finance & accounts)/payroll/run/[id]/page";
 
 // Define a type for employee salary data
 interface EmployeeSalaryData {
@@ -182,533 +185,598 @@ const EmployeeSalaryComponent = () => {
 
   return (
     <>
-      {/* Page Wrapper */}
+      <div>
+        {/* Page Wrapper */}
+        <div className="page-wrapper">
+          <div className="content">
+            {/* Breadcrumb */}
+            <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
+              <div className="my-auto mb-2">
+                <h2 className="mb-1">Employee Salary</h2>
+                <nav>
+                  <ol className="breadcrumb mb-0">
+                    <li className="breadcrumb-item">
+                      <Link href={all_routes.adminDashboard}>
+                        <i className="ti ti-smart-home" />
+                      </Link>
+                    </li>
+                    <li className="breadcrumb-item">Payroll</li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                      Employee Salary
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+              <div className="d-flex my-xl-auto right-content align-items-center flex-wrap ">
+                <div className="me-2 mb-2">
+                  <div className="dropdown">
+                    <button
+                      type="button"
+                      className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                      data-bs-toggle="dropdown"
+                    >
+                      <i className="ti ti-file-export me-1" />
+                      Export
+                    </button>
+                    <ul className="dropdown-menu  dropdown-menu-end p-3">
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          <i className="ti ti-file-type-pdf me-1" />
+                          Export as PDF
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          <i className="ti ti-file-type-xls me-1" />
+                          Export as Excel{" "}
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mb-2">
+                  <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#new-employee-salary"
+                    className="btn btn-primary d-flex align-items-center"
+                  >
+                    <i className="ti ti-circle-plus me-2" />
+                    Add Salary
+                  </button>
+                </div>
+                <div className="head-icons ms-2">
+                  <CollapseHeader />
+                </div>
+              </div>
+            </div>
+            {/* /Breadcrumb */}
+            <div className="card">
+              <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
+                <h5>Employee Salary List</h5>
+                <div className="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
+                  <div className="me-3">
+                    <div className="input-icon position-relative">
+                      <PredefinedDateRanges />
+                    </div>
+                  </div>
+                  <div className="dropdown me-3">
+                    <button
+                      type="button"
+                      className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                      data-bs-toggle="dropdown"
+                    >
+                      Designation
+                    </button>
+                    <ul className="dropdown-menu  dropdown-menu-end p-3">
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Finance
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Developer
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Executive
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Manager
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                  <div className="dropdown">
+                    <button
+                      type="button"
+                      className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
+                      data-bs-toggle="dropdown"
+                    >
+                      Sort By : Last 7 Days
+                    </button>
+                    <ul className="dropdown-menu  dropdown-menu-end p-3">
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Recently Added
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Ascending
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Desending
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Last Month
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          className="dropdown-item rounded-1"
+                        >
+                          Last 7 Days
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className="card-body p-0">
+                <Table dataSource={data} columns={columns} Selection={true} />
+              </div>
+            </div>
+          </div>
+          <div className="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
+            <p className="mb-0">2014 - 2026 © SmartHR.</p>
+            <p>
+              Designed &amp; Developed By{" "}
+              <Link href="#" className="text-primary">
+                Dreams
+              </Link>
+            </p>
+          </div>
+        </div>
+        {/* /Page Wrapper */}
+        {/* Add Termination */}
+        <div className="modal fade" id="new-employee-salary">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Add Employee Salary</h4>
+                <button
+                  type="button"
+                  className="btn-close custom-btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <i className="ti ti-x" />
+                </button>
+              </div>
+              <form>
+                <div className="modal-body pb-0">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Employee Name&nbsp;
+                        </label>
+                        <CommonSelect
+                          className="select"
+                          options={employeeName}
+                          defaultValue={employeeName[0]}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Net Salary&nbsp;</label>
+                      <input type="text" className="form-control" />
+                    </div>
+                  </div>
+                  <div className="row earning-row">
+                    <div className="d-flex justify-content-between mb-3">
+                      <label className="form-label">Earnings</label>
+                      <Link href="#" className="add-earnings text-primary mb-2">
+                        <i className="ti ti-plus me-2" />
+                        Add New
+                      </Link>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Basic</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">DA(40%)</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">HRA(15%)</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Conveyance</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Allowance&nbsp;</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Medical Allowance</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Others</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row deduction-row">
+                    <div className="d-flex justify-content-between mb-3">
+                      <label className="form-label">Deductions</label>
+                      <Link
+                        href="#"
+                        className="add-deduction text-primary mb-2"
+                      >
+                        <i className="ti ti-plus me-2" />
+                        Add New
+                      </Link>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">TDS</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">ESI</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">PF</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Leave</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Prof.Tax</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Labour Welfare</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Others</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-white border me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    data-bs-dismiss="modal"
+                    className="btn btn-primary"
+                  >
+                    Add Employee Salary
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {/* /Add Termination */}
+        {/* Edit Termination */}
+        <div className="modal fade" id="edit-employee-salary">
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Edit Employee Salary</h4>
+                <button
+                  type="button"
+                  className="btn-close custom-btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <i className="ti ti-x" />
+                </button>
+              </div>
+              <form>
+                <div className="modal-body pb-0">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Employee Name&nbsp;
+                        </label>
+                        <CommonSelect
+                          className="select"
+                          options={employeeName}
+                          defaultValue={employeeName[1]}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Net Salary&nbsp;</label>
+                      <input type="text" className="form-control" />
+                    </div>
+                  </div>
+                  <div className="row earning-row">
+                    <div className="d-flex justify-content-between mb-3">
+                      <label className="form-label">Earnings</label>
+                      <Link href="#" className="add-earnings text-primary mb-2">
+                        <i className="ti ti-plus me-2" />
+                        Add New
+                      </Link>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Basic</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$40000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">DA(40%)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$16000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">HRA(15%)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$2666"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Conveyance</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$2000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Allowance&nbsp;</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$1000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Medical Allowance</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$2000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Others</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row deduction-row">
+                    <div className="d-flex justify-content-between mb-3">
+                      <label className="form-label">Deductions</label>
+                      <Link
+                        href="#"
+                        className="add-deduction text-primary mb-2"
+                      >
+                        <i className="ti ti-plus me-2" />
+                        Add New
+                      </Link>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">TDS</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$4000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">ESI</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$2000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">PF</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$3000"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Leave</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$1000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Prof.Tax</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$800"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Labour Welfare</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$500"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
+                      <div className="mb-3">
+                        <label className="form-label">Others</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          defaultValue="$100"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-white border me-2"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    data-bs-dismiss="modal"
+                    className="btn btn-primary"
+                  >
+                    Add Employee Salary
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {/* /Edit Termination */}
+      </div>
+
       <div className="page-wrapper">
         <div className="content">
-          {/* Breadcrumb */}
-          <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
-            <div className="my-auto mb-2">
-              <h2 className="mb-1">Employee Salary</h2>
-              <nav>
-                <ol className="breadcrumb mb-0">
-                  <li className="breadcrumb-item">
-                    <Link href={all_routes.adminDashboard}>
-                      <i className="ti ti-smart-home" />
-                    </Link>
-                  </li>
-                  <li className="breadcrumb-item">Payroll</li>
-                  <li className="breadcrumb-item active" aria-current="page">
-                    Employee Salary
-                  </li>
-                </ol>
-              </nav>
-            </div>
-            <div className="d-flex my-xl-auto right-content align-items-center flex-wrap ">
-              <div className="me-2 mb-2">
-                <div className="dropdown">
-                  <button
-                    type="button"
-                    className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown"
-                  >
-                    <i className="ti ti-file-export me-1" />
-                    Export
-                  </button>
-                  <ul className="dropdown-menu  dropdown-menu-end p-3">
-                    <li>
-                      <button
-                        type="button"
-                        className="dropdown-item rounded-1"
-                      >
-                        <i className="ti ti-file-type-pdf me-1" />
-                        Export as PDF
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        className="dropdown-item rounded-1"
-                      >
-                        <i className="ti ti-file-type-xls me-1" />
-                        Export as Excel{" "}
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div className="mb-2">
-                <button
-                  type="button"
-                  data-bs-toggle="modal"
-                  data-bs-target="#new-employee-salary"
-                  className="btn btn-primary d-flex align-items-center"
-                >
-                  <i className="ti ti-circle-plus me-2" />
-                  Add Salary
-                </button>
-              </div>
-              <div className="head-icons ms-2">
-                <CollapseHeader />
-              </div>
-            </div>
-          </div>
-          {/* /Breadcrumb */}
-          <div className="card">
-            <div className="card-header d-flex align-items-center justify-content-between flex-wrap row-gap-3">
-              <h5>Employee Salary List</h5>
-              <div className="d-flex my-xl-auto right-content align-items-center flex-wrap row-gap-3">
-                <div className="me-3">
-                  <div className="input-icon position-relative">
-                    <PredefinedDateRanges />
-                  </div>
-                </div>
-                <div className="dropdown me-3">
-                  <button
-                    type="button"
-                    className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown"
-                  >
-                    Designation
-                  </button>
-                  <ul className="dropdown-menu  dropdown-menu-end p-3">
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Finance
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Developer
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Executive
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Manager
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-                <div className="dropdown">
-                  <button
-                    type="button"
-                    className="dropdown-toggle btn btn-white d-inline-flex align-items-center"
-                    data-bs-toggle="dropdown"
-                  >
-                    Sort By : Last 7 Days
-                  </button>
-                  <ul className="dropdown-menu  dropdown-menu-end p-3">
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Recently Added
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Ascending
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Desending
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Last Month
-                      </button>
-                    </li>
-                    <li>
-                      <button type="button" className="dropdown-item rounded-1">
-                        Last 7 Days
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="card-body p-0">
-              <Table dataSource={data} columns={columns} Selection={true} />
-            </div>
-          </div>
-        </div>
-        <div className="footer d-sm-flex align-items-center justify-content-between border-top bg-white p-3">
-          <p className="mb-0">2014 - 2026 © SmartHR.</p>
-          <p>
-            Designed &amp; Developed By{" "}
-            <Link href="#" className="text-primary">
-              Dreams
-            </Link>
-          </p>
+          <EmployeeSalaryAssign />
         </div>
       </div>
-      {/* /Page Wrapper */}
-      {/* Add Termination */}
-      <div className="modal fade" id="new-employee-salary">
-        <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Add Employee Salary</h4>
-              <button
-                type="button"
-                className="btn-close custom-btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <i className="ti ti-x" />
-              </button>
-            </div>
-            <form>
-              <div className="modal-body pb-0">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Employee Name&nbsp;</label>
-                      <CommonSelect
-                        className="select"
-                        options={employeeName}
-                        defaultValue={employeeName[0]}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Net Salary&nbsp;</label>
-                    <input type="text" className="form-control" />
-                  </div>
-                </div>
-                <div className="row earning-row">
-                  <div className="d-flex justify-content-between mb-3">
-                    <label className="form-label">Earnings</label>
-                    <Link href="#" className="add-earnings text-primary mb-2">
-                      <i className="ti ti-plus me-2" />
-                      Add New
-                    </Link>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Basic</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">DA(40%)</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">HRA(15%)</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Conveyance</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Allowance&nbsp;</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Medical Allowance</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Others</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                </div>
-                <div className="row deduction-row">
-                  <div className="d-flex justify-content-between mb-3">
-                    <label className="form-label">Deductions</label>
-                    <Link href="#" className="add-deduction text-primary mb-2">
-                      <i className="ti ti-plus me-2" />
-                      Add New
-                    </Link>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">TDS</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">ESI</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">PF</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Leave</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Prof.Tax</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Labour Welfare</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Others</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-white border me-2"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
-                <button type="button" data-bs-dismiss="modal" className="btn btn-primary">
-                  Add Employee Salary
-                </button>
-              </div>
-            </form>
-          </div>
+
+      <div className="page-wrapper">
+        <div className="content">
+          <PayrollRunPage />
         </div>
       </div>
-      {/* /Add Termination */}
-      {/* Edit Termination */}
-      <div className="modal fade" id="edit-employee-salary">
-        <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit Employee Salary</h4>
-              <button
-                type="button"
-                className="btn-close custom-btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <i className="ti ti-x" />
-              </button>
-            </div>
-            <form>
-              <div className="modal-body pb-0">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Employee Name&nbsp;</label>
-                      <CommonSelect
-                        className="select"
-                        options={employeeName}
-                        defaultValue={employeeName[1]}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Net Salary&nbsp;</label>
-                    <input type="text" className="form-control" />
-                  </div>
-                </div>
-                <div className="row earning-row">
-                  <div className="d-flex justify-content-between mb-3">
-                    <label className="form-label">Earnings</label>
-                    <Link href="#" className="add-earnings text-primary mb-2">
-                      <i className="ti ti-plus me-2" />
-                      Add New
-                    </Link>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Basic</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$40000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">DA(40%)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$16000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">HRA(15%)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$2666"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Conveyance</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$2000"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Allowance&nbsp;</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$1000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Medical Allowance</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$2000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Others</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                </div>
-                <div className="row deduction-row">
-                  <div className="d-flex justify-content-between mb-3">
-                    <label className="form-label">Deductions</label>
-                    <Link href="#" className="add-deduction text-primary mb-2">
-                      <i className="ti ti-plus me-2" />
-                      Add New
-                    </Link>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">TDS</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$4000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">ESI</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$2000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">PF</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$3000"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Leave</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$1000"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Prof.Tax</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$800"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Labour Welfare</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$500"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-3">
-                    <div className="mb-3">
-                      <label className="form-label">Others</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        defaultValue="$100"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-white border me-2"
-                  data-bs-dismiss="modal"
-                >
-                  Cancel
-                </button>
-                <button type="button" data-bs-dismiss="modal" className="btn btn-primary">
-                  Add Employee Salary
-                </button>
-              </div>
-            </form>
-          </div>
+
+      {/* <div className="page-wrapper">
+        <div className="content">
+          <PayrollDetailsPage />
         </div>
-      </div>
-      {/* /Edit Termination */}
+      </div> */}
     </>
   );
 };

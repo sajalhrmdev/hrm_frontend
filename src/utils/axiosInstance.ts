@@ -4,7 +4,7 @@ const axiosInstance = axios.create({
   baseURL: "https://hrm-backend-dver.onrender.com/api/v1",
   // baseURL: "http://localhost:5000/api/v1",
 
-  timeout: 10000,
+  timeout: 60000,
 
  
 

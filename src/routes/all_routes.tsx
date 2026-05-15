@@ -1,3 +1,6 @@
+import { departments } from "@/core/data/json/departments";
+import { designation } from "@/core/data/json/designation";
+
 export const all_routes = {
   // dashboard routes
   adminDashboard: "/admin-dashboard",
@@ -347,12 +350,19 @@ export const all_routes = {
   activities: "/",
 
   //HRM
+  company: "/company",
+  employee: "/employee",
+  department: "/department",
+  designation: "/designation",
+  shift: "/shift",
   employeeList: "/employees",
   employeeGrid: "/employees-grid",
   departments: "/departments",
   designations: "/designations",
   policy: "/policy",
   holidays: "/hrm/holidays",
+  holidaysAdmin: "/hrm/holidays-admin",
+  weeklyOff: "/hrm/weekly-off",
   leaveadmin: "/leaves",
   leaveemployee: "/leaves-employee",
   leavesettings: "/leave-settings",
