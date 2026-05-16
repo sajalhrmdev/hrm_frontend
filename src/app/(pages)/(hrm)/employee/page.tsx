@@ -3,6 +3,7 @@
 // import React, { useEffect, useState } from "react";
 
 // import axiosInstance from "@/utils/axiosInstance";
+// import Link from "next/link";
 
 // type Employee = {
 //   id: number;
@@ -26,8 +27,7 @@
 
 //   department?: {
 //     id: number;
-
-// title: string;
+//     title: string;
 //   };
 
 //   designation?: {
@@ -41,16 +41,26 @@
 //   title: string;
 // };
 
+// type RoleOption = {
+//   id: number;
+//   name: string;
+// };
+// type shift = {
+//   id: number;
+//   title: string;
+// };
+
 // const EmployeePage = () => {
 //   const [loading, setLoading] = useState(false);
 
 //   const [employees, setEmployees] = useState<Employee[]>([]);
 
-//   const [roles, setRoles] = useState<Option[]>([]);
+//   const [roles, setRoles] = useState<RoleOption[]>([]);
 
 //   const [departments, setDepartments] = useState<Option[]>([]);
 
 //   const [designations, setDesignations] = useState<Option[]>([]);
+//   const [shifts, setShifts] = useState<Option[]>([]);
 
 //   const [showModal, setShowModal] = useState(false);
 
@@ -122,19 +132,36 @@
 
 //   const fetchDropdowns = async () => {
 //     try {
-//       const [roleRes, deptRes, desigRes] = await Promise.all([
+//       const [roleRes, deptRes] = await Promise.all([
 //         axiosInstance.get("/roles"),
 
 //         axiosInstance.get("/department"),
-
-//         axiosInstance.get("/designation"),
 //       ]);
 
 //       setRoles(roleRes?.data?.data || []);
 
-//       setDepartments(deptRes?.data?.data.departments || []);
+//       setDepartments(deptRes?.data?.data?.departments || []);
+//     } catch (err) {
+//       console.log(err);
+//     }
+//   };
 
-//       setDesignations(desigRes?.data?.data.designations || []);
+//   // ============================================
+//   // FETCH DESIGNATIONS
+//   // ============================================
+
+//   const fetchDesignationsByDepartment = async (departmentId: string) => {
+//     if (!departmentId) {
+//       setDesignations([]);
+//       return;
+//     }
+
+//     try {
+//       const res = await axiosInstance.get(
+//         `/designation/by-department/${departmentId}`,
+//       );
+
+//       setDesignations(res?.data?.data || []);
 //     } catch (err) {
 //       console.log(err);
 //     }
@@ -169,6 +196,28 @@
 //   ) => {
 //     const { name, value } = e.target;
 
+//     // ========================================
+//     // DEPARTMENT CHANGE
+//     // ========================================
+
+//     if (name === "departmentId") {
+//       fetchDesignationsByDepartment(value);
+
+//       setFormData((prev) => ({
+//         ...prev,
+
+//         departmentId: value,
+
+//         designationId: "",
+//       }));
+
+//       return;
+//     }
+
+//     // ========================================
+//     // NORMAL CHANGE
+//     // ========================================
+
 //     setFormData((prev) => ({
 //       ...prev,
 
@@ -201,6 +250,8 @@
 //       status: "ACTIVE",
 //     });
 
+//     setDesignations([]);
+
 //     setEditingEmployee(null);
 //   };
 
@@ -220,6 +271,14 @@
 
 //   const handleEdit = (employee: Employee) => {
 //     setEditingEmployee(employee);
+
+//     // ========================================
+//     // FETCH DESIGNATIONS
+//     // ========================================
+
+//     if (employee.department?.id) {
+//       fetchDesignationsByDepartment(employee.department.id.toString());
+//     }
 
 //     setFormData({
 //       name: employee.name,
@@ -408,8 +467,7 @@
 
 //                           <td>{item.department?.title}</td>
 
-//                           <td>{item.designation?.
-// title}</td>
+//                           <td>{item.designation?.title}</td>
 
 //                           <td>{item.role?.name}</td>
 
@@ -423,6 +481,13 @@
 
 //                           <td>
 //                             <div className="d-flex gap-2">
+//                               <Link
+//                                 href={`/profile/${item.id}`}
+//                                 className="btn btn-sm btn-primary"
+//                               >
+//                                 👁 View
+//                               </Link>
+
 //                               <button
 //                                 className="btn btn-sm btn-dark"
 //                                 onClick={() => handleEdit(item)}
@@ -445,32 +510,6 @@
 //                 </table>
 //               </div>
 //             )}
-//           </div>
-//         </div>
-
-//         {/* PAGINATION */}
-
-//         <div className="d-flex justify-content-between align-items-center mt-4">
-//           <div className="text-muted">Total: {pagination.total}</div>
-
-//           <div className="d-flex gap-2">
-//             <button
-//               className="btn btn-outline-dark"
-//               disabled={page === 1}
-//               onClick={() => setPage((prev) => prev - 1)}
-//             >
-//               Previous
-//             </button>
-
-//             <button className="btn btn-dark">{page}</button>
-
-//             <button
-//               className="btn btn-outline-dark"
-//               disabled={page === pagination.totalPages}
-//               onClick={() => setPage((prev) => prev + 1)}
-//             >
-//               Next
-//             </button>
 //           </div>
 //         </div>
 //       </div>
@@ -504,8 +543,6 @@
 //               <form onSubmit={handleSubmit}>
 //                 <div className="modal-body">
 //                   <div className="row g-3">
-//                     {/* NAME */}
-
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">Name</label>
 
@@ -518,8 +555,6 @@
 //                         required
 //                       />
 //                     </div>
-
-//                     {/* EMAIL */}
 
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">Email</label>
@@ -534,8 +569,6 @@
 //                       />
 //                     </div>
 
-//                     {/* PHONE */}
-
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">Phone</label>
 
@@ -547,8 +580,6 @@
 //                         onChange={handleChange}
 //                       />
 //                     </div>
-
-//                     {/* EMPLOYEE CODE */}
 
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">
@@ -668,8 +699,6 @@
 //                   </div>
 //                 </div>
 
-//                 {/* FOOTER */}
-
 //                 <div className="modal-footer">
 //                   <button
 //                     type="button"
@@ -694,12 +723,18 @@
 
 // export default EmployeePage;
 
+
+
 "use client";
 
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
 import Link from "next/link";
+
+// ============================================
+// TYPES
+// ============================================
 
 type Employee = {
   id: number;
@@ -730,6 +765,11 @@ type Employee = {
     id: number;
     title: string;
   };
+
+  shift?: {
+    id: number;
+    title: string;
+  };
 };
 
 type Option = {
@@ -752,6 +792,8 @@ const EmployeePage = () => {
   const [departments, setDepartments] = useState<Option[]>([]);
 
   const [designations, setDesignations] = useState<Option[]>([]);
+
+  const [shifts, setShifts] = useState<Option[]>([]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -785,6 +827,8 @@ const EmployeePage = () => {
     departmentId: "",
 
     designationId: "",
+
+    shiftId: "",
 
     employeeCode: "",
 
@@ -823,15 +867,19 @@ const EmployeePage = () => {
 
   const fetchDropdowns = async () => {
     try {
-      const [roleRes, deptRes] = await Promise.all([
+      const [roleRes, deptRes, shiftRes] = await Promise.all([
         axiosInstance.get("/roles"),
 
         axiosInstance.get("/department"),
+
+        axiosInstance.get("/shift"),
       ]);
 
       setRoles(roleRes?.data?.data || []);
 
       setDepartments(deptRes?.data?.data?.departments || []);
+
+      setShifts(shiftRes?.data?.data.shifts || []);
     } catch (err) {
       console.log(err);
     }
@@ -844,6 +892,7 @@ const EmployeePage = () => {
   const fetchDesignationsByDepartment = async (departmentId: string) => {
     if (!departmentId) {
       setDesignations([]);
+
       return;
     }
 
@@ -857,6 +906,10 @@ const EmployeePage = () => {
       console.log(err);
     }
   };
+
+  // ============================================
+  // EFFECTS
+  // ============================================
 
   useEffect(() => {
     fetchEmployees();
@@ -934,6 +987,8 @@ const EmployeePage = () => {
 
       designationId: "",
 
+      shiftId: "",
+
       employeeCode: "",
 
       joiningDate: "",
@@ -984,6 +1039,8 @@ const EmployeePage = () => {
 
       designationId: employee.designation?.id?.toString() || "",
 
+      shiftId: employee.shift?.id?.toString() || "",
+
       employeeCode: employee.employeeCode,
 
       joiningDate: employee.joiningDate
@@ -1016,6 +1073,8 @@ const EmployeePage = () => {
         designationId: formData.designationId
           ? Number(formData.designationId)
           : null,
+
+        shiftId: formData.shiftId ? Number(formData.shiftId) : null,
       };
 
       if (editingEmployee) {
@@ -1128,6 +1187,8 @@ const EmployeePage = () => {
 
                       <th>Designation</th>
 
+                      <th>Shift</th>
+
                       <th>Role</th>
 
                       <th>Status</th>
@@ -1139,7 +1200,7 @@ const EmployeePage = () => {
                   <tbody>
                     {employees.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-4">
+                        <td colSpan={9} className="text-center py-4">
                           No employees found
                         </td>
                       </tr>
@@ -1156,11 +1217,13 @@ const EmployeePage = () => {
 
                           <td>{item.employeeCode}</td>
 
-                          <td>{item.department?.title}</td>
+                          <td>{item.department?.title || "-"}</td>
 
-                          <td>{item.designation?.title}</td>
+                          <td>{item.designation?.title || "-"}</td>
 
-                          <td>{item.role?.name}</td>
+                          <td>{item.shift?.title || "-"}</td>
+
+                          <td>{item.role?.name || "-"}</td>
 
                           <td>
                             {item.status === "ACTIVE" ? (
@@ -1234,8 +1297,12 @@ const EmployeePage = () => {
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
                   <div className="row g-3">
+                    {/* NAME */}
+
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">Name</label>
+                      <label className="form-label fw-semibold">
+                        Name *
+                      </label>
 
                       <input
                         type="text"
@@ -1247,8 +1314,12 @@ const EmployeePage = () => {
                       />
                     </div>
 
+                    {/* EMAIL */}
+
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">Email</label>
+                      <label className="form-label fw-semibold">
+                        Email *
+                      </label>
 
                       <input
                         type="email"
@@ -1260,8 +1331,12 @@ const EmployeePage = () => {
                       />
                     </div>
 
+                    {/* PHONE */}
+
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">Phone</label>
+                      <label className="form-label fw-semibold">
+                        Phone
+                      </label>
 
                       <input
                         type="text"
@@ -1271,6 +1346,8 @@ const EmployeePage = () => {
                         onChange={handleChange}
                       />
                     </div>
+
+                    {/* EMPLOYEE CODE */}
 
                     <div className="col-md-6">
                       <label className="form-label fw-semibold">
@@ -1288,8 +1365,10 @@ const EmployeePage = () => {
 
                     {/* ROLE */}
 
-                    <div className="col-md-4">
-                      <label className="form-label fw-semibold">Role</label>
+                    <div className="col-md-3">
+                      <label className="form-label fw-semibold">
+                        Role
+                      </label>
 
                       <select
                         className="form-select"
@@ -1309,7 +1388,7 @@ const EmployeePage = () => {
 
                     {/* DEPARTMENT */}
 
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                       <label className="form-label fw-semibold">
                         Department
                       </label>
@@ -1332,7 +1411,7 @@ const EmployeePage = () => {
 
                     {/* DESIGNATION */}
 
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                       <label className="form-label fw-semibold">
                         Designation
                       </label>
@@ -1346,6 +1425,29 @@ const EmployeePage = () => {
                         <option value="">Select Designation</option>
 
                         {designations.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* SHIFT */}
+
+                    <div className="col-md-3">
+                      <label className="form-label fw-semibold">
+                        Shift
+                      </label>
+
+                      <select
+                        className="form-select"
+                        name="shiftId"
+                        value={formData.shiftId}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Shift</option>
+
+                        {shifts.map((item) => (
                           <option key={item.id} value={item.id}>
                             {item.title}
                           </option>
@@ -1373,7 +1475,9 @@ const EmployeePage = () => {
 
                     {editingEmployee && (
                       <div className="col-md-6">
-                        <label className="form-label fw-semibold">Status</label>
+                        <label className="form-label fw-semibold">
+                          Status
+                        </label>
 
                         <select
                           className="form-select"
@@ -1389,6 +1493,8 @@ const EmployeePage = () => {
                     )}
                   </div>
                 </div>
+
+                {/* FOOTER */}
 
                 <div className="modal-footer">
                   <button

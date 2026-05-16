@@ -1,5 +1,8 @@
+import { attendance, leaveType } from "@/core/common/selectoption/selectoption";
 import { departments } from "@/core/data/json/departments";
 import { designation } from "@/core/data/json/designation";
+import { leave } from "@/core/data/json/list_leaves";
+import { payroll } from "@/core/data/json/pay-roll";
 
 export const all_routes = {
   // dashboard routes
@@ -359,6 +362,14 @@ export const all_routes = {
   employeeGrid: "/employees-grid",
   departments: "/departments",
   designations: "/designations",
+  leaveApproval: "/leave-approval",
+  leaveBalance: "/leave-balance",
+  leaveTypes: "/leave-types",
+  salaryComponent: "/salary-component",
+  salaryAssign: "/salary-assign",
+  payroll: "/pay-roll",
+  leaves: "/my-leaves",
+  attendances: "/attendances",
   policy: "/policy",
   holidays: "/hrm/holidays",
   holidaysAdmin: "/hrm/holidays-admin",
