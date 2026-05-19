@@ -3,6 +3,7 @@ import { departments } from "@/core/data/json/departments";
 import { designation } from "@/core/data/json/designation";
 import { leave } from "@/core/data/json/list_leaves";
 import { payroll } from "@/core/data/json/pay-roll";
+import { permission } from "process";
 
 export const all_routes = {
   // dashboard routes
@@ -354,6 +355,7 @@ export const all_routes = {
 
   //HRM
   company: "/company",
+  permission:"/permission-page",
   employee: "/employee",
   department: "/department",
   designation: "/designation",
@@ -368,6 +370,8 @@ export const all_routes = {
   salaryComponent: "/salary-component",
   salaryAssign: "/salary-assign",
   payroll: "/pay-roll",
+  role: "/role-page",
+  rolePermissions:"/AssignRolePermissionsPage",
   leaves: "/my-leaves",
   attendances: "/attendances",
   policy: "/policy",
