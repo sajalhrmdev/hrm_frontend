@@ -1064,6 +1064,26 @@ import axiosInstance from "@/utils/axiosInstance";
 
 // ======================================================
 
+interface WeeklyOffPattern {
+  day: number;
+  weekNumber: number | null;
+  [key: string]: any;
+}
+
+interface FormDataType {
+  title: string;
+  description: string;
+  attendanceType: string;
+  requiredWorkMinutes: string | number;
+  enableOvertime: boolean;
+  overtimeAfterMinutes: string | number;
+  shiftId: string;
+  isActive: boolean;
+  weeklyOffPattern: WeeklyOffPattern[];
+}
+
+// ======================================================
+
 const days = [
   {
     label: "Sunday",
@@ -1141,7 +1161,7 @@ const WorkSchedulePolicyPage = () => {
 
   // ======================================================
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataType>({
     title: "",
     description: "",
 
