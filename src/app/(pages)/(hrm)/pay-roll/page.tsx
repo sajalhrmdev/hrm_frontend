@@ -613,6 +613,16 @@ const PayrollRunPage = () => {
                             <td>
                               <div className="d-flex gap-2">
                                 {/* GENERATE */}
+                                <button
+                                  className="btn btn-warning btn-sm"
+                                  onClick={() =>
+                                    router.push(
+                                      `/payroll/run/${item.id}/adjustments`,
+                                    )
+                                  }
+                                >
+                                  🎁 Adjustments
+                                </button>
 
                                 <button
                                   className="btn btn-success btn-sm"

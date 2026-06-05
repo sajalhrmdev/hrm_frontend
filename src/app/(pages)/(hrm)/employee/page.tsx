@@ -5,6 +5,10 @@
 // import axiosInstance from "@/utils/axiosInstance";
 // import Link from "next/link";
 
+// // ============================================
+// // TYPES
+// // ============================================
+
 // type Employee = {
 //   id: number;
 
@@ -34,6 +38,11 @@
 //     id: number;
 //     title: string;
 //   };
+
+//   shift?: {
+//     id: number;
+//     title: string;
+//   };
 // };
 
 // type Option = {
@@ -44,10 +53,6 @@
 // type RoleOption = {
 //   id: number;
 //   name: string;
-// };
-// type shift = {
-//   id: number;
-//   title: string;
 // };
 
 // const EmployeePage = () => {
@@ -60,6 +65,7 @@
 //   const [departments, setDepartments] = useState<Option[]>([]);
 
 //   const [designations, setDesignations] = useState<Option[]>([]);
+
 //   const [shifts, setShifts] = useState<Option[]>([]);
 
 //   const [showModal, setShowModal] = useState(false);
@@ -94,6 +100,8 @@
 //     departmentId: "",
 
 //     designationId: "",
+
+//     shiftId: "",
 
 //     employeeCode: "",
 
@@ -132,15 +140,19 @@
 
 //   const fetchDropdowns = async () => {
 //     try {
-//       const [roleRes, deptRes] = await Promise.all([
+//       const [roleRes, deptRes, shiftRes] = await Promise.all([
 //         axiosInstance.get("/roles"),
 
 //         axiosInstance.get("/department"),
+
+//         axiosInstance.get("/shift"),
 //       ]);
 
 //       setRoles(roleRes?.data?.data || []);
 
 //       setDepartments(deptRes?.data?.data?.departments || []);
+
+//       setShifts(shiftRes?.data?.data.shifts || []);
 //     } catch (err) {
 //       console.log(err);
 //     }
@@ -153,6 +165,7 @@
 //   const fetchDesignationsByDepartment = async (departmentId: string) => {
 //     if (!departmentId) {
 //       setDesignations([]);
+
 //       return;
 //     }
 
@@ -166,6 +179,10 @@
 //       console.log(err);
 //     }
 //   };
+
+//   // ============================================
+//   // EFFECTS
+//   // ============================================
 
 //   useEffect(() => {
 //     fetchEmployees();
@@ -243,6 +260,8 @@
 
 //       designationId: "",
 
+//       shiftId: "",
+
 //       employeeCode: "",
 
 //       joiningDate: "",
@@ -293,6 +312,8 @@
 
 //       designationId: employee.designation?.id?.toString() || "",
 
+//       shiftId: employee.shift?.id?.toString() || "",
+
 //       employeeCode: employee.employeeCode,
 
 //       joiningDate: employee.joiningDate
@@ -325,6 +346,8 @@
 //         designationId: formData.designationId
 //           ? Number(formData.designationId)
 //           : null,
+
+//         shiftId: formData.shiftId ? Number(formData.shiftId) : null,
 //       };
 
 //       if (editingEmployee) {
@@ -437,6 +460,8 @@
 
 //                       <th>Designation</th>
 
+//                       <th>Shift</th>
+
 //                       <th>Role</th>
 
 //                       <th>Status</th>
@@ -448,7 +473,7 @@
 //                   <tbody>
 //                     {employees.length === 0 ? (
 //                       <tr>
-//                         <td colSpan={8} className="text-center py-4">
+//                         <td colSpan={9} className="text-center py-4">
 //                           No employees found
 //                         </td>
 //                       </tr>
@@ -465,11 +490,13 @@
 
 //                           <td>{item.employeeCode}</td>
 
-//                           <td>{item.department?.title}</td>
+//                           <td>{item.department?.title || "-"}</td>
 
-//                           <td>{item.designation?.title}</td>
+//                           <td>{item.designation?.title || "-"}</td>
 
-//                           <td>{item.role?.name}</td>
+//                           <td>{item.shift?.title || "-"}</td>
+
+//                           <td>{item.role?.name || "-"}</td>
 
 //                           <td>
 //                             {item.status === "ACTIVE" ? (
@@ -543,8 +570,10 @@
 //               <form onSubmit={handleSubmit}>
 //                 <div className="modal-body">
 //                   <div className="row g-3">
+//                     {/* NAME */}
+
 //                     <div className="col-md-6">
-//                       <label className="form-label fw-semibold">Name</label>
+//                       <label className="form-label fw-semibold">Name *</label>
 
 //                       <input
 //                         type="text"
@@ -556,8 +585,10 @@
 //                       />
 //                     </div>
 
+//                     {/* EMAIL */}
+
 //                     <div className="col-md-6">
-//                       <label className="form-label fw-semibold">Email</label>
+//                       <label className="form-label fw-semibold">Email *</label>
 
 //                       <input
 //                         type="email"
@@ -568,6 +599,8 @@
 //                         required
 //                       />
 //                     </div>
+
+//                     {/* PHONE */}
 
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">Phone</label>
@@ -580,6 +613,8 @@
 //                         onChange={handleChange}
 //                       />
 //                     </div>
+
+//                     {/* EMPLOYEE CODE */}
 
 //                     <div className="col-md-6">
 //                       <label className="form-label fw-semibold">
@@ -597,7 +632,7 @@
 
 //                     {/* ROLE */}
 
-//                     <div className="col-md-4">
+//                     <div className="col-md-3">
 //                       <label className="form-label fw-semibold">Role</label>
 
 //                       <select
@@ -618,7 +653,7 @@
 
 //                     {/* DEPARTMENT */}
 
-//                     <div className="col-md-4">
+//                     <div className="col-md-3">
 //                       <label className="form-label fw-semibold">
 //                         Department
 //                       </label>
@@ -641,7 +676,7 @@
 
 //                     {/* DESIGNATION */}
 
-//                     <div className="col-md-4">
+//                     <div className="col-md-3">
 //                       <label className="form-label fw-semibold">
 //                         Designation
 //                       </label>
@@ -655,6 +690,27 @@
 //                         <option value="">Select Designation</option>
 
 //                         {designations.map((item) => (
+//                           <option key={item.id} value={item.id}>
+//                             {item.title}
+//                           </option>
+//                         ))}
+//                       </select>
+//                     </div>
+
+//                     {/* SHIFT */}
+
+//                     <div className="col-md-3">
+//                       <label className="form-label fw-semibold">Shift</label>
+
+//                       <select
+//                         className="form-select"
+//                         name="shiftId"
+//                         value={formData.shiftId}
+//                         onChange={handleChange}
+//                       >
+//                         <option value="">Select Shift</option>
+
+//                         {shifts.map((item) => (
 //                           <option key={item.id} value={item.id}>
 //                             {item.title}
 //                           </option>
@@ -699,6 +755,8 @@
 //                   </div>
 //                 </div>
 
+//                 {/* FOOTER */}
+
 //                 <div className="modal-footer">
 //                   <button
 //                     type="button"
@@ -723,10 +781,8 @@
 
 // export default EmployeePage;
 
-
-
 "use client";
-
+import { toast } from "react-toastify";
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
@@ -793,7 +849,6 @@ const EmployeePage = () => {
 
   const [designations, setDesignations] = useState<Option[]>([]);
 
-  const [shifts, setShifts] = useState<Option[]>([]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -817,24 +872,22 @@ const EmployeePage = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-
     email: "",
-
     phone: "",
 
     roleId: "",
 
     departmentId: "",
-
     designationId: "",
-
-    shiftId: "",
+   
 
     employeeCode: "",
-
     joiningDate: "",
 
     status: "ACTIVE",
+
+    createUser: false,
+    password: "",
   });
 
   // ============================================
@@ -867,19 +920,18 @@ const EmployeePage = () => {
 
   const fetchDropdowns = async () => {
     try {
-      const [roleRes, deptRes, shiftRes] = await Promise.all([
+      const [roleRes, deptRes ] = await Promise.all([
         axiosInstance.get("/roles"),
 
         axiosInstance.get("/department"),
 
-        axiosInstance.get("/shift"),
+       
       ]);
 
       setRoles(roleRes?.data?.data || []);
 
       setDepartments(deptRes?.data?.data?.departments || []);
 
-      setShifts(shiftRes?.data?.data.shifts || []);
     } catch (err) {
       console.log(err);
     }
@@ -976,28 +1028,25 @@ const EmployeePage = () => {
   const resetForm = () => {
     setFormData({
       name: "",
-
       email: "",
-
       phone: "",
 
       roleId: "",
 
       departmentId: "",
-
       designationId: "",
-
-      shiftId: "",
+   
 
       employeeCode: "",
-
       joiningDate: "",
 
       status: "ACTIVE",
+
+      createUser: false,
+      password: "",
     });
 
     setDesignations([]);
-
     setEditingEmployee(null);
   };
 
@@ -1039,7 +1088,6 @@ const EmployeePage = () => {
 
       designationId: employee.designation?.id?.toString() || "",
 
-      shiftId: employee.shift?.id?.toString() || "",
 
       employeeCode: employee.employeeCode,
 
@@ -1048,6 +1096,10 @@ const EmployeePage = () => {
         : "",
 
       status: employee.status,
+
+      createUser: false,
+
+      password: "",
     });
 
     setShowModal(true);
@@ -1064,7 +1116,10 @@ const EmployeePage = () => {
       const payload = {
         ...formData,
 
-        roleId: formData.roleId ? Number(formData.roleId) : null,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        status: formData.status,
 
         departmentId: formData.departmentId
           ? Number(formData.departmentId)
@@ -1074,9 +1129,32 @@ const EmployeePage = () => {
           ? Number(formData.designationId)
           : null,
 
-        shiftId: formData.shiftId ? Number(formData.shiftId) : null,
-      };
+        employeeCode: formData.employeeCode,
 
+        joiningDate: formData.joiningDate,
+
+        createUser: formData.createUser,
+
+        password: formData.password,
+
+        roleId: formData.roleId ? Number(formData.roleId) : null,
+      };
+      if (formData.createUser) {
+        if (!formData.email) {
+          toast.error("Email required");
+          return;
+        }
+
+        if (!formData.password) {
+          toast.error("Password required");
+          return;
+        }
+
+        if (!formData.roleId) {
+          toast.error("Role required");
+          return;
+        }
+      }
       if (editingEmployee) {
         await axiosInstance.put(`/employee/${editingEmployee.id}`, payload);
 
@@ -1187,7 +1265,6 @@ const EmployeePage = () => {
 
                       <th>Designation</th>
 
-                      <th>Shift</th>
 
                       <th>Role</th>
 
@@ -1221,7 +1298,6 @@ const EmployeePage = () => {
 
                           <td>{item.designation?.title || "-"}</td>
 
-                          <td>{item.shift?.title || "-"}</td>
 
                           <td>{item.role?.name || "-"}</td>
 
@@ -1300,9 +1376,7 @@ const EmployeePage = () => {
                     {/* NAME */}
 
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Name *
-                      </label>
+                      <label className="form-label fw-semibold">Name *</label>
 
                       <input
                         type="text"
@@ -1317,9 +1391,7 @@ const EmployeePage = () => {
                     {/* EMAIL */}
 
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Email *
-                      </label>
+                      <label className="form-label fw-semibold">Email *</label>
 
                       <input
                         type="email"
@@ -1334,9 +1406,7 @@ const EmployeePage = () => {
                     {/* PHONE */}
 
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Phone
-                      </label>
+                      <label className="form-label fw-semibold">Phone</label>
 
                       <input
                         type="text"
@@ -1365,10 +1435,8 @@ const EmployeePage = () => {
 
                     {/* ROLE */}
 
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Role
-                      </label>
+                    {/* <div className="col-md-3">
+                      <label className="form-label fw-semibold">Role</label>
 
                       <select
                         className="form-select"
@@ -1384,7 +1452,7 @@ const EmployeePage = () => {
                           </option>
                         ))}
                       </select>
-                    </div>
+                    </div> */}
 
                     {/* DEPARTMENT */}
 
@@ -1432,28 +1500,7 @@ const EmployeePage = () => {
                       </select>
                     </div>
 
-                    {/* SHIFT */}
-
-                    <div className="col-md-3">
-                      <label className="form-label fw-semibold">
-                        Shift
-                      </label>
-
-                      <select
-                        className="form-select"
-                        name="shiftId"
-                        value={formData.shiftId}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Shift</option>
-
-                        {shifts.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                
 
                     {/* JOINING DATE */}
 
@@ -1470,14 +1517,26 @@ const EmployeePage = () => {
                         onChange={handleChange}
                       />
                     </div>
+                    <div className="col-md-6">
+                      <label className="form-label">Status</label>
+
+                      <select
+                        className="form-select"
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+
+                        <option value="INACTIVE">INACTIVE</option>
+                      </select>
+                    </div>
 
                     {/* STATUS */}
 
                     {editingEmployee && (
                       <div className="col-md-6">
-                        <label className="form-label fw-semibold">
-                          Status
-                        </label>
+                        <label className="form-label fw-semibold">Status</label>
 
                         <select
                           className="form-select"
@@ -1490,6 +1549,75 @@ const EmployeePage = () => {
                           <option value="INACTIVE">INACTIVE</option>
                         </select>
                       </div>
+                    )}
+                    <div className="col-md-12">
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="createUser"
+                          checked={formData.createUser}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              createUser: e.target.checked,
+                            }))
+                          }
+                        />
+
+                        <label
+                          className="form-check-label fw-semibold"
+                          htmlFor="createUser"
+                        >
+                          Create Login User
+                        </label>
+                      </div>
+
+                      <small className="text-muted">
+                        Employee email will be used as login email
+                      </small>
+                    </div>
+                    {formData.createUser && (
+                      <>
+                        <div className="col-md-6">
+                          <label className="form-label">Login Password</label>
+
+                          <input
+                            type="password"
+                            className="form-control"
+                            value={formData.password}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                password: e.target.value,
+                              }))
+                            }
+                          />
+                        </div>
+
+                        <div className="col-md-6">
+                          <label className="form-label">Company Role</label>
+
+                          <select
+                            className="form-select"
+                            value={formData.roleId}
+                            onChange={(e) =>
+                              setFormData((prev) => ({
+                                ...prev,
+                                roleId: e.target.value,
+                              }))
+                            }
+                          >
+                            <option value="">Select Role</option>
+
+                            {roles.map((role: any) => (
+                              <option key={role.id} value={role.id}>
+                                {role.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>

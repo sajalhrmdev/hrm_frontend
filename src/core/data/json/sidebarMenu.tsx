@@ -19,10 +19,20 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-        {
+      {
         label: "Permission",
         link: routes.permission,
         base: routes.permission,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
+        {
+        label: "User Management",
+        link: routes.userManagement,
+        base: routes.userManagement,
         submenu: false,
         showSubRoute: false,
         icon: "calendar-event",
@@ -38,7 +48,73 @@ export const SidebarDataTest = [
     showAsTab: false,
     separateRoute: false,
     submenuItems: [
-      
+      {
+        label: "Attendance",
+        link: "attendances",
+        base: "attendances",
+        submenu: true,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [
+          {
+            label: "Attendance Dashboard",
+            link: routes.attendancesDashboard,
+            base: routes.attendancesDashboard,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
+          {
+            label: "Attendance Regularization",
+            link: routes.attendanceRegularization,
+            base: routes.attendanceRegularization,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
+          {
+            label: "Attendance Adjustment",
+            link: "sales",
+            submenu: true,
+            showSubRoute: false,
+            // icon: "file-time",
+            base: "sales",
+            materialicons: "track_changes",
+            submenuItems: [
+              {
+                label: "Processor",
+                link: routes.processor,
+                base: "processor",
+                customSubmenuTwo: false,
+              },
+              {
+                label: "Logs By Day",
+                link: routes.logByDay,
+                base: "adjustment-log",
+                customSubmenuTwo: false,
+              },
+              {
+                label: "Logs By Authorized",
+                // link: routes.logByDay,
+                base: "adjustment-log",
+                customSubmenuTwo: false,
+              },
+              {
+                label: "Logs By Employee",
+                // link: routes.logByDay,
+                base: "adjustment-log",
+                customSubmenuTwo: false,
+              },
+            ],
+          },
+        ],
+      },
+
       {
         label: "Employee",
         link: routes.employee,
@@ -49,13 +125,32 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-      {
+        {
+        label: "User",
+        link: routes.userManagement,
+        base: routes.userManagement,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
+       {
+        label: "HR",
+        link: "hr",
+        base: "hr",
+        submenu: true,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [
+ {
         label: "Department",
         link: routes.department,
         base: routes.department,
         submenu: false,
         showSubRoute: false,
-        icon: "calendar-event",
+        // icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
       },
@@ -65,10 +160,13 @@ export const SidebarDataTest = [
         base: routes.designation,
         submenu: false,
         showSubRoute: false,
-        icon: "calendar-event",
+        // icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
       },
+        ],
+      },
+     
       {
         label: "Shift",
         link: routes.shift,
@@ -79,76 +177,133 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
+      {
+        label: "Off",
+        link: "off",
+        base: "off",
+        submenu: true,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [
+          {
+            label: "Holidays",
+            link: routes.holidaysAdmin,
+            base: routes.holidaysAdmin,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
 
-      
+          {
+            label: "Weekly Off",
+            link: routes.weeklyOff,
+            base: routes.weeklyOff,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
+        ],
+      },
+
       {
-        label: "Holidays Admin",
-        link: routes.holidaysAdmin,
-        base: routes.holidaysAdmin,
-        submenu: false,
+        label: "Leave",
+        link: "leave",
+        base: "leave",
+        submenu: true,
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
-        submenuItems: [],
+        submenuItems: [
+          {
+            label: "Leave Approval",
+            link: routes.leaveApproval,
+            base: routes.leaveApproval,
+            customSubmenuTwo: false,
+            showSubRoute: false,
+            submenuItems: [],
+          },
+          {
+            label: "Leave Balance",
+            link: routes.leaveBalance,
+            base: routes.leaveBalance,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
+          {
+            label: "Leave Types",
+            link: routes.leaveTypes,
+            base: routes.leaveTypes,
+            submenu: false,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [],
+          },
+          {
+            label: "Leave Increment",
+            link: "leaveIncrement",
+            base: "leaveIncrement",
+            submenu: true,
+            showSubRoute: false,
+            // icon: "calendar-event",
+            materialicons: "confirmation_number",
+            submenuItems: [
+              {
+                label: "Processor",
+                link: routes.leaveIncrement,
+                base: routes.leaveIncrement,
+                customSubmenuTwo: false,
+              },
+              {
+                label: "Policy",
+                link: routes.leaveIncrementPolicy,
+                base: routes.leaveIncrementPolicy,
+                customSubmenuTwo: false,
+              },
+              {
+                label: "Logs",
+                link: routes.leaveIncrementLogs,
+                base: routes.leaveIncrementLogs,
+                customSubmenuTwo: false,
+              },
+            ],
+          },
+        ],
       },
-     
-      {
-        label: "Weekly Off",
-        link: routes.weeklyOff,
-        base: routes.weeklyOff,
-        submenu: false,
+  {
+        label: "Salary",
+        link: "salary",
+        base: "salary",
+        submenu: true,
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
-        submenuItems: [],
-      },
-      {
-        label: "Leave Approval",
-        link: routes.leaveApproval,
-        base: routes.leaveApproval,
-        submenu: false,
-        showSubRoute: false,
-        icon: "calendar-event",
-        materialicons: "confirmation_number",
-        submenuItems: [],
-      },
-      {
-        label: "Leave Balance",
-        link: routes.leaveBalance,
-        base: routes.leaveBalance,
-        submenu: false,
-        showSubRoute: false,
-        icon: "calendar-event",
-        materialicons: "confirmation_number",
-        submenuItems: [],
-      },
-       {
-        label: "Leave Types",
-        link: routes.leaveTypes,
-        base: routes.leaveTypes,
-        submenu: false,
-        showSubRoute: false,
-        icon: "calendar-event",
-        materialicons: "confirmation_number",
-        submenuItems: [],
-      },
-        {
+        submenuItems: [
+          {
         label: "Salary Component",
         link: routes.salaryComponent,
         base: routes.salaryComponent,
         submenu: false,
         showSubRoute: false,
-        icon: "calendar-event",
+        // icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-        {
+      {
         label: "Salary Assign",
         link: routes.salaryAssign,
         base: routes.salaryAssign,
         submenu: false,
         showSubRoute: false,
-        icon: "calendar-event",
+        // icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
       },
@@ -158,21 +313,15 @@ export const SidebarDataTest = [
         base: routes.payroll,
         submenu: false,
         showSubRoute: false,
-        icon: "calendar-event",
+        // icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-       {
-        label: "Attendances",
-        link: routes.attendances,
-        base: routes.attendances,
-        submenu: false,
-        showSubRoute: false,
-        icon: "calendar-event",
-        materialicons: "confirmation_number",
-        submenuItems: [],
+        ],
       },
-        {
+      
+
+      {
         label: "Role",
         link: routes.role,
         base: routes.role,
@@ -182,7 +331,7 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-       {
+      {
         label: "Assign Role Permissions",
         link: routes.rolePermissions,
         base: routes.rolePermissions,
@@ -192,18 +341,84 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-     
-     
-     
+      {
+        label: "Work Schedule",
+        link: "WokSchedule",
+        submenu: true,
+        showSubRoute: false,
+        icon: "file-time",
+        base: "WokSchedule",
+        materialicons: "track_changes",
+        submenuItems: [
+          {
+            label: "Schedule",
+            link: routes.schedule,
+            base: "schedeule",
+            customSubmenuTwo: false,
+          },
+          {
+            label: "Assign",
+            link: routes.workScheduleAssign,
+            base: "workScheduleAssign",
+            customSubmenuTwo: false,
+          },
+          {
+            label: "Work Schedule Policy",
+            link: routes.workSchedulePolicy,
+            base: "workSchedulePolicy",
+            customSubmenuTwo: false,
+          },
+        ],
+      },
+       {
+        label: "Notice Management",
+        link: routes.NoticeManagement,
+        base: routes.NoticeManagement,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
     ],
   },
-    {
+  {
     tittle: "HRM-Employee",
     icon: "file",
     showAsTab: false,
     separateRoute: false,
     submenuItems: [
-     {
+        {
+        label: "Notices",
+        link: routes.notices,
+        base: routes.notices,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
+      {
+        label: "Attendances",
+        link: routes.attendances,
+        base: routes.attendances,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
+      {
+        label: "Monthly Attendances",
+        link: routes.monthlyAttendances,
+        base: routes.monthlyAttendances,
+        submenu: false,
+        showSubRoute: false,
+        icon: "calendar-event",
+        materialicons: "confirmation_number",
+        submenuItems: [],
+      },
+      {
         label: "Holidays",
         link: routes.holidays,
         base: routes.holidays,
@@ -213,7 +428,7 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
-       {
+      {
         label: "Leaves",
         link: routes.leaves,
         base: routes.leaves,
@@ -226,13 +441,13 @@ export const SidebarDataTest = [
     ],
   },
 
-    {
+  {
     tittle: "HRM-Template",
     icon: "file",
     showAsTab: false,
     separateRoute: false,
     submenuItems: [
-       {
+      {
         label: "Attendance",
         link: "sales",
         submenu: true,
@@ -330,7 +545,7 @@ export const SidebarDataTest = [
           },
         ],
       },
-       {
+      {
         label: "Employees",
         link: routes.employeeList,
         submenu: true,
@@ -373,7 +588,7 @@ export const SidebarDataTest = [
           },
         ],
       },
-    {
+      {
         label: "Tickets",
         link: "ticketList",
         submenu: true,

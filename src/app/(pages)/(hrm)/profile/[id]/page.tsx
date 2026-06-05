@@ -10,6 +10,12 @@ import axiosInstance from "@/utils/axiosInstance";
 import PersonalInfoTab from "@/compo/PersonalInfoTab";
 import AddressTab from "@/compo/AddressTab";
 import DocumentTab from "@/compo/DocumentItem";
+import EmployeeBankDetailTab from "@/compo/EmployeeBankDetailTab";
+import EmployeeEmergencyContactTab from "@/compo/EmployeeEmergencyContactTab";
+import EmployeeSalaryTab from "@/compo/EmployeeSalaryTab";
+import EmployeePayrollTab from "@/compo/EmployeePayrollTab";
+import EmployeeLeaveTab from "@/compo/EmployeeLeaveTab";
+import EmployeeExperienceTab from "@/compo/EmployeeExperienceTab";
 
 type Employee = {
   id: number;
@@ -251,6 +257,34 @@ const EmployeeProfilePage = () => {
 
               <button
                 className={`btn ${
+                  activeTab === "emergency"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("emergency")}
+              >
+                Emergency Contact
+              </button>
+              <button
+                className={`btn ${
+                  activeTab === "salary" ? "btn-primary" : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("salary")}
+              >
+                Salary Structure
+              </button>
+              <button
+                className={`btn ${
+                  activeTab === "payroll"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("payroll")}
+              >
+                Payroll
+              </button>
+              <button
+                className={`btn ${
                   activeTab === "bank" ? "btn-primary" : "btn-outline-primary"
                 }`}
                 onClick={() => setActiveTab("bank")}
@@ -282,14 +316,25 @@ const EmployeeProfilePage = () => {
 
               <button
                 className={`btn ${
-                  activeTab === "payroll"
+                  activeTab === "leave"
                     ? "btn-primary"
                     : "btn-outline-primary"
                 }`}
-                onClick={() => setActiveTab("payroll")}
+                onClick={() => setActiveTab("leave")}
               >
-                Payroll
+               Leave
               </button>
+               <button
+                className={`btn ${
+                  activeTab === "experience"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("experience")}
+              >
+               Experience
+              </button>
+              
             </div>
 
             {/* ================================== */}
@@ -364,14 +409,27 @@ const EmployeeProfilePage = () => {
                 <AddressTab employeeId={employeeId} />
               </div>
             )}
+            {/* EMERGENCY */}
+            {activeTab === "emergency" && (
+              <div className="alert alert-warning">
+                {/* <AddressTab employeeId={employeeId} /> */}
+                <EmployeeEmergencyContactTab employeeId={employeeId} />
+              </div>
+            )}
+            {activeTab === "salary" && (
+              <EmployeeSalaryTab employeeId={employeeId} />
+            )}
 
+            {activeTab === "payroll" && (
+              <EmployeePayrollTab employeeId={employeeId} />
+            )}
             {/* ================================== */}
             {/* BANK */}
             {/* ================================== */}
 
             {activeTab === "bank" && (
               <div className="alert alert-warning">
-                🚀 Bank Module Coming Soon
+                <EmployeeBankDetailTab employeeId={employeeId} />
               </div>
             )}
 
@@ -394,16 +452,14 @@ const EmployeeProfilePage = () => {
                 🚀 Attendance Module Coming Soon
               </div>
             )}
-
-            {/* ================================== */}
-            {/* PAYROLL */}
-            {/* ================================== */}
-
-            {activeTab === "payroll" && (
-              <div className="alert alert-warning">
-                🚀 Payroll Module Coming Soon
-              </div>
+            {activeTab === "leave" && (
+              <EmployeeLeaveTab employeeId={employeeId}/>
             )}
+            {activeTab === "experience" && (
+              <EmployeeExperienceTab employeeId={employeeId}/>
+            )}
+
+            
           </div>
         </div>
       </div>

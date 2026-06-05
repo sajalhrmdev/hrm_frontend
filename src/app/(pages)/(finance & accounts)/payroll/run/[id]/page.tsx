@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 import { useParams } from "next/navigation";
 
@@ -43,6 +45,7 @@ type Payroll = {
 };
 
 const PayrollDetailsPage = () => {
+  const router = useRouter();
   const params = useParams();
 
   const id = params?.id;
@@ -186,6 +189,12 @@ const PayrollDetailsPage = () => {
               onClick={handleMarkAllPaid}
             >
               💵 Mark All Paid
+            </button>
+            <button
+              className="btn btn-info ms-2"
+              onClick={() => router.push(`/payroll/run/${id}/salary-sheet`)}
+            >
+              📄 View Salary Sheet
             </button>
           </div>
         </div>
