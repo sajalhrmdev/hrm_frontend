@@ -1,7 +1,3 @@
-
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -11,10 +7,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance"; // 🔥 import axios
 import axios from "axios";
+import { useAuth } from "@/providers/AuthContext";
 
 type PasswordField = "password";
 
 const Login2Component = () => {
+  const { loadAuth, user } = useAuth();
   const routes = all_routes;
   const navigation = useRouter();
 
@@ -45,14 +43,18 @@ const Login2Component = () => {
       setLoading(true);
 
       const res = await axiosInstance.post("/auth/login", formData);
-    localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.token);
+      await loadAuth(); // 🔥 loadAuth call to set user and permissions in context
       // 🔥 membership theke companyId set
       const memberships = res.data.user.memberships;
+      const userRole = res.data.user.globalRole;
 
-   
-
-      // 🔥 redirect
-      navigation.push(routes.attendanceemployee);
+      // 🔥 redirect based on user role from response (not context)
+      if (userRole === "SUPER_ADMIN") {
+        navigation.push(routes.company);
+      } else {
+        navigation.push(routes.attendanceemployee);
+      }
     } catch (err: any) {
       console.error(err);
       alert(err.response?.data?.message || "Login failed");
@@ -68,7 +70,10 @@ const Login2Component = () => {
           <div className="col-lg-5">
             <div className="d-lg-flex align-items-center justify-content-center d-none flex-wrap vh-100 bg-primary-transparent">
               <div>
-                <ImageWithBasePath src="assets/img/bg/authentication-bg-03.svg" alt="Authentication background" />
+                <ImageWithBasePath
+                  src="assets/img/bg/authentication-bg-03.svg"
+                  alt="Authentication background"
+                />
               </div>
             </div>
           </div>
@@ -76,10 +81,8 @@ const Login2Component = () => {
           <div className="col-lg-7 col-md-12 col-sm-12">
             <div className="row justify-content-center align-items-center vh-100 overflow-auto flex-wrap ">
               <div className="col-md-7 mx-auto vh-100">
-
                 <form className="vh-100" onSubmit={navigationPath}>
                   <div className="vh-100 d-flex flex-column justify-content-between p-4 pb-0">
-
                     <div className="mx-auto mb-5 text-center">
                       <ImageWithBasePath
                         src="assets/img/logo.svg"
@@ -122,9 +125,7 @@ const Login2Component = () => {
                         <div className="pass-group">
                           <input
                             type={
-                              passwordVisibility.password
-                                ? "text"
-                                : "password"
+                              passwordVisibility.password ? "text" : "password"
                             }
                             className="pass-input form-control"
                             required
@@ -142,9 +143,7 @@ const Login2Component = () => {
                                 ? "ti-eye"
                                 : "ti-eye-off"
                             }`}
-                            onClick={() =>
-                              togglePasswordVisibility("password")
-                            }
+                            onClick={() => togglePasswordVisibility("password")}
                           ></span>
                         </div>
                       </div>
@@ -173,10 +172,8 @@ const Login2Component = () => {
                     <div className="mt-5 pb-4 text-center">
                       <p>Copyright © 2026</p>
                     </div>
-
                   </div>
                 </form>
-
               </div>
             </div>
           </div>

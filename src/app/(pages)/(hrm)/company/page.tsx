@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { useAuth } from "@/providers/AuthContext";
+import { useRouter } from "next/navigation";
 
 type Company = {
   id: number;
@@ -25,6 +27,9 @@ type Company = {
 };
 
 const CompanyPage = () => {
+  const router = useRouter();
+
+  const { loadAuth ,user} = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -45,6 +50,25 @@ const CompanyPage = () => {
     limit: 10,
   });
 
+  const handleSwitchCompany = async (companyId: number) => {
+    try {
+      const res = await axiosInstance.post("/super-admin/switch-company", {
+        companyId,
+      });
+
+      localStorage.setItem("token", res.data.data.token);
+
+      await loadAuth();
+
+      alert("Company switched successfully");
+
+      router.push("/CompanyDailyAttendanceDashboard");
+    } catch (err: any) {
+      console.log(err);
+
+      alert(err?.response?.data?.message || "Failed to switch company");
+    }
+  };
   // ============================================
   // FORM
   // ============================================
@@ -342,7 +366,35 @@ const CompanyPage = () => {
                           </td>
 
                           <td>
-                            <div className="d-flex gap-2">
+                            {/* <div className="d-flex gap-2">
+                              <button
+                                className="btn btn-sm btn-dark"
+                                onClick={() => handleEdit(item)}
+                              >
+                                ✏ Edit
+                              </button>
+
+                              <button
+                                className="btn btn-sm btn-danger"
+                                onClick={() => handleDelete(item.id)}
+                              >
+                                🗑 Deactivate
+                              </button>
+                            </div> */}
+                            <div className="d-flex gap-2 flex-wrap">
+                              <button
+                                className={
+                                  user?.activeCompanyId === item.id
+                                    ? "btn btn-sm btn-primary"
+                                    : "btn btn-sm btn-success"
+                                }
+                                onClick={() => handleSwitchCompany(item.id)}
+                              >
+                                {user?.activeCompanyId === item.id
+                                  ? "✓ Active"
+                                  : "🔄 Switch"}
+                              </button>
+
                               <button
                                 className="btn btn-sm btn-dark"
                                 onClick={() => handleEdit(item)}

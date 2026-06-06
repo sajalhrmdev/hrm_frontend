@@ -1,4 +1,5 @@
-"use client"
+"use client";
+import axiosInstance from "@/utils/axiosInstance";
 import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext<any>(null);
@@ -7,15 +8,39 @@ export const AuthProvider = ({ children }: any) => {
   const [permissions, setPermissions] = useState<string[]>([]);
 
   const [user, setUser] = useState<any>(null);
+  const loadAuth = async () => {
+    try {
+      const res = await axiosInstance.get("/me");
+
+      setPermissions(res.data.permissions);
+
+      setUser(res.data.user);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const logout = () => {
+    console.log("🔴 LOGOUT called");
+    if (typeof window !== "undefined") {
+      console.log("📋 localStorage before:", localStorage.getItem("token"));
+      localStorage.removeItem("token");
+      console.log("📋 localStorage after:", localStorage.getItem("token"));
+    }
+
+    setUser(null);
+    setPermissions([]);
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         setUser,
-
         permissions,
         setPermissions,
+        loadAuth,
+        logout,
       }}
     >
       {children}

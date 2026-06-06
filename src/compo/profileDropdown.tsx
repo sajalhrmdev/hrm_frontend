@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
+import { useAuth } from "@/providers/AuthContext";
 
 interface User {
   name: string;
@@ -11,6 +13,8 @@ interface User {
 }
 
 const ProfileDropdown = ({ all_routes }: any) => {
+  const router = useRouter();
+  const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +35,15 @@ const ProfileDropdown = ({ all_routes }: any) => {
   useEffect(() => {
     fetchUser();
   }, []);
+
+  const handleLogout = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("🚀 handleLogout triggered");
+    e.preventDefault();
+    console.log("🔓 Calling logout()");
+    logout();
+    console.log("📍 Redirecting to login...");
+    router.push(all_routes.login2);
+  };
 
   // 🔥 loading state
   if (loading) {
@@ -65,10 +78,7 @@ const ProfileDropdown = ({ all_routes }: any) => {
           <div className="card-header">
             <div className="d-flex align-items-center">
               <span className="avatar avatar-lg me-2 avatar-rounded">
-                <img
-                  src={user.avatar || "/default-avatar.png"}
-                  alt="img"
-                />
+                <img src={user.avatar || "/default-avatar.png"} alt="img" />
               </span>
               <div>
                 <h5 className="mb-0">{user.name}</h5>
@@ -112,13 +122,14 @@ const ProfileDropdown = ({ all_routes }: any) => {
           </div>
 
           <div className="card-footer">
-            <Link
-              className="dropdown-item d-inline-flex align-items-center p-0 py-2"
-              href={all_routes.login2}
+            <button
+              type="button"
+              className="dropdown-item d-inline-flex align-items-center p-0 py-2 w-100 text-start border-0 bg-transparent"
+              onClick={handleLogout}
             >
               <i className="ti ti-login me-2" />
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </div>

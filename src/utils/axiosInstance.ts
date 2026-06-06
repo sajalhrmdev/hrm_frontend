@@ -37,7 +37,15 @@ axiosInstance.interceptors.response.use(
       localStorage.removeItem("token");
 
       if (typeof window !== "undefined") {
-        window.location.href = "/login-2";
+        try {
+          const current = window.location.pathname;
+          if (current !== "/login-2") {
+            window.location.href = "/login-2";
+          }
+        } catch (e) {
+          // Fallback: attempt redirect if anything unexpected happens
+          window.location.href = "/login-2";
+        }
       }
     }
 

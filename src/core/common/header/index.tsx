@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/providers/AuthContext";
 import { useAppDispatch, useAppSelector } from "@/core/data/redux/store";
 import {
   setDataLayout,
@@ -25,6 +27,8 @@ import ImageWithBasePath from "../imageWithBasePath";
 
 const Header = React.memo(() => {
   const routes = all_routes;
+  const router = useRouter();
+  const { logout } = useAuth();
   const dispatch = useAppDispatch();
   const dataLayout = useAppSelector((state) => state.themeSetting.dataLayout);
   const headerCollapse = useAppSelector(
@@ -34,6 +38,13 @@ const Header = React.memo(() => {
 
   const [subOpen, setSubopen] = useState<string>("");
   const [subsidebar, setSubsidebar] = useState<string>("");
+
+  // Handle logout
+  const handleLogout = useCallback(() => {
+    console.log("🔴 Header logout clicked");
+    logout();
+    router.push(routes.login2);
+  }, [logout, router, routes.login2]);
 
   // Toggle sidebar function with localStorage persistence
   const toggleSidebar = useCallback(
@@ -456,7 +467,10 @@ const Header = React.memo(() => {
                         <h4>Applications</h4>
                       </div>
                       <div className="card-body">
-                        <Link href={all_routes.calendar} className="d-block pb-2">
+                        <Link
+                          href={all_routes.calendar}
+                          className="d-block pb-2"
+                        >
                           <span className="avatar avatar-md bg-transparent-dark me-2">
                             <i className="ti ti-calendar text-gray-9" />
                           </span>
@@ -474,13 +488,19 @@ const Header = React.memo(() => {
                           </span>
                           Notes
                         </Link>
-                        <Link href={all_routes.fileManager} className="d-block py-2">
+                        <Link
+                          href={all_routes.fileManager}
+                          className="d-block py-2"
+                        >
                           <span className="avatar avatar-md bg-transparent-dark me-2">
                             <i className="ti ti-folder text-gray-9" />
                           </span>
                           File Manager
                         </Link>
-                        <Link href={all_routes.kanbanView} className="d-block py-2">
+                        <Link
+                          href={all_routes.kanbanView}
+                          className="d-block py-2"
+                        >
                           <span className="avatar avatar-md bg-transparent-dark me-2">
                             <i className="ti ti-layout-kanban text-gray-9" />
                           </span>
@@ -745,13 +765,14 @@ const Header = React.memo(() => {
                         </Link>
                       </div>
                       <div className="card-footer">
-                        <Link
-                          className="dropdown-item d-inline-flex align-items-center p-0 py-2"
-                          href={all_routes.login2}
+                        <button
+                          type="button"
+                          className="dropdown-item d-inline-flex align-items-center p-0 py-2 w-100 text-start border-0 bg-transparent"
+                          onClick={handleLogout}
                         >
                           <i className="ti ti-login me-2" />
                           Logout
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -777,9 +798,13 @@ const Header = React.memo(() => {
               <Link className="dropdown-item" href={all_routes.profilesettings}>
                 Settings
               </Link>
-              <Link className="dropdown-item" href={all_routes.login}>
+              <button
+                type="button"
+                className="dropdown-item w-100 text-start border-0 bg-transparent"
+                onClick={handleLogout}
+              >
                 Logout
-              </Link>
+              </button>
             </div>
           </div>
           {/* /Mobile Menu */}
