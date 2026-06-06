@@ -1209,13 +1209,18 @@ const WorkSchedulePolicyPage = () => {
       console.log(err);
     }
   };
-
+  const fetchme = async () => {
+    try {
+      const res = await axiosInstance.get("/me");
+    } catch (error) {}
+  };
   // ======================================================
 
   useEffect(() => {
     fetchPolicies();
 
     fetchShifts();
+    fetchme();
   }, []);
 
   // ======================================================

@@ -16,6 +16,8 @@ import "./globals.scss";
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import ThemeInitializer from "@/core/common/ThemeInitializer";
 import InitialLoader from "@/core/common/InitialLoader";
+import { AuthProvider } from "@/providers/AuthContext";
+import AuthInitializer from "@/authMe/AuthInitializer";
 
 export const metadata: Metadata = {
   title: "Smarthr Admin Template",
@@ -36,10 +38,13 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ReduxProvider>
-          <InitialLoader />
-          <ThemeInitializer />
-          {children}
-          <BootstrapJs />
+          <AuthProvider>
+            <AuthInitializer />
+            <InitialLoader />
+            <ThemeInitializer />
+            {children}
+            <BootstrapJs />
+          </AuthProvider>
         </ReduxProvider>
       </body>
     </html>

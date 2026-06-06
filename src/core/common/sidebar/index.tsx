@@ -13,7 +13,8 @@ import { all_routes } from "@/routes/all_routes";
 import ImageWithBasePath from "../imageWithBasePath";
 import { useDispatch } from "react-redux";
 import { setDataLayout } from "@/core/data/redux/themeSettingSlice";
-
+import { useAuth } from "@/providers/AuthContext";
+import { hasPermission } from "@/utils/permission";
 // Define flexible types for sidebar data
 interface SidebarMenuItem {
   label: string;
@@ -48,6 +49,7 @@ interface SidebarMainMenu {
 }
 
 const Sidebar = React.memo(() => {
+  const { user, permissions } = useAuth();
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -303,6 +305,41 @@ const Sidebar = React.memo(() => {
     }
   }, [pathname, findActiveParent, findActiveSubsidebar, findActiveSubThree]);
 
+  const filterMenuByPermission = (
+    items: any[],
+    permissions: string[],
+  ): any[] => {
+    return items
+      .map((item) => {
+        let filteredSubmenus = item.submenuItems
+          ? filterMenuByPermission(item.submenuItems, permissions)
+          : [];
+
+        const allowed = item.superAdminOnly
+          ? user?.globalRole === "SUPER_ADMIN"
+          : item.permission
+            ? permissions.includes("*") || permissions.includes(item.permission)
+            : true;
+
+        return {
+          ...item,
+
+          allowed,
+
+          submenuItems: filteredSubmenus,
+        };
+      })
+      .filter((item) => {
+        // নিজে allowed
+        if (item.allowed) return true;
+
+        // child allowed
+        if (item.submenuItems?.length > 0) return true;
+
+        return false;
+      });
+  };
+  const filteredSidebar = filterMenuByPermission(SidebarDataTest, permissions);
   return (
     <>
       <div
@@ -423,7 +460,7 @@ const Sidebar = React.memo(() => {
           <div className="sidebar-inner slimscroll">
             <div id="sidebar-menu" className="sidebar-menu">
               <ul>
-                {(SidebarDataTest as SidebarMainMenu[])?.map(
+                {(filteredSidebar as SidebarMainMenu[])?.map(
                   (mainMenu: SidebarMainMenu, index: number) => (
                     <React.Fragment key={`main-${index}`}>
                       <li className="menu-title">
@@ -452,7 +489,9 @@ const Sidebar = React.memo(() => {
                                 >
                                   {data?.target ? (
                                     <a
-                                      href={hasSubmenu ? "#" : data?.link || "#"}
+                                      href={
+                                        hasSubmenu ? "#" : data?.link || "#"
+                                      }
                                       target={data.target}
                                       onClick={(e) => {
                                         if (hasSubmenu) {
@@ -490,8 +529,10 @@ const Sidebar = React.memo(() => {
                                     </a>
                                   ) : (
                                     <Link
-                                      href={hasSubmenu ? "#" : data?.link || "#"}
-                                      onClick={(e:any) => {
+                                      href={
+                                        hasSubmenu ? "#" : data?.link || "#"
+                                      }
+                                      onClick={(e: any) => {
                                         if (hasSubmenu) {
                                           e.preventDefault();
                                           toggleSidebar(data?.label);
@@ -598,7 +639,7 @@ const Sidebar = React.memo(() => {
                                                       ? "#"
                                                       : item?.link || "#"
                                                   }
-                                                  onClick={(e:any) => {
+                                                  onClick={(e: any) => {
                                                     if (hasSubSubmenu) {
                                                       e.preventDefault();
                                                       toggleSubsidebar(
@@ -675,7 +716,9 @@ const Sidebar = React.memo(() => {
                                                                   : subItem?.link ||
                                                                     "#"
                                                               }
-                                                              target={subItem.target}
+                                                              target={
+                                                                subItem.target
+                                                              }
                                                               onClick={(e) => {
                                                                 if (
                                                                   hasSubSubSubmenu
@@ -708,7 +751,9 @@ const Sidebar = React.memo(() => {
                                                                   : subItem?.link ||
                                                                     "#"
                                                               }
-                                                              onClick={(e:any) => {
+                                                              onClick={(
+                                                                e: any,
+                                                              ) => {
                                                                 if (
                                                                   hasSubSubSubmenu
                                                                 ) {

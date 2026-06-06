@@ -1,4 +1,5 @@
 import { all_routes } from "@/routes/all_routes";
+import { permission } from "process";
 
 const routes = all_routes;
 
@@ -8,6 +9,7 @@ export const SidebarDataTest = [
     icon: "file",
     showAsTab: false,
     separateRoute: false,
+    superAdminOnly: true,
     submenuItems: [
       {
         label: "Company",
@@ -18,6 +20,7 @@ export const SidebarDataTest = [
         icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
+        superAdminOnly: true,
       },
       {
         label: "Permission",
@@ -28,6 +31,7 @@ export const SidebarDataTest = [
         icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
+        // superAdminOnly: true,
       },
         {
         label: "User Management",
@@ -38,6 +42,7 @@ export const SidebarDataTest = [
         icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
+        superAdminOnly: true,
       },
     ],
   },
@@ -56,6 +61,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
+        permission: "	Sidebar Attendance",
         submenuItems: [
           {
             label: "Attendance Dashboard",
@@ -66,6 +72,7 @@ export const SidebarDataTest = [
             // icon: "calendar-event",
             materialicons: "confirmation_number",
             submenuItems: [],
+            permission: "Attendance Dashboard",
           },
           {
             label: "Attendance Regularization",
@@ -124,6 +131,7 @@ export const SidebarDataTest = [
         icon: "calendar-event",
         materialicons: "confirmation_number",
         submenuItems: [],
+        permission: "Sidebar Employee"
       },
         {
         label: "User",
