@@ -12,6 +12,7 @@ import "../style/icon/ionic/ionicons.css";
 import "../style/icon/tabler-icons/webfont/tabler-icons.css";
 import "../style/css/feather.css";
 import "./globals.scss";
+import "antd/dist/reset.css";
 
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import ThemeInitializer from "@/core/common/ThemeInitializer";

@@ -29,7 +29,7 @@ type Company = {
 const CompanyPage = () => {
   const router = useRouter();
 
-  const { loadAuth ,user} = useAuth();
+  const { loadAuth, user } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -366,22 +366,17 @@ const CompanyPage = () => {
                           </td>
 
                           <td>
-                            {/* <div className="d-flex gap-2">
+                            <div className="d-flex gap-2 flex-wrap">
                               <button
-                                className="btn btn-sm btn-dark"
-                                onClick={() => handleEdit(item)}
+                               className="btn btn-sm btn-outline-primary"
+                                onClick={() =>
+                                  router.push(`/company/${item.id}/profile`)
+                                }
                               >
-                                ✏ Edit
+                                <i className="ri-eye-line me-1"></i>
+                                View
                               </button>
 
-                              <button
-                                className="btn btn-sm btn-danger"
-                                onClick={() => handleDelete(item.id)}
-                              >
-                                🗑 Deactivate
-                              </button>
-                            </div> */}
-                            <div className="d-flex gap-2 flex-wrap">
                               <button
                                 className={
                                   user?.activeCompanyId === item.id

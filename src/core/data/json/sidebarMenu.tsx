@@ -388,6 +388,35 @@ export const SidebarDataTest = [
         materialicons: "confirmation_number",
         submenuItems: [],
       },
+      {
+        label: "Settings",
+        link: "Settings",
+        submenu: true,
+        showSubRoute: false,
+        icon: "file-time",
+        base: "Settings",
+        materialicons: "track_changes",
+        submenuItems: [
+          {
+            label: "Company Settings",
+            link: routes.companySetting,
+            base: "companySettings",
+            customSubmenuTwo: false,
+          },
+          {
+            label: "Location",
+            link: routes.location,
+            base: "location",
+            customSubmenuTwo: false,
+          },
+          {
+            label: "Work Schedule Policy",
+            link: routes.workSchedulePolicy,
+            base: "workSchedulePolicy",
+            customSubmenuTwo: false,
+          },
+        ],
+      },
     ],
   },
   {

@@ -387,6 +387,8 @@ export const all_routes = {
   role: "/role-page",
   rolePermissions:"/AssignRolePermissionsPage",
   leaves: "/my-leaves",
+  companySetting:"/CompanySettings",
+  location: "/location",
   attendances: "/attendances",
   policy: "/policy",
   holidays: "/hrm/holidays",
