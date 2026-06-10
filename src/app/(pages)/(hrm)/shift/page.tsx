@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { attendance } from "@/core/common/selectoption/selectoption";
 
 type Shift = {
   id: number;
@@ -12,7 +13,7 @@ type Shift = {
   code?: string;
 
   description?: string;
-
+  attendanceMode: "MULTI" | "SINGLE";
   startTime: string;
 
   endTime: string;
@@ -24,7 +25,7 @@ type Shift = {
   lateAfterMinutes: number;
 
   halfDayAfterMinutes?: number;
-
+  enableOvertime: boolean;
   overtimeAfterMinutes: number;
 
   minimumWorkMinutes?: number;
@@ -69,7 +70,7 @@ const ShiftPage = () => {
     code: "",
 
     description: "",
-
+    attendanceMode: "MULTI",
     startTime: "",
 
     endTime: "",
@@ -81,7 +82,7 @@ const ShiftPage = () => {
     lateAfterMinutes: "",
 
     halfDayAfterMinutes: "",
-
+    enableOvertime: false,
     overtimeAfterMinutes: "",
 
     minimumWorkMinutes: "",
@@ -138,12 +139,12 @@ const ShiftPage = () => {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target as any;
 
     setFormData((prev) => ({
       ...prev,
 
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -158,7 +159,7 @@ const ShiftPage = () => {
       code: "",
 
       description: "",
-
+      attendanceMode: "MULTI",
       startTime: "",
 
       endTime: "",
@@ -170,7 +171,7 @@ const ShiftPage = () => {
       lateAfterMinutes: "",
 
       halfDayAfterMinutes: "",
-
+      enableOvertime: false,
       overtimeAfterMinutes: "",
 
       minimumWorkMinutes: "",
@@ -204,7 +205,7 @@ const ShiftPage = () => {
       code: shift.code || "",
 
       description: shift.description || "",
-
+      attendanceMode: shift.attendanceMode || "MULTI",
       startTime: shift.startTime,
 
       endTime: shift.endTime,
@@ -222,6 +223,7 @@ const ShiftPage = () => {
       minimumWorkMinutes: shift.minimumWorkMinutes?.toString() || "",
 
       status: shift.status,
+      enableOvertime: shift.enableOvertime || false,
     });
 
     setShowModal(true);
@@ -237,7 +239,7 @@ const ShiftPage = () => {
     try {
       const payload = {
         ...formData,
-
+        attendanceMode: formData.attendanceMode || "MULTI",
         breakMinutes: Number(formData.breakMinutes || 0),
 
         graceMinutes: Number(formData.graceMinutes || 0),
@@ -361,8 +363,8 @@ const ShiftPage = () => {
 
                       <th>Time</th>
 
-                      <th>Break</th>
-
+                      <th>Attendance Mode</th>
+                      <th>Enable Overtime</th>
                       <th>Grace</th>
 
                       <th>Late After</th>
@@ -399,8 +401,8 @@ const ShiftPage = () => {
                             </div>
                           </td>
 
-                          <td>{item.breakMinutes} mins</td>
-
+                          <td>{item.attendanceMode}</td>
+                          <td>{item.enableOvertime ? "Yes" : "No"}</td>
                           <td>{item.graceMinutes} mins</td>
 
                           <td>{item.lateAfterMinutes} mins</td>
@@ -505,10 +507,26 @@ const ShiftPage = () => {
                         onChange={handleChange}
                       />
                     </div>
+                    <div className="col-md-4">
+                      <label className="form-label fw-semibold">
+                        Attendance Mode
+                        <span className="text-danger ms-1">*</span>
+                      </label>
 
+                      <select
+                        className="form-control"
+                        name="attendanceMode"
+                        value={formData.attendanceMode}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="MULTI">Multi Attendance</option>
+                        <option value="SINGLE">Single Attendance</option>
+                      </select>
+                    </div>
                     {/* START TIME */}
 
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label fw-semibold">
                         Start Time
                         <span className="text-danger ms-1">*</span>
@@ -526,7 +544,7 @@ const ShiftPage = () => {
 
                     {/* END TIME */}
 
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label fw-semibold">
                         End Time
                         <span className="text-danger ms-1">*</span>
@@ -592,7 +610,7 @@ const ShiftPage = () => {
 
                     {/* HALF DAY */}
 
-                    <div className="col-md-6">
+                    <div className="col-md-4">
                       <label className="form-label fw-semibold">
                         Half Day After
                       </label>
@@ -607,20 +625,36 @@ const ShiftPage = () => {
                     </div>
 
                     {/* OT */}
-
-                    <div className="col-md-6">
+                    <div className="col-md-1">
                       <label className="form-label fw-semibold">
-                        Overtime After
+                        Enable Overtime
                       </label>
 
-                      <input
-                        type="number"
-                        className="form-control"
-                        name="overtimeAfterMinutes"
-                        value={formData.overtimeAfterMinutes}
-                        onChange={handleChange}
-                      />
+                      <div className="form-check">
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          name="enableOvertime"
+                          checked={formData.enableOvertime}
+                          onChange={handleChange}
+                        />
+                      </div>
                     </div>
+                    {formData.enableOvertime && (
+                      <div className="col-md-4">
+                        <label className="form-label fw-semibold">
+                          Overtime After
+                        </label>
+
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="overtimeAfterMinutes"
+                          value={formData.overtimeAfterMinutes}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    )}
 
                     {/* MIN WORK */}
 
