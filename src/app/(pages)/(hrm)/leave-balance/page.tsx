@@ -111,7 +111,7 @@ const LeaveAllocationPage = () => {
     try {
       setTableLoading(true);
 
-      const res = await axiosInstance.get("/leave/balances");
+      const res = await axiosInstance.get("/leave/balance");
 
       setBalances(res?.data?.data || []);
     } catch (err) {

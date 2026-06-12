@@ -38,6 +38,14 @@ type PayrollData = {
 
     employeeCode: string;
   };
+  leaveSummary: {
+  leaveTypeId: number;
+  leaveTypeName: string;
+  leaveTypeCode: string;
+  totalDays: number;
+  paidDays: number;
+  unpaidDays: number;
+}[];
 
   payrollRun: {
     id: number;
@@ -134,7 +142,7 @@ const PayrollSlipPage = () => {
     if (data) {
       setTimeout(() => {
         window.print();
-      }, 500);
+      }, 300);
     }
   }, [data]);
 
@@ -386,7 +394,7 @@ const PayrollSlipPage = () => {
 
       {/* ATTENDANCE SUMMARY */}
 
-      <div className="mb-4">
+      <div className="mb-1">
         <h6
           className="fw-bold mb-2"
           style={{
@@ -475,11 +483,84 @@ const PayrollSlipPage = () => {
         </div>
       </div> */}
 
+
+
+{/* LEAVE SUMMARY */}
+
+{data.leaveSummary?.length > 0 ? (
+  <div className="mb-2">
+    <h6
+      className="fw-bold mb-2"
+      style={{
+        borderBottom: "2px solid #000",
+        paddingBottom: "5px",
+      }}
+    >
+      Leave Summary
+    </h6>
+
+    <table
+      className="table table-bordered text-center mb-0"
+      style={{
+        borderColor: "#000",
+        fontSize: "13px",
+      }}
+    >
+      <thead
+        style={{
+          background: "#000",
+          color: "#fff",
+        }}
+      >
+        <tr>
+          {/* <th>Leave Code</th> */}
+          <th>Leave Type</th>
+          <th>Total Days</th>
+          {/* <th>Paid Days</th> */}
+          {/* <th>Unpaid Days</th> */}
+        </tr>
+      </thead>
+
+      <tbody>
+        {data?.leaveSummary?.map(
+          (leave, index) => (
+            <tr key={index}>
+              {/* <td>
+                {leave.leaveTypeCode}
+              </td> */}
+
+              <td>
+                {leave.leaveTypeName}
+              </td>
+
+              <td>
+                {leave.totalDays}
+              </td>
+
+              {/* <td>
+                {leave.paidDays}
+              </td> */}
+
+              {/* <td>
+                {leave.unpaidDays}
+              </td> */}
+            </tr>
+          )
+        )}
+      </tbody>
+    </table>
+  </div>
+) :<div
+      className="text-center py-3"
+      style={{
+        border: "1px solid #000",
+      }}
+    >
+      No leave has been taken during this payroll period
+    </div>}
       {/* FOOTER */}
 
-      <div className="mt-5 text-center small text-muted">
-        This is a computer generated payslip.
-      </div>
+      
 
       {/* PRINT CSS */}
 

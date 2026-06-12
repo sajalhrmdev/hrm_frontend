@@ -58,7 +58,6 @@ const LeaveApprovalTable: React.FC = () => {
       fetchLeaves();
     } catch (err: any) {
       console.log(err);
-
       alert(err?.response?.data?.message || "Approve failed");
     }
   };
@@ -81,6 +80,43 @@ const LeaveApprovalTable: React.FC = () => {
       alert(err?.response?.data?.message || "Reject failed");
     }
   };
+  const handleCancelApproval = async (
+  id: number
+) => {
+
+  const confirmCancel =
+    window.confirm(
+      "Cancel leave approval?"
+    );
+
+  if (!confirmCancel) {
+    return;
+  }
+
+  try {
+
+    await axiosInstance.patch(
+      `/leave/cancel-approval/${id}`
+    );
+
+    alert(
+      "Approval cancelled"
+    );
+
+    fetchLeaves();
+
+  } catch (err: any) {
+
+    console.log(err);
+
+    alert(
+      err?.response?.data?.message ||
+      "Cancel failed"
+    );
+
+  }
+
+};
 
   // 🎨 status badge
   const getStatusStyle = (status: string): React.CSSProperties => {
@@ -182,7 +218,7 @@ const LeaveApprovalTable: React.FC = () => {
                       <td>{item.reason || "-"}</td>
 
                       {/* ACTIONS */}
-                      <td>
+                      {/* <td>
                         {item.status === "PENDING" ? (
                           <div className="action-row">
                             <button
@@ -198,6 +234,7 @@ const LeaveApprovalTable: React.FC = () => {
                             >
                               ❌ Reject
                             </button>
+                
                           </div>
                         ) : (
                           <span
@@ -207,6 +244,45 @@ const LeaveApprovalTable: React.FC = () => {
                             }}
                           >
                             Action completed
+                          </span>
+                        )}
+                      </td> */}
+                      <td>
+                        {item.status === "PENDING" && (
+                          <div className="action-row">
+                            <button
+                              className="approve-btn"
+                              onClick={() => handleApprove(item.id)}
+                            >
+                              ✅ Approve
+                            </button>
+
+                            <button
+                              className="reject-btn"
+                              onClick={() => handleReject(item.id)}
+                            >
+                              ❌ Reject
+                            </button>
+                          </div>
+                        )}
+
+                        {item.status === "APPROVED" && (
+                          <button
+                            className="btn btn-warning btn-sm"
+                            onClick={() => handleCancelApproval(item.id)}
+                          >
+                            ↩ Cancel Approval
+                          </button>
+                        )}
+
+                        {item.status === "REJECTED" && (
+                          <span
+                            style={{
+                              color: "#888",
+                              fontSize: "13px",
+                            }}
+                          >
+                            Rejected
                           </span>
                         )}
                       </td>
