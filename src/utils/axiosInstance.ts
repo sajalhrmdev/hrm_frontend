@@ -1,8 +1,9 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://hrm-backend-dver.onrender.com/api/v1",
-  // baseURL: "http://localhost:5000/api/v1",
+  // baseURL: "https://hrm-backend-dver.onrender.com/api/v1",
+  baseURL: "http://localhost:5000/api/v1",
+  // baseURL: "https://2gvbh86w-5000.inc1.devtunnels.ms/api/v1",
 
   timeout: 60000,
 

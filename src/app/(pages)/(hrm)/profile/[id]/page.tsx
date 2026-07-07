@@ -16,6 +16,7 @@ import EmployeeSalaryTab from "@/compo/EmployeeSalaryTab";
 import EmployeePayrollTab from "@/compo/EmployeePayrollTab";
 import EmployeeLeaveTab from "@/compo/EmployeeLeaveTab";
 import EmployeeExperienceTab from "@/compo/EmployeeExperienceTab";
+import EmployeeFaceRegister from "@/compo/EmployeeFaceRegister";
 
 type Employee = {
   id: number;
@@ -243,7 +244,16 @@ const EmployeeProfilePage = () => {
               >
                 Personal Info
               </button>
-
+              <button
+                className={`btn ${
+                  activeTab === "face-register"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("face-register")}
+              >
+                Face Register
+              </button>
               <button
                 className={`btn ${
                   activeTab === "address"
@@ -316,15 +326,13 @@ const EmployeeProfilePage = () => {
 
               <button
                 className={`btn ${
-                  activeTab === "leave"
-                    ? "btn-primary"
-                    : "btn-outline-primary"
+                  activeTab === "leave" ? "btn-primary" : "btn-outline-primary"
                 }`}
                 onClick={() => setActiveTab("leave")}
               >
-               Leave
+                Leave
               </button>
-               <button
+              <button
                 className={`btn ${
                   activeTab === "experience"
                     ? "btn-primary"
@@ -332,9 +340,8 @@ const EmployeeProfilePage = () => {
                 }`}
                 onClick={() => setActiveTab("experience")}
               >
-               Experience
+                Experience
               </button>
-              
             </div>
 
             {/* ================================== */}
@@ -399,7 +406,12 @@ const EmployeeProfilePage = () => {
                 <PersonalInfoTab employeeId={employeeId} />
               </div>
             )}
-
+            {/* Face register======================= */}
+            {activeTab === "face-register" && (
+              <div className="alert alert-info">
+                <EmployeeFaceRegister employeeId={employeeId} />
+              </div>
+            )}
             {/* ================================== */}
             {/* ADDRESS */}
             {/* ================================== */}
@@ -453,13 +465,11 @@ const EmployeeProfilePage = () => {
               </div>
             )}
             {activeTab === "leave" && (
-              <EmployeeLeaveTab employeeId={employeeId}/>
+              <EmployeeLeaveTab employeeId={employeeId} />
             )}
             {activeTab === "experience" && (
-              <EmployeeExperienceTab employeeId={employeeId}/>
+              <EmployeeExperienceTab employeeId={employeeId} />
             )}
-
-            
           </div>
         </div>
       </div>

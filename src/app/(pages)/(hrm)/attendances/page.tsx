@@ -1,99 +1,196 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { useFakeProgress } from "@/hooks/useFakeProgress";
 import { Tooltip } from "react-tooltip";
-import MonthlyAttendance from "@/compo/MonthlyAttendance";
+import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs-backend-webgl";
+import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
+import Webcam from "react-webcam";
 
+type FacePoint = { x: number; y: number };
+
+const LEFT_EYE = [362, 385, 387, 263, 373, 380];
+const RIGHT_EYE = [33, 160, 158, 133, 153, 144];
 
 const Attendance = () => {
-  const [showMonthly, setShowMonthly] = useState(false);
+  const webcamRef = useRef<Webcam>(null);
+  const detectorRef =
+    useRef<faceLandmarksDetection.FaceLandmarksDetector | null>(null);
 
+  const eyeClosedRef = useRef(false);
+  const blinkVerifiedRef = useRef(false);
+  const submitTriggeredRef = useRef(false);
+  const closedFramesRef = useRef(0);
+
+  const [attendanceMode, setAttendanceMode] = useState(false);
+  const [eyeClosed, setEyeClosed] = useState(false);
+  const [blinkVerified, setBlinkVerified] = useState(false);
+  const [instruction, setInstruction] = useState("Face camera to continue");
   const [time, setTime] = useState(new Date());
-
   const [loading, setLoading] = useState(false);
-
   const [attendance, setAttendance] = useState<any>(null);
+  const [addresses, setAddresses] = useState<{ [key: number]: string }>({});
+  const [nextAction, setNextAction] = useState<"CHECK_IN" | "CHECK_OUT">(
+    "CHECK_IN",
+  );
 
-  const [addresses, setAddresses] = useState<{
-    [key: number]: string;
-  }>({});
+  const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY;
 
-  // ✅ backend driven
-  const [nextAction, setNextAction] = useState<
-    "CHECK_IN" | "CHECK_OUT"
-  >("CHECK_IN");
+  const distance = (a: FacePoint, b: FacePoint) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
 
-  // ============================================
-  // LOCATION
-  // ============================================
+  const eyeAspectRatio = (eye: FacePoint[]) => {
+    const vertical1 = distance(eye[1], eye[5]);
+    const vertical2 = distance(eye[2], eye[4]);
+    const horizontal = distance(eye[0], eye[3]);
 
-  const getLocation = async () => {
-    const pos = await new Promise<GeolocationPosition>(
-      (resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-        ),
-    );
-
-    return {
-      latitude: pos.coords.latitude,
-
-      longitude: pos.coords.longitude,
-
-      accuracy: pos.coords.accuracy,
-    };
+    if (!horizontal) return 0;
+    return (vertical1 + vertical2) / (2 * horizontal);
   };
 
-  // ============================================
-  // ADDRESS
-  // ============================================
+  const getLocation = async () => {
+    return await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject);
+    }).then((pos) => ({
+      latitude: pos.coords.latitude,
+      longitude: pos.coords.longitude,
+      accuracy: pos.coords.accuracy,
+    }));
+  };
 
-  const getAddress = async (
-    lat: number,
-    lng: number,
-  ) => {
+  const getAddress = async (lat: number, lng: number) => {
+    if (!googleMapsKey) return "Unknown";
+
     const res = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyBc19C3Weqk97CdYInTUlLlbwBN_MqjLI8`,
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${googleMapsKey}`,
     );
 
     const data = await res.json();
-
-    return (
-      data.results?.[0]?.formatted_address ||
-      "Unknown"
-    );
+    return data.results?.[0]?.formatted_address || "Unknown";
   };
-
-  // ============================================
-  // FETCH TODAY ATTENDANCE
-  // ============================================
 
   const fetchTodayAttendance = async () => {
     try {
-      const res =
-        await axiosInstance.get(
-          `/attendance/today`,
-        );
-
-      setAttendance(
-        res.data.data || null,
-      );
-
-      setNextAction(
-        res.data.nextAction ||
-          "CHECK_IN",
-      );
+      const res = await axiosInstance.get(`/attendance/today`);
+      setAttendance(res.data.data || null);
+      setNextAction(res.data.nextAction || "CHECK_IN");
     } catch (err) {
       console.error(err);
     }
   };
 
-  // ============================================
-  // CLOCK + FETCH
-  // ============================================
+  const resetBlinkState = () => {
+    eyeClosedRef.current = false;
+    blinkVerifiedRef.current = false;
+    submitTriggeredRef.current = false;
+    closedFramesRef.current = 0;
+
+    setEyeClosed(false);
+    setBlinkVerified(false);
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      await tf.setBackend("webgl");
+      await tf.ready();
+
+      const detector = await faceLandmarksDetection.createDetector(
+        faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
+        {
+          runtime: "tfjs",
+          maxFaces: 1,
+          refineLandmarks: true,
+        },
+      );
+
+      detectorRef.current = detector;
+    };
+
+    init();
+
+    return () => {
+      detectorRef.current?.dispose?.();
+      detectorRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!attendanceMode) return;
+
+    const interval = setInterval(async () => {
+      try {
+        if (!webcamRef.current || !detectorRef.current) return;
+        if (blinkVerifiedRef.current || submitTriggeredRef.current) return;
+
+        const video = webcamRef.current.video as HTMLVideoElement | null;
+        if (!video || video.readyState < 2) return;
+
+        const faces = await detectorRef.current.estimateFaces(video);
+
+        if (!faces.length) {
+          setInstruction("Look at camera");
+          return;
+        }
+
+        setInstruction("Please blink your eyes");
+
+        const points = faces[0].keypoints as FacePoint[];
+
+        const leftEye = LEFT_EYE.map((i) => points[i]).filter(Boolean);
+        const rightEye = RIGHT_EYE.map((i) => points[i]).filter(Boolean);
+
+        if (leftEye.length !== 6 || rightEye.length !== 6) return;
+
+        const leftEAR = eyeAspectRatio(leftEye);
+        const rightEAR = eyeAspectRatio(rightEye);
+        const ear = (leftEAR + rightEAR) / 2;
+
+        const CLOSED_THRESHOLD = 0.26;
+        const OPEN_THRESHOLD = 0.3;
+
+        if (!eyeClosedRef.current && ear < CLOSED_THRESHOLD) {
+          closedFramesRef.current = 1;
+          eyeClosedRef.current = true;
+          setEyeClosed(true);
+        }
+
+        if (
+          eyeClosedRef.current &&
+          closedFramesRef.current >= 1 &&
+          ear > OPEN_THRESHOLD
+        ) {
+          blinkVerifiedRef.current = true;
+          setBlinkVerified(true);
+          setInstruction("Verifying...");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [attendanceMode, blinkVerified]);
+
+  useEffect(() => {
+    if (
+      !attendanceMode ||
+      !blinkVerified ||
+      loading ||
+      submitTriggeredRef.current
+    ) {
+      return;
+    }
+
+    submitTriggeredRef.current = true;
+
+    const timer = setTimeout(() => {
+      handleAttendance();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [attendanceMode, blinkVerified, loading]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -102,71 +199,84 @@ const Attendance = () => {
 
     fetchTodayAttendance();
 
-    getLocation();
-
-    return () =>
-      clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
-  // ============================================
-  // ATTENDANCE ACTION
-  // ============================================
+  const handleAttendance = async () => {
+    if (loading) return;
 
-  const handleAttendance =
-    async () => {
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        const {
-          latitude,
-          longitude,
-          accuracy,
-        } = await getLocation();
-
-        const endpoint =
-          nextAction ===
-          "CHECK_IN"
-            ? "/attendance/check-in"
-            : "/attendance/check-out";
-
-        await axiosInstance.post(
-          endpoint,
-          {
-            latitude,
-            longitude,
-            accuracy,
-          },
-        );
-
-        await fetchTodayAttendance();
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (!blinkVerifiedRef.current) {
+        throw new Error("Please blink your eyes first");
       }
-    };
 
-  // ============================================
-  // FORMAT
-  // ============================================
+      if (!webcamRef.current) {
+        throw new Error("Camera not ready");
+      }
+
+      const imageSrc = webcamRef.current.getScreenshot();
+
+      if (!imageSrc) {
+        throw new Error("Failed to capture image");
+      }
+
+      const imageResponse = await fetch(imageSrc);
+      const blob = await imageResponse.blob();
+      const { latitude, longitude, accuracy } = await getLocation();
+
+      const formData = new FormData();
+      formData.append("image", blob, "attendance.jpg");
+      formData.append("latitude", String(latitude));
+      formData.append("longitude", String(longitude));
+      formData.append("accuracy", String(accuracy));
+
+      const endpoint =
+        nextAction === "CHECK_IN"
+          ? "/attendance/check-in"
+          : "/attendance/check-out";
+
+      await axiosInstance.post(endpoint, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      closedFramesRef.current = 0;
+      eyeClosedRef.current = false;
+      blinkVerifiedRef.current = false;
+      submitTriggeredRef.current = false;
+      setInstruction("Attendance Successful ✅");
+      setAttendanceMode(false);
+      resetBlinkState();
+
+      await fetchTodayAttendance();
+    } catch (err: any) {
+      console.error(err);
+
+      submitTriggeredRef.current = false;
+      blinkVerifiedRef.current = false;
+      eyeClosedRef.current = false;
+      closedFramesRef.current = 0;
+
+      setBlinkVerified(false);
+      setEyeClosed(false);
+      setInstruction("Please blink your eyes again");
+
+      alert(err?.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatTime = (date: any) =>
-    new Date(date).toLocaleTimeString(
-      "en-GB",
-      {
-        hour12: false,
-      },
-    );
+    new Date(date).toLocaleTimeString("en-GB", {
+      hour12: false,
+    });
 
-  const formatDate = (date: Date) =>
-    date.toDateString();
+  const formatDate = (date: Date) => date.toDateString();
 
-  // ============================================
-  // PROGRESS
-  // ============================================
-
-  const progress =
-    useFakeProgress(loading);
+  const progress = useFakeProgress(loading);
 
   return (
     <>
@@ -175,477 +285,320 @@ const Attendance = () => {
           className="card border-0 shadow-lg p-4"
           style={{
             width: "420px",
-
             borderRadius: "20px",
-
-            background:
-              "linear-gradient(135deg, #56bef2, #ffffff)",
+            background: "linear-gradient(135deg, #56bef2, #ffffff)",
           }}
         >
-          {/* HEADER */}
-
-          <div className="text-center mb-3">
-            <button
-              className="btn btn-primary mb-3"
-              onClick={() =>
-                setShowMonthly(
-                  (prev) => !prev,
-                )
-              }
-            >
-              {showMonthly
-                ? " Close Attendance"
-                : "📅 View Monthly Attendance"}
-            </button>
-
-            <h5
+          <div className="text-center mb-1">
+            {/* <h5
               className="fw-bold mb-2"
               style={{
-                background:
-                  "linear-gradient(90deg, #5c19ed, #f10972)",
-
-                WebkitBackgroundClip:
-                  "text",
-
-                WebkitTextFillColor:
-                  "transparent",
+                background: "linear-gradient(90deg, #5c19ed, #f10972)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
-              {
-                attendance?.company
-                  ?.slug
-              }
-            </h5>
+              {attendance?.company?.slug}
+            </h5> */}
 
             <h5
-              className="fw-bold mb-2"
+              className="fw-bold "
               style={{
-                background:
-                  "linear-gradient(90deg, #ff6600, #f10972)",
-
-                WebkitBackgroundClip:
-                  "text",
-
-                WebkitTextFillColor:
-                  "transparent",
+                background: "linear-gradient(90deg, #ff6600, #f10972)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
-              Welcome,{" "}
-              {attendance?.employee
-                ?.name || "User"}{" "}
-              👋
+              Welcome, {attendance?.employee?.name || "User"} 👋
             </h5>
 
-            <h4 className="fw-bold text-dark">
-              Attendance
-            </h4>
-
-            <small className="text-muted">
-              {formatDate(time)}
-            </small>
+            <small className="text-muted">{formatDate(time)}</small>
           </div>
 
-          {/* LIVE TIME */}
-
           <h1
-            className="text-center fw-bold mb-3"
-            style={{
-              letterSpacing: "2px",
-            }}
+            className="text-center fw-bold mb-1"
+            style={{ letterSpacing: "2px" }}
           >
             {formatTime(time)}
           </h1>
 
-          {/* BUTTON */}
-
-          <div className="d-flex justify-content-center my-3 position-relative">
+          {!attendanceMode && (
             <button
-              onClick={
-                handleAttendance
-              }
-              disabled={loading}
-              className={`btn rounded-circle d-flex align-items-center justify-content-center shadow ${
-                nextAction ===
-                "CHECK_IN"
-                  ? "btn-success"
-                  : "btn-danger"
-              }`}
-              style={{
-                width: "140px",
-
-                height: "140px",
-
-                fontSize: "18px",
-
-                border:
-                  "6px solid #e9ecef",
-
-                transition: "0.3s",
-
-                zIndex: 2,
+              className="btn btn-primary"
+              onClick={() => {
+                setAttendanceMode(true);
+                resetBlinkState();
+                setInstruction("Please look at camera");
               }}
             >
-              {loading
-                ? "Processing..."
-                : nextAction ===
-                  "CHECK_IN"
-                ? "Check In"
-                : "Check Out"}
+              Start Attendance
             </button>
+          )}
 
-            {/* PROGRESS */}
-
-            {progress > 0 && (
+          {attendanceMode && (
+            <div
+              className="text-center mt-1 mb-1"
+              style={{
+                animation: "pulseInstruction 1.5s infinite",
+              }}
+            >
               <div
-                className="progress-ring"
+                className="d-inline-flex align-items-center gap-2 px-4 py-2"
                 style={{
-                  background: `conic-gradient(#198754 ${progress}%, #dee2e6 ${progress}%)`,
+                  background:
+                    instruction === "Verifying..."
+                      ? "linear-gradient(135deg,#ff9800,#ff5722)"
+                      : "linear-gradient(135deg,#dc3545,#ff6b6b)",
+                  color: "#fff",
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  fontSize: "15px",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
                 }}
-              />
+              >
+                <span style={{ fontSize: "18px" }}>
+                  {instruction === "Verifying..."
+                    ? "⏳"
+                    : instruction === "Attendance Successful ✅"
+                      ? "✅"
+                      : "👀"}
+                </span>
+
+                <span>{instruction}</span>
+              </div>
+            </div>
+          )}
+
+          <div className="d-flex justify-content-center my-3 align-items-center gap-3">
+            <div className="position-relative">
+              <button
+                type="button"
+                disabled
+                className={`btn rounded-circle d-flex align-items-center justify-content-center shadow ${
+                  nextAction === "CHECK_IN" ? "btn-success" : "btn-danger"
+                }`}
+                style={{
+                  width: "140px",
+                  height: "140px",
+                  fontSize: "18px",
+                  border: "6px solid #e9ecef",
+                  transition: "0.3s",
+                  zIndex: 2,
+                }}
+              >
+                {loading
+                  ? "Processing..."
+                  : nextAction === "CHECK_IN"
+                    ? "Check In"
+                    : "Check Out"}
+              </button>
+
+              {progress > 0 && (
+                <div
+                  className="progress-ring"
+                  style={{
+                    background: `conic-gradient(#198754 ${progress}%, #dee2e6 ${progress}%)`,
+                  }}
+                />
+              )}
+            </div>
+
+            {attendanceMode && (
+              <div className="webcam-circle">
+                <Webcam
+                  ref={webcamRef}
+                  audio={false}
+                  screenshotFormat="image/jpeg"
+                  width={140}
+                  height={140}
+                  videoConstraints={{
+                    facingMode: "user",
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
             )}
           </div>
 
-          {/* STATUS */}
-
-          {/* STATUS */}
-
-<div className="text-center mb-3">
-  <span
-    className={`badge px-3 py-2 attendance-status-badge ${
-
-      attendance?.status ===
-      "PRESENT"
-
-        ? "bg-success"
-
-        : attendance?.status ===
-          "HALF_DAY"
-
-        ? "bg-warning text-dark"
-
-        : attendance?.status ===
-          "ABSENT"
-
-        ? "bg-danger"
-
-        : attendance?.status ===
-          "PAID_LEAVE"
-
-        ? "bg-primary"
-
-        : attendance?.status ===
-          "UNPAID_LEAVE"
-
-        ? "bg-dark"
-
-        : attendance?.status ===
-          "WEEKLY_OFF"
-
-        ? "attendance-weekly-off"
-
-        : attendance?.status ===
-          "HOLIDAY"
-
-        ? "attendance-holiday"
-
-        : attendance?.status ===
-          "ON_DUTY"
-
-        ? "attendance-on-duty"
-
-        : attendance?.status ===
-          "WORK_FROM_HOME"
-
-        ? "attendance-wfh"
-
-        : "bg-secondary"
-    }`}
-  >
-    {
-      attendance?.status ||
-      "No Data"
-    }
-  </span>
-</div>
-
-          {/* SHIFT */}
+          <div className="text-center mb-1">
+            <span
+              className={`badge px-3 py-2 attendance-status-badge ${
+                attendance?.status === "PRESENT"
+                  ? "bg-success"
+                  : attendance?.status === "HALF_DAY"
+                    ? "bg-warning text-dark"
+                    : attendance?.status === "ABSENT"
+                      ? "bg-danger"
+                      : attendance?.status === "PAID_LEAVE"
+                        ? "bg-primary"
+                        : attendance?.status === "UNPAID_LEAVE"
+                          ? "bg-dark"
+                          : attendance?.status === "WEEKLY_OFF"
+                            ? "attendance-weekly-off"
+                            : attendance?.status === "HOLIDAY"
+                              ? "attendance-holiday"
+                              : attendance?.status === "ON_DUTY"
+                                ? "attendance-on-duty"
+                                : attendance?.status === "WORK_FROM_HOME"
+                                  ? "attendance-wfh"
+                                  : "bg-secondary"
+              }`}
+            >
+              {attendance?.status || "No Data"}
+            </span>
+          </div>
 
           {attendance?.shift && (
-            <div className="text-center mb-3">
+            <div className="text-center mb-1">
               <span className="badge bg-dark px-3 py-2">
-                🕒{" "}
-                {
-                  attendance.shift
-                    .title
-                }{" "}
-                |{" "}
-                {
-                  attendance.shift
-                    .startTime
-                }
-                -
-                {
-                  attendance.shift
-                    .endTime
-                }
+                🕒 {attendance.shift.title} | {attendance.shift.startTime}-
+                {attendance.shift.endTime}
               </span>
             </div>
           )}
 
-          {/* STATS */}
-
           <div
-            className="d-flex justify-content-between align-items-center p-3 mb-3 shadow-sm"
+            className="d-flex justify-content-between align-items-center p-3 mb-1 shadow-sm"
             style={{
-              background:
-                "linear-gradient(135deg, #f8f9fa, #ffffff)",
-
+              background: "linear-gradient(135deg, #f8f9fa, #ffffff)",
               borderRadius: "18px",
             }}
           >
             <Tooltip id="location-tooltip" />
 
-            {/* IN */}
-
             <div className="text-start">
-              <p className="mb-2 text-success fw-semibold">
-                IN
-              </p>
+              <p className="mb-1 text-success fw-semibold">IN</p>
 
               {attendance?.attendanceLogs
-                ?.filter(
-                  (log: any) =>
-                    log.type ===
-                    "IN",
-                )
+                ?.filter((log: any) => log.type === "IN")
                 .map((log: any) => (
                   <div
                     key={log.id}
-                    className="mb-2 p-2"
+                    className="mb-1 p-2"
                     style={{
-                      background:
-                        "#e9f7ef",
-
-                      borderRadius:
-                        "10px",
+                      background: "#e9f7ef",
+                      borderRadius: "10px",
                     }}
                   >
                     <div className="fw-semibold small text-dark">
-                      ⏱{" "}
-                      {formatTime(
-                        log.time,
-                      )}
+                      ⏱ {formatTime(log.time)}
                     </div>
 
                     <span
                       data-tooltip-id="location-tooltip"
-                      data-tooltip-content={
-                        addresses[
-                          log.id
-                        ] ||
-                        "Loading..."
-                      }
+                      data-tooltip-content={addresses[log.id] || "Loading..."}
                       onMouseEnter={async () => {
                         if (
-                          !addresses[
-                            log.id
-                          ] &&
+                          !addresses[log.id] &&
                           log.latitude &&
                           log.longitude
                         ) {
                           try {
-                            const addr =
-                              await getAddress(
-                                log.latitude,
-                                log.longitude,
-                              );
-
-                            setAddresses(
-                              (
-                                prev,
-                              ) => ({
-                                ...prev,
-
-                                [log.id]:
-                                  addr,
-                              }),
+                            const addr = await getAddress(
+                              log.latitude,
+                              log.longitude,
                             );
+
+                            setAddresses((prev) => ({
+                              ...prev,
+                              [log.id]: addr,
+                            }));
                           } catch {
-                            setAddresses(
-                              (
-                                prev,
-                              ) => ({
-                                ...prev,
-
-                                [log.id]:
-                                  "Failed to load",
-                              }),
-                            );
+                            setAddresses((prev) => ({
+                              ...prev,
+                              [log.id]: "Failed to load",
+                            }));
                           }
                         }
                       }}
                       className="badge bg-light text-dark border"
-                      style={{
-                        cursor:
-                          "pointer",
-                      }}
+                      style={{ cursor: "pointer" }}
                     >
                       🌍{" "}
-                      {log.latitude
-                        ? Number(
-                            log.latitude,
-                          ).toFixed(
-                            2,
-                          )
-                        : "N/A"}
-                      ,{" "}
-                      {log.longitude
-                        ? Number(
-                            log.longitude,
-                          ).toFixed(
-                            2,
-                          )
-                        : "N/A"}
+                      {log.latitude ? Number(log.latitude).toFixed(2) : "N/A"},{" "}
+                      {log.longitude ? Number(log.longitude).toFixed(2) : "N/A"}
                     </span>
                   </div>
                 ))}
             </div>
 
-            {/* TOTAL */}
-
             <div className="text-center px-2">
-              <p className="mb-1 fw-semibold text-muted">
-                Total
-              </p>
+              <p className="mb-1 fw-semibold text-muted">Total</p>
 
               <h5 className="fw-bold text-primary">
                 {attendance?.total_work_minutes
-                  ? `${Math.floor(
-                      attendance.total_work_minutes /
-                        60,
-                    )}h ${
-                      attendance.total_work_minutes %
-                      60
+                  ? `${Math.floor(attendance.total_work_minutes / 60)}h ${
+                      attendance.total_work_minutes % 60
                     }m`
                   : "0h 0m"}
               </h5>
 
-              {/* NEW */}
-
-              <div className="text-center mt-2">
+              <div className="text-center mt-1">
                 <small className="text-muted">
-                  Late:{" "}
-                  {attendance?.late_minutes ||
-                    0}
-                  m | OT:{" "}
-                  {attendance?.overtime_minutes ||
-                    0}
-                  m
+                  Late: {attendance?.late_minutes || 0}m | OT:{" "}
+                  {attendance?.overtime_minutes || 0}m
                 </small>
               </div>
             </div>
 
-            {/* OUT */}
-
             <div className="text-end">
-              <p className="mb-2 text-danger fw-semibold">
-                OUT
-              </p>
+              <p className="mb-1 text-danger fw-semibold">OUT</p>
 
               {attendance?.attendanceLogs
-                ?.filter(
-                  (log: any) =>
-                    log.type ===
-                    "OUT",
-                )
+                ?.filter((log: any) => log.type === "OUT")
                 .map((log: any) => (
                   <div
                     key={log.id}
-                    className="mb-2 p-2"
+                    className="mb-1 p-2"
                     style={{
-                      background:
-                        "#fdecea",
-
-                      borderRadius:
-                        "10px",
+                      background: "#fdecea",
+                      borderRadius: "10px",
                     }}
                   >
                     <div className="fw-semibold small text-dark">
-                      ⏱{" "}
-                      {formatTime(
-                        log.time,
-                      )}
+                      ⏱ {formatTime(log.time)}
                     </div>
 
                     <div className="d-flex justify-content-end gap-2 mt-1">
                       <span
                         data-tooltip-id="location-tooltip"
-                        data-tooltip-content={
-                          addresses[
-                            log.id
-                          ] ||
-                          "Loading..."
-                        }
+                        data-tooltip-content={addresses[log.id] || "Loading..."}
                         onMouseEnter={async () => {
                           if (
-                            !addresses[
-                              log.id
-                            ] &&
+                            !addresses[log.id] &&
                             log.latitude &&
                             log.longitude
                           ) {
                             try {
-                              const addr =
-                                await getAddress(
-                                  log.latitude,
-                                  log.longitude,
-                                );
-
-                              setAddresses(
-                                (
-                                  prev,
-                                ) => ({
-                                  ...prev,
-
-                                  [log.id]:
-                                    addr,
-                                }),
+                              const addr = await getAddress(
+                                log.latitude,
+                                log.longitude,
                               );
+
+                              setAddresses((prev) => ({
+                                ...prev,
+                                [log.id]: addr,
+                              }));
                             } catch {
-                              setAddresses(
-                                (
-                                  prev,
-                                ) => ({
-                                  ...prev,
-
-                                  [log.id]:
-                                    "Failed to load",
-                                }),
-                              );
+                              setAddresses((prev) => ({
+                                ...prev,
+                                [log.id]: "Failed to load",
+                              }));
                             }
                           }
                         }}
                         className="badge bg-light text-dark border"
-                        style={{
-                          cursor:
-                            "pointer",
-                        }}
+                        style={{ cursor: "pointer" }}
                       >
                         🌍{" "}
-                        {log.latitude
-                          ? Number(
-                              log.latitude,
-                            ).toFixed(
-                              2,
-                            )
-                          : "N/A"}
+                        {log.latitude ? Number(log.latitude).toFixed(2) : "N/A"}
                         ,{" "}
                         {log.longitude
-                          ? Number(
-                              log.longitude,
-                            ).toFixed(
-                              2,
-                            )
+                          ? Number(log.longitude).toFixed(2)
                           : "N/A"}
                       </span>
                     </div>
@@ -654,86 +607,80 @@ const Attendance = () => {
             </div>
           </div>
         </div>
-
-        {/* MONTHLY */}
-
-        {showMonthly && (
-          <div>
-            <MonthlyAttendance />
-          </div>
-        )}
       </div>
 
-      {/* STYLE */}
-
       <style jsx>{`
-  .progress-ring {
-    position: absolute;
+        .progress-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 160px;
+          height: 160px;
+          border-radius: 50%;
+          z-index: 1;
+          transition: 0.3s ease;
+          pointer-events: none;
+        }
+        @keyframes pulseInstruction {
+          0% {
+            transform: scale(1);
+          }
 
-    top: 50%;
+          50% {
+            transform: scale(1.04);
+          }
 
-    left: 50%;
+          100% {
+            transform: scale(1);
+          }
+        }
+        .webcam-circle {
+          width: 140px;
+          height: 140px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 5px solid #fff;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          flex-shrink: 0;
+        }
 
-    transform: translate(
-      -50%,
-      -50%
-    );
+        .attendance-status-badge {
+          font-size: 14px;
+          border-radius: 999px;
+          letter-spacing: 0.4px;
+        }
 
-    width: 160px;
+        .attendance-weekly-off {
+          background: #0ea5e9 !important;
+          color: #fff !important;
+        }
 
-    height: 160px;
+        .attendance-holiday {
+          background: #6b7280 !important;
+          color: #fff !important;
+        }
 
-    border-radius: 50%;
+        .attendance-on-duty {
+          background: #9333ea !important;
+          color: #fff !important;
+        }
 
-    z-index: 1;
+        .attendance-wfh {
+          background: #06b6d4 !important;
+          color: #fff !important;
+        }
 
-    transition: 0.3s ease;
-  }
+        @keyframes spin {
+          0% {
+            transform: translate(-50%, -50%) rotate(0deg);
+          }
 
-  .attendance-status-badge{
-    font-size:14px;
-    border-radius:999px;
-    letter-spacing:.4px;
-  }
-
-  .attendance-weekly-off{
-    background:#0ea5e9 !important;
-    color:#fff !important;
-  }
-
-  .attendance-holiday{
-    background:#6b7280 !important;
-    color:#fff !important;
-  }
-
-  .attendance-on-duty{
-    background:#9333ea !important;
-    color:#fff !important;
-  }
-
-  .attendance-wfh{
-    background:#06b6d4 !important;
-    color:#fff !important;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: translate(
-          -50%,
-          -50%
-        )
-        rotate(0deg);
-    }
-
-    100% {
-      transform: translate(
-          -50%,
-          -50%
-        )
-        rotate(360deg);
-    }
-  }
-`}</style>
+          100% {
+            transform: translate(-50%, -50%) rotate(360deg);
+          }
+        }
+      `}</style>
     </>
   );
 };

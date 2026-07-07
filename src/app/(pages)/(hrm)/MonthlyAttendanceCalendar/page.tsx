@@ -68,7 +68,7 @@ const MonthlyAttendanceCalendar = () => {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `/attendance/monthly-attendance?year=${year}&month=${month}`,
+        `/attendance/monthly-attendance-all?year=${year}&month=${month}`,
       );
 
       setAttendances(res?.data?.data || []);

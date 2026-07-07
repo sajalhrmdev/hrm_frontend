@@ -13,6 +13,8 @@ import "../style/icon/tabler-icons/webfont/tabler-icons.css";
 import "../style/css/feather.css";
 import "./globals.scss";
 import "antd/dist/reset.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { ReduxProvider } from "@/providers/ReduxProvider";
 import ThemeInitializer from "@/core/common/ThemeInitializer";
@@ -44,6 +46,10 @@ export default function RootLayout({
             <InitialLoader />
             <ThemeInitializer />
             {children}
+             <ToastContainer
+          position="top-right"
+          autoClose={3000}
+        />
             <BootstrapJs />
           </AuthProvider>
         </ReduxProvider>

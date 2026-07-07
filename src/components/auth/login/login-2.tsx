@@ -53,7 +53,7 @@ const Login2Component = () => {
       if (userRole === "SUPER_ADMIN") {
         navigation.push(routes.company);
       } else {
-        navigation.push(routes.attendanceemployee);
+        navigation.push(routes.attendances);
       }
     } catch (err: any) {
       console.error(err);
