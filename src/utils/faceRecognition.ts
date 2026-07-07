@@ -10,6 +10,7 @@ export const loadFaceDetector = async () => {
     {
       runtime: "mediapipe",
       solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh",
+      refineLandmarks: false,
     },
   );
 
