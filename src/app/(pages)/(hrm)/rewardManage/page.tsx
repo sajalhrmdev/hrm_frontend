@@ -252,7 +252,7 @@ const RewardManagement = () => {
                       <th>Amount</th>
                       <th>Date</th>
                       <th>Description</th>
-                      <th width="150">Actions</th>
+                      <th style={{ width: "150px" }}>Actions</th>
                     </tr>
                   </thead>
 
