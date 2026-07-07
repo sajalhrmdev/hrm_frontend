@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { isAxiosError } from "axios";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-toastify";
 
@@ -101,6 +102,21 @@ const PerformanceReviewManagement = () => {
 
     setEditingId(null);
   };
+
+  const getErrorMessage = (error: unknown) => {
+    if (isAxiosError(error)) {
+      return (
+        error.response?.data?.message || error.message || "Something went wrong"
+      );
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return "Something went wrong";
+  };
+
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -130,10 +146,7 @@ const PerformanceReviewManagement = () => {
       fetchReviews();
     } catch (error) {
       console.error(error);
-      const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Something went wrong";
+      const message = getErrorMessage(error);
 
       toast.error(message);
     }
@@ -170,7 +183,7 @@ const PerformanceReviewManagement = () => {
       fetchReviews();
     } catch (error) {
       console.error(error);
-      alert("Failed To Delete Review");
+      alert(getErrorMessage(error));
     }
   };
 
@@ -252,7 +265,7 @@ const PerformanceReviewManagement = () => {
                       <th>Productivity</th>
                       <th>Rating</th>
                       <th>Comments</th>
-                      <th width="160">Actions</th>
+                      <th style={{ width: "160px" }}>Actions</th>
                     </tr>
                   </thead>
 
