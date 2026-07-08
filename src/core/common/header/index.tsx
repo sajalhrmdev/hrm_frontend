@@ -285,14 +285,14 @@ const Header = React.memo(() => {
       {/* Header */}
       <div className="header">
         <div className="main-header">
-          <div className="header-left">
+          {/* <div className="header-left">
             <Link href={routes.adminDashboard} className="logo">
               <ImageWithBasePath src="assets/img/logo.svg" alt="Logo" />
             </Link>
             <Link href={routes.adminDashboard} className="dark-logo">
               <ImageWithBasePath src="assets/img/logo-white.svg" alt="Logo" />
             </Link>
-          </div>
+          </div> */}
 
           <Link
             id="mobile_btn"
@@ -323,7 +323,7 @@ const Header = React.memo(() => {
                 </Link>
 
                 {/* Search */}
-                <div className="input-group input-group-flat d-inline-flex me-2">
+                {/* <div className="input-group input-group-flat d-inline-flex me-2">
                   <input
                     type="text"
                     className="form-control"
@@ -332,10 +332,10 @@ const Header = React.memo(() => {
                   <span className="input-group-text">
                     <kbd>CTRL + / </kbd>
                   </span>
-                </div>
+                </div> */}
                 {/* /Search */}
 
-                <div className="dropdown crm-dropdown">
+                {/* <div className="dropdown crm-dropdown">
                   <Link
                     href="#"
                     className="btn btn-menubar me-2"
@@ -424,7 +424,7 @@ const Header = React.memo(() => {
                   className="btn btn-menubar"
                 >
                   <i className="ti ti-settings-cog" />
-                </Link>
+                </Link> */}
               </div>
 
               <div
@@ -444,7 +444,7 @@ const Header = React.memo(() => {
               </div>
 
               <div className="d-flex align-items-center">
-                <div className="me-2">
+                {/* <div className="me-2">
                   <Link
                     href="#"
                     onClick={toggleFullscreen}
@@ -701,7 +701,7 @@ const Header = React.memo(() => {
                       </Link>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="dropdown profile-dropdown">
                   <Link
                     href="#"
