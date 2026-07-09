@@ -12,12 +12,14 @@ from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 // ======================================================
 
 const EmployeeBankDetailTab = ({
   employeeId,
+  isViewOnly,
 }: Props) => {
 
   // ======================================================
@@ -261,6 +263,7 @@ const EmployeeBankDetailTab = ({
                 value={formData.bankName}
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -287,6 +290,7 @@ const EmployeeBankDetailTab = ({
                 }
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -313,6 +317,7 @@ const EmployeeBankDetailTab = ({
                 }
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -337,6 +342,7 @@ const EmployeeBankDetailTab = ({
                 value={formData.ifscCode}
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -361,6 +367,7 @@ const EmployeeBankDetailTab = ({
                 value={formData.branchName}
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -385,6 +392,7 @@ const EmployeeBankDetailTab = ({
                 value={formData.upiId}
 
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
 
             </div>
@@ -392,7 +400,7 @@ const EmployeeBankDetailTab = ({
           </div>
 
           {/* BUTTON */}
-
+          {!isViewOnly && (
           <div className="save-btn-wrapper">
 
             <button
@@ -423,6 +431,7 @@ const EmployeeBankDetailTab = ({
             </button>
 
           </div>
+          )}
 
         </form>
 

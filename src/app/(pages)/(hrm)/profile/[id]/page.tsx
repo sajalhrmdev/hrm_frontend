@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { useAuth } from "@/providers/AuthContext";
 import PersonalInfoTab from "@/compo/PersonalInfoTab";
 import AddressTab from "@/compo/AddressTab";
 import DocumentTab from "@/compo/DocumentItem";
@@ -56,8 +57,11 @@ type Employee = {
 
 const EmployeeProfilePage = () => {
   const params = useParams();
+  const { permissions } = useAuth();
 
   const employeeId = Number(params?.id);
+
+  const canEdit = permissions?.includes("*") || permissions?.includes("update-employee");
 
   const [loading, setLoading] = useState(true);
 
@@ -403,13 +407,13 @@ const EmployeeProfilePage = () => {
 
             {activeTab === "personal" && (
               <div className="alert alert-info">
-                <PersonalInfoTab employeeId={employeeId} />
+                <PersonalInfoTab employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
             {/* Face register======================= */}
             {activeTab === "face-register" && (
               <div className="alert alert-info">
-                <EmployeeFaceRegister employeeId={employeeId} />
+                <EmployeeFaceRegister employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
             {/* ================================== */}
@@ -418,18 +422,18 @@ const EmployeeProfilePage = () => {
 
             {activeTab === "address" && (
               <div className="alert alert-warning">
-                <AddressTab employeeId={employeeId} />
+                <AddressTab employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
             {/* EMERGENCY */}
             {activeTab === "emergency" && (
               <div className="alert alert-warning">
                 {/* <AddressTab employeeId={employeeId} /> */}
-                <EmployeeEmergencyContactTab employeeId={employeeId} />
+                <EmployeeEmergencyContactTab employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
             {activeTab === "salary" && (
-              <EmployeeSalaryTab employeeId={employeeId} />
+              <EmployeeSalaryTab employeeId={employeeId} isViewOnly={!canEdit} />
             )}
 
             {activeTab === "payroll" && (
@@ -441,7 +445,7 @@ const EmployeeProfilePage = () => {
 
             {activeTab === "bank" && (
               <div className="alert alert-warning">
-                <EmployeeBankDetailTab employeeId={employeeId} />
+                <EmployeeBankDetailTab employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
 
@@ -451,7 +455,7 @@ const EmployeeProfilePage = () => {
 
             {activeTab === "documents" && (
               <div className="alert alert-warning">
-                <DocumentTab employeeId={employeeId} />
+                <DocumentTab employeeId={employeeId} isViewOnly={!canEdit} />
               </div>
             )}
 
@@ -465,10 +469,10 @@ const EmployeeProfilePage = () => {
               </div>
             )}
             {activeTab === "leave" && (
-              <EmployeeLeaveTab employeeId={employeeId} />
+              <EmployeeLeaveTab employeeId={employeeId} isViewOnly={!canEdit} />
             )}
             {activeTab === "experience" && (
-              <EmployeeExperienceTab employeeId={employeeId} />
+              <EmployeeExperienceTab employeeId={employeeId} isViewOnly={!canEdit} />
             )}
           </div>
         </div>

@@ -8,11 +8,12 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 // ======================================================
 
-const EmployeeExperienceTab = ({ employeeId }: Props) => {
+const EmployeeExperienceTab = ({ employeeId, isViewOnly }: Props) => {
   // ======================================================
   // STATES
   // ======================================================
@@ -228,9 +229,11 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
           </p>
         </div>
 
+        {!isViewOnly && (
         <button className="add-btn" onClick={() => setShowForm(!showForm)}>
           {showForm ? <>✖ Close</> : <>＋ Add Experience</>}
         </button>
+        )}
       </div>
 
       {/* ====================================== */}
@@ -266,6 +269,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   onChange={handleChange}
                   placeholder="Enter company name"
                   required
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -282,6 +286,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   onChange={handleChange}
                   placeholder="Enter designation"
                   required
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -297,6 +302,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   value={formData.startDate}
                   onChange={handleChange}
                   required
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -311,7 +317,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   name="endDate"
                   value={formData.endDate}
                   onChange={handleChange}
-                  disabled={formData.currentlyWorking}
+                  disabled={formData.currentlyWorking || isViewOnly}
                 />
               </div>
 
@@ -324,6 +330,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                     name="currentlyWorking"
                     checked={formData.currentlyWorking}
                     onChange={handleChange}
+                    disabled={isViewOnly}
                   />
 
                   <span>Currently Working Here</span>
@@ -341,6 +348,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   value={formData.skills}
                   onChange={handleChange}
                   placeholder="React, Node.js..."
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -355,6 +363,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   value={formData.responsibilities}
                   onChange={handleChange}
                   placeholder="Handled APIs..."
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -370,12 +379,13 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                   value={formData.documentUrl}
                   onChange={handleChange}
                   placeholder="Paste certificate url"
+                  disabled={isViewOnly}
                 />
               </div>
             </div>
 
             {/* BUTTONS */}
-
+            {!isViewOnly && (
             <div className="btn-group-custom">
               <button
                 type="submit"
@@ -398,6 +408,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                 Cancel
               </button>
             </div>
+            )}
           </form>
         </div>
       )}
@@ -438,6 +449,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                         <div className="designation">{item.designation}</div>
                       </div>
 
+                      {!isViewOnly && (
                       <div className="timeline-actions">
                         <button
                           className="edit-btn"
@@ -453,6 +465,7 @@ const EmployeeExperienceTab = ({ employeeId }: Props) => {
                           Delete
                         </button>
                       </div>
+                      )}
                     </div>
 
                     <div className="date-range">

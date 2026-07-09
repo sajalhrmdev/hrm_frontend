@@ -6,9 +6,10 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
-const PersonalInfoTab = ({ employeeId }: Props) => {
+const PersonalInfoTab = ({ employeeId, isViewOnly }: Props) => {
   const [loading, setLoading] = useState(true);
 
   const [saving, setSaving] = useState(false);
@@ -145,6 +146,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="dob"
               value={formData.dob}
               onChange={handleChange}
+              disabled={isViewOnly}
             />
           </div>
 
@@ -158,6 +160,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="gender"
               value={formData.gender}
               onChange={handleChange}
+              disabled={isViewOnly}
             >
               <option value="">Select Gender</option>
 
@@ -179,6 +182,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="bloodGroup"
               value={formData.bloodGroup}
               onChange={handleChange}
+              disabled={isViewOnly}
             >
               <option value="">Select Blood Group</option>
 
@@ -210,6 +214,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="maritalStatus"
               value={formData.maritalStatus}
               onChange={handleChange}
+              disabled={isViewOnly}
             >
               <option value="">Select Status</option>
 
@@ -232,6 +237,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="fatherName"
               value={formData.fatherName}
               onChange={handleChange}
+              disabled={isViewOnly}
             />
           </div>
 
@@ -246,6 +252,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="motherName"
               value={formData.motherName}
               onChange={handleChange}
+              disabled={isViewOnly}
             />
           </div>
 
@@ -260,6 +267,7 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="nationality"
               value={formData.nationality}
               onChange={handleChange}
+              disabled={isViewOnly}
             />
           </div>
 
@@ -274,17 +282,19 @@ const PersonalInfoTab = ({ employeeId }: Props) => {
               name="religion"
               value={formData.religion}
               onChange={handleChange}
+              disabled={isViewOnly}
             />
           </div>
         </div>
 
         {/* SAVE */}
-
+        {!isViewOnly && (
         <div className="mt-4">
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving ? "Saving..." : "Save Personal Info"}
           </button>
         </div>
+        )}
       </form>
     </div>
   );

@@ -8,11 +8,12 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 // ======================================================
 
-const EmployeeSalaryTab = ({ employeeId }: Props) => {
+const EmployeeSalaryTab = ({ employeeId, isViewOnly }: Props) => {
   // ======================================================
   // STATES
   // ======================================================
@@ -192,9 +193,11 @@ const EmployeeSalaryTab = ({ employeeId }: Props) => {
           </p>
         </div>
 
+        {!isViewOnly && (
         <button className="add-btn" onClick={addRow}>
           + Add Component
         </button>
+        )}
       </div>
 
       {/* ====================================== */}
@@ -276,6 +279,7 @@ const EmployeeSalaryTab = ({ employeeId }: Props) => {
                               e.target.value,
                             )
                           }
+                          disabled={isViewOnly}
                         >
                           <option value="">Select Component</option>
 
@@ -315,13 +319,14 @@ const EmployeeSalaryTab = ({ employeeId }: Props) => {
                               e.target.value,
                             )
                           }
+                          disabled={isViewOnly}
                         />
                       </td>
 
                       {/* ACTION */}
 
                       <td>
-                        {item.id && (
+                        {item.id && !isViewOnly && (
                           <button
                             className="delete-btn"
                             onClick={() => handleDelete(item.id)}
@@ -339,7 +344,7 @@ const EmployeeSalaryTab = ({ employeeId }: Props) => {
         </div>
 
         {/* SAVE */}
-
+        {!isViewOnly && (
         <div className="save-wrapper">
           <button className="save-btn" onClick={handleSave} disabled={saving}>
             {saving ? (
@@ -352,6 +357,7 @@ const EmployeeSalaryTab = ({ employeeId }: Props) => {
             )}
           </button>
         </div>
+        )}
       </div>
 
       {/* ====================================== */}

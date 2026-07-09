@@ -9,10 +9,12 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 const AddressTab = ({
   employeeId,
+  isViewOnly,
 }: Props) => {
 
   const [loading, setLoading] =
@@ -224,6 +226,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -250,6 +253,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -276,6 +280,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -302,6 +307,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -328,6 +334,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -354,6 +361,7 @@ const AddressTab = ({
               onChange={
                 handleChange
               }
+              disabled={isViewOnly}
             />
 
           </div>
@@ -361,7 +369,7 @@ const AddressTab = ({
         </div>
 
         {/* SAVE BUTTON */}
-
+        {!isViewOnly && (
         <div className="mt-4">
 
           <button
@@ -381,6 +389,7 @@ const AddressTab = ({
           </button>
 
         </div>
+        )}
 
       </form>
 

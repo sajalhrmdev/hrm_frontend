@@ -12,12 +12,14 @@ from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 // ======================================================
 
 const EmployeeLeaveTab = ({
   employeeId,
+  isViewOnly,
 }: Props) => {
 
   // ======================================================
@@ -425,6 +427,7 @@ const EmployeeLeaveTab = ({
                 }
 
                 required
+                disabled={isViewOnly}
               >
 
                 <option value="">
@@ -475,6 +478,7 @@ const EmployeeLeaveTab = ({
                 placeholder="Enter total days"
 
                 required
+                disabled={isViewOnly}
               />
 
             </div>
@@ -503,6 +507,7 @@ const EmployeeLeaveTab = ({
                 }
 
                 required
+                disabled={isViewOnly}
               />
 
             </div>
@@ -510,7 +515,7 @@ const EmployeeLeaveTab = ({
           </div>
 
           {/* BUTTON */}
-
+          {!isViewOnly && (
           <div className="mt-4">
 
             <button
@@ -543,6 +548,7 @@ const EmployeeLeaveTab = ({
             </button>
 
           </div>
+          )}
 
         </form>
 

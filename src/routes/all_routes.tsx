@@ -208,6 +208,7 @@ export const all_routes = {
   notificationssettings: "/general-settings/notifications-settings",
   profilesettings: "/general-settings/profile-settings",
   securitysettings: "/general-settings/security-settings",
+  account: "/account",
 
   bussinessSettings: "/website-settings/bussiness-settings",
   seoSettings: "/website-settings/seo-settings",
@@ -393,6 +394,8 @@ export const all_routes = {
   rewardManage:"/rewardManage",
   attendancesReport:"/MonthlyAttendanceReport",
   location: "/location",
+  emailSetting: "/email",
+  brandingSettings: "/BrandingSettings",
   attendances: "/attendances",
   policy: "/policy",
   holidays: "/hrm/holidays",

@@ -520,6 +520,18 @@ export const SidebarDataTest = [
             base: "workSchedulePolicy",
             customSubmenuTwo: false,
           },
+          {
+            label: "Email",
+            link: routes.emailSetting,
+            base: "email",
+            customSubmenuTwo: false,
+          },
+          {
+            label: "Branding",
+            link: routes.brandingSettings,
+            base: "branding",
+            customSubmenuTwo: false,
+          },
         ],
       },
     ],

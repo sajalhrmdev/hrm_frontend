@@ -6,9 +6,10 @@ import axiosInstance from "@/utils/axiosInstance";
 
 interface Props {
   employeeId: number;
+  isViewOnly?: boolean;
 }
 
-export default function EmployeeFaceRegister({ employeeId }: Props) {
+export default function EmployeeFaceRegister({ employeeId, isViewOnly }: Props) {
   const webcamRef = useRef<Webcam>(null);
 
   const [existingFace, setExistingFace] = useState<string | null>(null);
@@ -149,62 +150,68 @@ export default function EmployeeFaceRegister({ employeeId }: Props) {
           </div>
         )}
 
-        {!capturedImage ? (
-          <div>
-            <Webcam
-              ref={webcamRef}
-              audio={false}
-              screenshotFormat="image/jpeg"
-              width={640}
-              height={480}
-              videoConstraints={{
-                facingMode: "user",
-                width: 640,
-                height: 480,
-              }}
-              onUserMedia={() => {
-                console.log("CAMERA READY");
-              }}
-              onUserMediaError={(err) => {
-                console.error("CAMERA ERROR", err);
-              }}
-            />
-
-            <button className="btn btn-primary mt-3" onClick={captureFace}>
-              Capture Face
-            </button>
-          </div>
+        {isViewOnly ? (
+          !existingFace && <p className="text-muted">No face registered</p>
         ) : (
-          <div>
-            <h6>Preview</h6>
+          <>
+            {!capturedImage ? (
+              <div>
+                <Webcam
+                  ref={webcamRef}
+                  audio={false}
+                  screenshotFormat="image/jpeg"
+                  width={640}
+                  height={480}
+                  videoConstraints={{
+                    facingMode: "user",
+                    width: 640,
+                    height: 480,
+                  }}
+                  onUserMedia={() => {
+                    console.log("CAMERA READY");
+                  }}
+                  onUserMediaError={(err) => {
+                    console.error("CAMERA ERROR", err);
+                  }}
+                />
 
-            <img
-              src={capturedImage}
-              alt="preview"
-              style={{
-                width: "100%",
-                maxWidth: 400,
-                borderRadius: 12,
-              }}
-            />
+                <button className="btn btn-primary mt-3" onClick={captureFace}>
+                  Capture Face
+                </button>
+              </div>
+            ) : (
+              <div>
+                <h6>Preview</h6>
 
-            <div className="mt-3 d-flex gap-2">
-              <button
-                className="btn btn-secondary"
-                onClick={() => setCapturedImage(null)}
-              >
-                Retake
-              </button>
+                <img
+                  src={capturedImage}
+                  alt="preview"
+                  style={{
+                    width: "100%",
+                    maxWidth: 400,
+                    borderRadius: 12,
+                  }}
+                />
 
-              <button
-                className="btn btn-success"
-                disabled={loading}
-                onClick={saveFace}
-              >
-                {loading ? "Saving..." : "Save Face"}
-              </button>
-            </div>
-          </div>
+                <div className="mt-3 d-flex gap-2">
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setCapturedImage(null)}
+                  >
+                    Retake
+                  </button>
+
+                  <button
+                    className="btn btn-success"
+                    disabled={loading}
+                    onClick={saveFace}
+                  >
+                    {loading ? "Saving..." : "Save Face"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

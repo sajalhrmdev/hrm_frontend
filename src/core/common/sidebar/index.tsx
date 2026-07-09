@@ -49,7 +49,7 @@ interface SidebarMainMenu {
 }
 
 const Sidebar = React.memo(() => {
-  const { user, permissions } = useAuth();
+  const { user, permissions, company } = useAuth();
   const pathname = usePathname();
   const dispatch = useDispatch<AppDispatch>();
 
@@ -350,13 +350,11 @@ const Sidebar = React.memo(() => {
       >
         <div className="sidebar-logo">
           <Link href={all_routes.adminDashboard} className="logo logo-normal">
-            <ImageWithBasePath src="assets/img/logo.svg" alt="Logo" />
-          </Link>
-          <Link href={all_routes.adminDashboard} className="logo-small">
-            <ImageWithBasePath src="assets/img/logo-small.svg" alt="Logo" />
-          </Link>
-          <Link href={all_routes.adminDashboard} className="dark-logo">
-            <ImageWithBasePath src="assets/img/logo-white.svg" alt="Logo" />
+            {company?.logo ? (
+              <img src={company.logo} alt="Logo" style={{ height: 60 }} />
+            ) : (
+              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>DebHRM</span>
+            )}
           </Link>
         </div>
         <div className="modern-profile p-3 pb-0">

@@ -14,7 +14,7 @@ interface User {
 
 const ProfileDropdown = ({ all_routes }: any) => {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, employee } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -90,7 +90,7 @@ const ProfileDropdown = ({ all_routes }: any) => {
           <div className="card-body">
             <Link
               className="dropdown-item d-inline-flex align-items-center p-0 py-2"
-              href={all_routes.profile}
+              href={employee?.id ? `/profile/${employee.id}` : "#"}
             >
               <i className="ti ti-user-circle me-1" />
               My Profile
@@ -118,6 +118,14 @@ const ProfileDropdown = ({ all_routes }: any) => {
             >
               <i className="ti ti-question-mark me-1" />
               Knowledge Base
+            </Link>
+
+            <Link
+              className="dropdown-item d-inline-flex align-items-center p-0 py-2"
+              href={all_routes.account}
+            >
+              <i className="ti ti-user-circle me-1" />
+              Account
             </Link>
           </div>
 

@@ -8,11 +8,12 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 // ======================================================
 
-const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
+const EmployeeEmergencyContactTab = ({ employeeId, isViewOnly }: Props) => {
   // ======================================================
   // STATES
   // ======================================================
@@ -174,6 +175,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Enter contact name"
                 value={formData.contactName}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
 
@@ -189,6 +191,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Father / Mother / Wife"
                 value={formData.relationship}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
 
@@ -204,6 +207,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Enter phone number"
                 value={formData.phone}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
 
@@ -219,6 +223,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Enter alternate phone"
                 value={formData.alternatePhone}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
 
@@ -234,6 +239,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Enter email address"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
 
@@ -248,12 +254,13 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
                 placeholder="Enter address"
                 value={formData.address}
                 onChange={handleChange}
+                disabled={isViewOnly}
               />
             </div>
           </div>
 
           {/* BUTTON */}
-
+          {!isViewOnly && (
           <div className="save-btn-wrapper">
             <button type="submit" className="save-btn" disabled={saving}>
               {saving ? (
@@ -266,6 +273,7 @@ const EmployeeEmergencyContactTab = ({ employeeId }: Props) => {
               )}
             </button>
           </div>
+          )}
         </form>
       </div>
 

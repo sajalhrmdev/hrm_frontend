@@ -9,6 +9,7 @@ import axiosInstance from "@/utils/axiosInstance";
 
 type Props = {
   employeeId: number;
+  isViewOnly?: boolean;
 };
 
 type DocumentItem = {
@@ -34,6 +35,7 @@ type DocumentItem = {
 
 const DocumentTab = ({
   employeeId,
+  isViewOnly,
 }: Props) => {
 
   const [loading, setLoading] =
@@ -303,7 +305,7 @@ const DocumentTab = ({
       {/* ====================================== */}
       {/* UPLOAD FORM */}
       {/* ====================================== */}
-
+      {!isViewOnly && (
       <div className="card border-0 shadow-sm mb-4">
 
         <div className="card-body">
@@ -498,6 +500,7 @@ const DocumentTab = ({
         </div>
 
       </div>
+      )}
 
       {/* ====================================== */}
       {/* DOCUMENT LIST */}
@@ -625,6 +628,7 @@ const DocumentTab = ({
 
                         <td>
 
+                          {!isViewOnly && (
                           <button
                             className="btn btn-sm btn-danger"
 
@@ -636,6 +640,7 @@ const DocumentTab = ({
                           >
                             Delete
                           </button>
+                          )}
 
                         </td>
 

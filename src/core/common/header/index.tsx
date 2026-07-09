@@ -28,7 +28,7 @@ import ImageWithBasePath from "../imageWithBasePath";
 const Header = React.memo(() => {
   const routes = all_routes;
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, employee } = useAuth();
   const dispatch = useAppDispatch();
   const dataLayout = useAppSelector((state) => state.themeSetting.dataLayout);
   const headerCollapse = useAppSelector(
@@ -698,8 +698,22 @@ const Header = React.memo(() => {
                         className="btn btn-primary w-100"
                       >
                         View All
-                      </Link>
-                    </div>
+                        </Link>
+                        <Link
+                          className="dropdown-item d-inline-flex align-items-center p-0 py-2"
+                          href={all_routes.knowledgebase}
+                        >
+                          <i className="ti ti-question-mark me-1" />
+                          Knowledge Base
+                        </Link>
+                        <Link
+                          className="dropdown-item d-inline-flex align-items-center p-0 py-2"
+                          href={all_routes.account}
+                        >
+                          <i className="ti ti-user-circle me-1" />
+                          Account
+                        </Link>
+                      </div>
                   </div>
                 </div> */}
                 <div className="dropdown profile-dropdown">
@@ -727,9 +741,9 @@ const Header = React.memo(() => {
                             />
                           </span>
                           <div>
-                            <h5 className="mb-0">Kevin Larry</h5>
+                             <h5 className="mb-0">{employee?.name || "User"}</h5>
                             <p className="fs-12 fw-medium mb-0">
-                              warren@example.com
+                              {employee?.email || ""}
                             </p>
                           </div>
                         </div>
@@ -737,31 +751,38 @@ const Header = React.memo(() => {
                       <div className="card-body">
                         <Link
                           className="dropdown-item d-inline-flex align-items-center p-0 py-2"
-                          href={all_routes.profile}
+                          href={employee?.id ? `/profile/${employee.id}` : "#"}
                         >
                           <i className="ti ti-user-circle me-1" />
                           My Profile
                         </Link>
-                        <Link
+                        {/* <Link
                           className="dropdown-item d-inline-flex align-items-center p-0 py-2"
                           href={all_routes.bussinessSettings}
                         >
                           <i className="ti ti-settings me-1" />
                           Settings
-                        </Link>
-                        <Link
+                        </Link> */}
+                        {/* <Link
                           className="dropdown-item d-inline-flex align-items-center p-0 py-2"
                           href={all_routes.profilesettings}
                         >
                           <i className="ti ti-circle-arrow-up me-1" />
                           My Account
-                        </Link>
-                        <Link
+                        </Link> */}
+                        {/* <Link
                           className="dropdown-item d-inline-flex align-items-center p-0 py-2"
                           href={all_routes.knowledgebase}
                         >
                           <i className="ti ti-question-mark me-1" />
                           Knowledge Base
+                        </Link> */}
+                        <Link
+                          className="dropdown-item d-inline-flex align-items-center p-0 py-2"
+                          href={all_routes.account}
+                        >
+                          <i className="ti ti-user-circle me-1" />
+                          Account
                         </Link>
                       </div>
                       <div className="card-footer">
@@ -792,7 +813,7 @@ const Header = React.memo(() => {
               <i className="fa fa-ellipsis-v" />
             </Link>
             <div className="dropdown-menu dropdown-menu-end">
-              <Link className="dropdown-item" href={all_routes.profile}>
+              <Link className="dropdown-item" href={employee?.id ? `/profile/${employee.id}` : "#"}>
                 My Profile
               </Link>
               <Link className="dropdown-item" href={all_routes.profilesettings}>
