@@ -111,6 +111,11 @@ export const HorizontalSidebarData = [
             base: 'domain',
           },
           {
+            menuValue: 'Mobile Themes',
+            route: routes.superAdminMobileThemes,
+            base: 'mobile-themes',
+          },
+          {
             menuValue: 'Purchase Transaction',
             route: routes.superAdminPurchaseTransaction,
             base: 'purchase-transaction',

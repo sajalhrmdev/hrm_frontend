@@ -21,6 +21,7 @@ import ThemeInitializer from "@/core/common/ThemeInitializer";
 import InitialLoader from "@/core/common/InitialLoader";
 import { AuthProvider } from "@/providers/AuthContext";
 import AuthInitializer from "@/authMe/AuthInitializer";
+import HelpChatWidget from "@/components/help-chatbot/ChatWidget";
 
 export const metadata: Metadata = {
   title: "Smarthr Admin Template",
@@ -51,6 +52,7 @@ export default function RootLayout({
           autoClose={3000}
         />
             <BootstrapJs />
+            <HelpChatWidget />
           </AuthProvider>
         </ReduxProvider>
       </body>

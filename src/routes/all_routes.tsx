@@ -53,6 +53,8 @@ export const all_routes = {
   agents: "/super-admin/agents",
   slaPolicies: "/super-admin/sla-policies",
   escalationRules: "/super-admin/escalation-rules",
+  superAdminMobileThemes: "/super-admin/mobile-themes",
+  superAdminHelpArticles: "/super-admin/help-articles",
   ticketAutomation: "/ticket-automation",
   ticketReports: "/ticket-reports",
   calendar: "/calendar",

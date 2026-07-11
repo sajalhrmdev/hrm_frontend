@@ -235,6 +235,11 @@ export const TowColData = [
             base: 'leads',
           },
           {
+            menuValue: 'Mobile Themes',
+            route: routes.superAdminMobileThemes,
+            base: 'mobile-themes',
+          },
+          {
             menuValue: 'Purchase Transaction',
             route: routes.superAdminPurchaseTransaction,
             base: 'leads',

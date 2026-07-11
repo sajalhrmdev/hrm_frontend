@@ -356,6 +356,13 @@ const Sidebar = React.memo(() => {
               <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>DebHRM</span>
             )}
           </Link>
+          <Link href={all_routes.adminDashboard} className="logo logo-small">
+            {company?.favicon ? (
+              <img src={company.favicon} alt="Favicon" style={{ height: 30, width: 30 }} />
+            ) : (
+              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>D</span>
+            )}
+          </Link>
         </div>
         <div className="modern-profile p-3 pb-0">
           <div className="text-center rounded bg-light p-3 mb-4 user-profile">

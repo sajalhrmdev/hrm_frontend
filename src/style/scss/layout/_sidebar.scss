@@ -35,7 +35,17 @@
         }
         
         @include mixins.respond-below(lg) {
-            display: none;
+            .logo {
+                display: none;
+            }
+            .logo-small {
+                display: block;
+                text-align: center;
+                img {
+                    max-width: 30px;
+                    max-height: 30px;
+                }
+            }
         }
     }
     .slimScrollDiv {
