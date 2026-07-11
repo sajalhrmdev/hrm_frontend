@@ -21,6 +21,7 @@ interface Attendance {
   employeeId: number;
   date: string;
   status: string;
+  overtime_minutes: number;
   employee: Employee;
 }
 
@@ -34,6 +35,7 @@ interface EmployeeAttendance {
     leave: number;
     halfDay: number;
     holiday: number;
+    overtimeHours: number;
   };
 }
 
@@ -171,6 +173,7 @@ const MonthlyAttendanceReport: React.FC = () => {
             leave: 0,
             halfDay: 0,
             holiday: 0,
+            overtimeHours: 0,
           },
         };
       }
@@ -178,6 +181,7 @@ const MonthlyAttendanceReport: React.FC = () => {
       const day = new Date(item.date).getDate();
       const status = normalizeStatus(item.status);
       map[employeeId].attendance[day] = status;
+      map[employeeId].totals.overtimeHours += (item.overtime_minutes || 0) / 60;
     });
 
     return Object.values(map)
@@ -192,6 +196,7 @@ const MonthlyAttendanceReport: React.FC = () => {
           leave: 0,
           halfDay: 0,
           holiday: 0,
+          overtimeHours: emp.totals.overtimeHours,
         };
 
         days.forEach((day) => {
@@ -243,6 +248,10 @@ const MonthlyAttendanceReport: React.FC = () => {
       (sum, e) => sum + e.totals.holiday,
       0,
     );
+    const totalOvertimeHours = employees.reduce(
+      (sum, e) => sum + e.totals.overtimeHours,
+      0,
+    );
 
     return {
       totalEmployees,
@@ -251,6 +260,7 @@ const MonthlyAttendanceReport: React.FC = () => {
       totalLeave,
       totalHalfDay,
       totalHoliday,
+      totalOvertimeHours,
     };
   }, [employees]);
 
@@ -265,6 +275,7 @@ const MonthlyAttendanceReport: React.FC = () => {
       "TL",
       "THD",
       "TH",
+      "OT",
     ];
 
     const rows = employees.map((emp) => {
@@ -277,6 +288,7 @@ const MonthlyAttendanceReport: React.FC = () => {
         String(emp.totals.leave),
         String(emp.totals.halfDay),
         String(emp.totals.holiday),
+        emp.totals.overtimeHours.toFixed(1),
       ].join("\t");
     });
 
@@ -461,6 +473,7 @@ const MonthlyAttendanceReport: React.FC = () => {
                           <th className="text-center totals-head">TL</th>
                           <th className="text-center totals-head">THD</th>
                           <th className="text-center totals-head">TH</th>
+                          <th className="text-center totals-head">OT</th>
                         </tr>
                       </thead>
 
@@ -499,6 +512,11 @@ const MonthlyAttendanceReport: React.FC = () => {
                             </td>
                             <td className="text-center total-cell">
                               {employee.totals.holiday}
+                            </td>
+                            <td className="text-center total-cell">
+                              {employee.totals.overtimeHours > 0
+                                ? `${employee.totals.overtimeHours.toFixed(1)}h`
+                                : "-"}
                             </td>
                           </tr>
                         ))}
@@ -624,11 +642,37 @@ const MonthlyAttendanceReport: React.FC = () => {
 
           .table-wrap {
             background: #fff;
+            padding-bottom: 4px;
           }
 
           .attendance-scroll {
             max-height: 72vh;
             overflow: auto;
+            padding-bottom: 12px;
+          }
+
+          .attendance-scroll::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+          }
+
+          .attendance-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+          }
+
+          .attendance-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+            border: 2px solid #f1f5f9;
+          }
+
+          .attendance-scroll::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+          }
+
+          .attendance-scroll::-webkit-scrollbar-corner {
+            background: #f1f5f9;
           }
 
           .attendance-table {

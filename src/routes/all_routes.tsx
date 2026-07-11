@@ -414,6 +414,7 @@ export const all_routes = {
   overtime: "/overtime",
   promotion: "/promotion",
   resignation: "/resignation",
+  myResignation: "/my-resignation",
   termination: "/termination",
   // RECRUITMENT
   jobgrid: "/job-grid",
