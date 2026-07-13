@@ -473,4 +473,8 @@ export const all_routes = {
   resumeParsing: "/resume-parsing",
   campusHiring: "/campus-hiring",
 
+  // Import
+  import: "/import",
+  importEntity: "/import/:entity",
+
 };

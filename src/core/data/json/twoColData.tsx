@@ -784,11 +784,18 @@ export const TowColData = [
             base: 'resignation',
           },
           {
-            menuValue: 'My Resignation',
-            route: routes.myResignation,
-            hasSubRoute: false,
+            menuValue: 'Others',
+            hasSubRoute: true,
             showSubRoute: false,
-            base: 'my-resignation',
+            customSubmenuTwo: true,
+            base: 'others',
+            subMenusTwo: [
+              {
+                menuValue: 'My Resignation',
+                route: routes.myResignation,
+                base: 'my-resignation',
+              },
+            ],
           },
           {
             menuValue: 'Termination',

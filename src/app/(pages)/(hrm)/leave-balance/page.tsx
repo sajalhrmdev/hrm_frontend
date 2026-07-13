@@ -68,6 +68,8 @@ const LeaveAllocationPage = () => {
   const [balances, setBalances] = useState<LeaveBalance[]>([]);
 
   const currentYear = new Date().getFullYear();
+  const [filterYear, setFilterYear] = useState(currentYear);
+  const [searchName, setSearchName] = useState("");
 
   // ============================================
   // FORM
@@ -111,7 +113,11 @@ const LeaveAllocationPage = () => {
     try {
       setTableLoading(true);
 
-      const res = await axiosInstance.get("/leave/balance");
+      const params = new URLSearchParams();
+      params.append("year", String(filterYear));
+      if (searchName.trim()) params.append("search", searchName.trim());
+
+      const res = await axiosInstance.get(`/leave/balance/all?${params.toString()}`);
 
       setBalances(res?.data?.data || []);
     } catch (err) {
@@ -127,9 +133,11 @@ const LeaveAllocationPage = () => {
 
   useEffect(() => {
     fetchInitialData();
-
-    fetchBalances();
   }, []);
+
+  useEffect(() => {
+    fetchBalances();
+  }, [filterYear]);
 
   // ============================================
   // HANDLE CHANGE
@@ -350,6 +358,36 @@ const LeaveAllocationPage = () => {
               <h5 className="fw-bold mb-0">
                 📋 Allocated Leave Balances
               </h5>
+
+              <div className="d-flex gap-2 align-items-center">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="Search employee name..."
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && fetchBalances()}
+                  style={{ width: 220 }}
+                />
+
+                <select
+                  className="form-select form-select-sm"
+                  value={filterYear}
+                  onChange={(e) => setFilterYear(Number(e.target.value))}
+                  style={{ width: 100 }}
+                >
+                  {Array.from({ length: 5 }, (_, i) => currentYear - 2 + i).map((y) => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={fetchBalances}
+                >
+                  Search
+                </button>
+              </div>
             </div>
 
             {tableLoading ? (

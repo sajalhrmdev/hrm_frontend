@@ -24,14 +24,14 @@ type LeaveItem = {
 const LeaveApprovalTable: React.FC = () => {
   const [data, setData] = useState<LeaveItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    return new Date().toISOString().split("T")[0];
+  });
 
-  // 🔥 fetch leaves
   const fetchLeaves = async () => {
     try {
       setLoading(true);
-
-      const res = await axiosInstance.get("/leave/all");
-
+      const res = await axiosInstance.get(`/leave/all?date=${selectedDate}`);
       setData(res.data.data || []);
     } catch (err) {
       console.log(err);
@@ -42,7 +42,7 @@ const LeaveApprovalTable: React.FC = () => {
 
   useEffect(() => {
     fetchLeaves();
-  }, []);
+  }, [selectedDate]);
 
   // ✅ approve
   const handleApprove = async (id: number) => {
@@ -149,11 +149,18 @@ const LeaveApprovalTable: React.FC = () => {
           <div className="table-header">
             <div>
               <h2>📝 Leave Requests</h2>
-
               <p>Approve or reject employee leaves</p>
             </div>
 
-            <div className="count-badge">{data.length} Requests</div>
+            <div className="header-right">
+              <input
+                type="date"
+                className="date-picker"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+              <div className="count-badge">{data.length} Requests</div>
+            </div>
           </div>
 
           {/* LOADING */}
@@ -317,6 +324,29 @@ const LeaveApprovalTable: React.FC = () => {
           margin-top: 6px;
           color: #666;
           font-size: 14px;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .date-picker {
+          padding: 8px 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 500;
+          background: #fff;
+          cursor: pointer;
+          outline: none;
+          transition: .2s;
+        }
+
+        .date-picker:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37,99,235,.15);
         }
 
         .count-badge {
