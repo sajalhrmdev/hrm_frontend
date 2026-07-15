@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import CollapseHeader from "@/core/common/collapse-header/collapse-header";
+import TiptapEditor from "./components/TiptapEditor";
+import { TemplateVariable } from "./components/TiptapEditor";
 
 type EmailSettingsData = {
   id?: number;
@@ -58,6 +60,27 @@ const EmailPage = () => {
     description: "",
     isActive: true,
   });
+
+  // Available template variables for email templates
+  const availableVariables: TemplateVariable[] = [
+    { label: "Employee Name", value: "{{employeeName}}" },
+    { label: "Employee Code", value: "{{employeeCode}}" },
+    { label: "Employee Email", value: "{{employeeEmail}}" },
+    { label: "Company Name", value: "{{companyName}}" },
+    { label: "Leave Type", value: "{{leaveType}}" },
+    { label: "From Date", value: "{{fromDate}}" },
+    { label: "To Date", value: "{{toDate}}" },
+    { label: "Total Days", value: "{{totalDays}}" },
+    { label: "Leave Status", value: "{{leaveStatus}}" },
+    { label: "Leave Reason", value: "{{leaveReason}}" },
+    { label: "Applied Date", value: "{{appliedDate}}" },
+    { label: "Year", value: "{{year}}" },
+    { label: "Login URL", value: "{{loginUrl}}" },
+  ];
+
+  const handleTiptapChange = (html: string) => {
+    setTemplateForm((prev) => ({ ...prev, htmlContent: html }));
+  };
 
   const fetchSettings = async () => {
     try {
@@ -403,34 +426,39 @@ const EmailPage = () => {
                 </div>
                 <form onSubmit={handleTemplateSubmit}>
                   <div className="modal-body">
-                    <div className="row g-3">
-                      <div className="col-md-6">
-                        <label className="form-label">Name <span className="text-danger">*</span></label>
-                        <input type="text" className="form-control" name="name" value={templateForm.name} onChange={handleTemplateChange} required />
+                    <div className="row g-2 align-items-end">
+                      <div className="col-md-3">
+                        <label className="form-label mb-1">Name <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control form-control-sm" name="name" value={templateForm.name} onChange={handleTemplateChange} required />
                       </div>
-                      <div className="col-md-6">
-                        <label className="form-label">Slug <span className="text-danger">*</span></label>
-                        <input type="text" className="form-control" name="slug" value={templateForm.slug} onChange={handleTemplateChange} required />
-                      </div>
-                      <div className="col-md-12">
-                        <label className="form-label">Subject <span className="text-danger">*</span></label>
-                        <input type="text" className="form-control" name="subject" value={templateForm.subject} onChange={handleTemplateChange} required />
-                      </div>
-                      <div className="col-md-12">
-                        <label className="form-label">HTML Content <span className="text-danger">*</span></label>
-                        <textarea className="form-control" name="htmlContent" rows={10} value={templateForm.htmlContent} onChange={handleTemplateChange} required />
-                      </div>
-                      <div className="col-md-8">
-                        <label className="form-label">Description</label>
-                        <input type="text" className="form-control" name="description" value={templateForm.description} onChange={handleTemplateChange} />
+                      <div className="col-md-3">
+                        <label className="form-label mb-1">Slug <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control form-control-sm" name="slug" value={templateForm.slug} onChange={handleTemplateChange} required />
                       </div>
                       <div className="col-md-4">
-                        <label className="form-label">Status</label>
-                        <select className="form-select" name="isActive" value={templateForm.isActive ? "true" : "false"} onChange={(e) => setTemplateForm((prev) => ({ ...prev, isActive: e.target.value === "true" }))}>
+                        <label className="form-label mb-1">Subject <span className="text-danger">*</span></label>
+                        <input type="text" className="form-control form-control-sm" name="subject" value={templateForm.subject} onChange={handleTemplateChange} required />
+                      </div>
+                      <div className="col-md-2">
+                        <label className="form-label mb-1">Status</label>
+                        <select className="form-select form-select-sm" name="isActive" value={templateForm.isActive ? "true" : "false"} onChange={(e) => setTemplateForm((prev) => ({ ...prev, isActive: e.target.value === "true" }))}>
                           <option value="true">Active</option>
                           <option value="false">Inactive</option>
                         </select>
                       </div>
+                    </div>
+                    <div className="mt-3">
+                      <label className="form-label mb-1">HTML Content <span className="text-danger">*</span></label>
+                      <TiptapEditor
+                        content={templateForm.htmlContent}
+                        onChange={handleTiptapChange}
+                        variables={availableVariables}
+                        placeholder="Write your email template here..."
+                      />
+                    </div>
+                    <div className="mt-2">
+                      <label className="form-label mb-1">Description</label>
+                      <input type="text" className="form-control form-control-sm" name="description" value={templateForm.description} onChange={handleTemplateChange} />
                     </div>
                   </div>
                   <div className="modal-footer">

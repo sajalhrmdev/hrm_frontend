@@ -24,14 +24,22 @@ type LeaveItem = {
 const LeaveApprovalTable: React.FC = () => {
   const [data, setData] = useState<LeaveItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
+  const [appliedFrom, setAppliedFrom] = useState("");
+  const [appliedTo, setAppliedTo] = useState("");
+  const [leaveFrom, setLeaveFrom] = useState("");
+  const [leaveTo, setLeaveTo] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchLeaves = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`/leave/all?date=${selectedDate}`);
+      const params = new URLSearchParams();
+      if (appliedFrom) params.append("appliedFrom", appliedFrom);
+      if (appliedTo) params.append("appliedTo", appliedTo);
+      if (leaveFrom) params.append("leaveFrom", leaveFrom);
+      if (leaveTo) params.append("leaveTo", leaveTo);
+      if (search.trim()) params.append("search", search.trim());
+      const res = await axiosInstance.get(`/leave/all?${params.toString()}`);
       setData(res.data.data || []);
     } catch (err) {
       console.log(err);
@@ -42,7 +50,7 @@ const LeaveApprovalTable: React.FC = () => {
 
   useEffect(() => {
     fetchLeaves();
-  }, [selectedDate]);
+  }, []);
 
   // ✅ approve
   const handleApprove = async (id: number) => {
@@ -151,16 +159,53 @@ const LeaveApprovalTable: React.FC = () => {
               <h2>📝 Leave Requests</h2>
               <p>Approve or reject employee leaves</p>
             </div>
+            <div className="count-badge">{data.length} Requests</div>
+          </div>
 
-            <div className="header-right">
-              <input
-                type="date"
-                className="date-picker"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-              <div className="count-badge">{data.length} Requests</div>
+          {/* FILTERS */}
+          <div className="filter-row">
+            <div className="filter-group">
+              <label>Applied From</label>
+              <div className="input-with-clear">
+                <input type="date" className="date-picker" value={appliedFrom} onChange={(e) => setAppliedFrom(e.target.value)} />
+                {appliedFrom && <button className="clear-btn" onClick={() => setAppliedFrom("")} title="Clear">x</button>}
+              </div>
             </div>
+            <div className="filter-group">
+              <label>Applied To</label>
+              <div className="input-with-clear">
+                <input type="date" className="date-picker" value={appliedTo} onChange={(e) => setAppliedTo(e.target.value)} />
+                {appliedTo && <button className="clear-btn" onClick={() => setAppliedTo("")} title="Clear">x</button>}
+              </div>
+            </div>
+            <div className="filter-group">
+              <label>Leave From</label>
+              <div className="input-with-clear">
+                <input type="date" className="date-picker" value={leaveFrom} onChange={(e) => setLeaveFrom(e.target.value)} />
+                {leaveFrom && <button className="clear-btn" onClick={() => setLeaveFrom("")} title="Clear">x</button>}
+              </div>
+            </div>
+            <div className="filter-group">
+              <label>Leave To</label>
+              <div className="input-with-clear">
+                <input type="date" className="date-picker" value={leaveTo} onChange={(e) => setLeaveTo(e.target.value)} />
+                {leaveTo && <button className="clear-btn" onClick={() => setLeaveTo("")} title="Clear">x</button>}
+              </div>
+            </div>
+            <div className="filter-group search-group">
+              <label>Search</label>
+              <input
+                type="text"
+                className="date-picker"
+                placeholder="Search employee name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && fetchLeaves()}
+              />
+            </div>
+            <button className="search-btn" onClick={fetchLeaves}>
+              🔍
+            </button>
           </div>
 
           {/* LOADING */}
@@ -313,7 +358,7 @@ const LeaveApprovalTable: React.FC = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 24px;
+          margin-bottom: 16px;
         }
 
         .table-header h2 {
@@ -326,17 +371,82 @@ const LeaveApprovalTable: React.FC = () => {
           font-size: 14px;
         }
 
-        .header-right {
+        .filter-row {
+          display: flex;
+          align-items: flex-end;
+          gap: 10px;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+        }
+
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .filter-group label {
+          font-size: 11px;
+          font-weight: 600;
+          color: #555;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .search-group {
+          flex: 1;
+          min-width: 180px;
+        }
+
+        .input-with-clear {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 4px;
+        }
+
+        .clear-btn {
+          width: 22px;
+          height: 22px;
+          border: none;
+          background: #ef4444;
+          color: white;
+          border-radius: 50%;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: .2s;
+          line-height: 1;
+        }
+
+        .clear-btn:hover {
+          background: #dc2626;
+          transform: scale(1.1);
+        }
+
+        .search-btn {
+          padding: 8px 14px;
+          background: #2563eb;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: .2s;
+        }
+
+        .search-btn:hover {
+          background: #1d4ed8;
         }
 
         .date-picker {
           padding: 8px 12px;
           border: 1px solid #d1d5db;
-          border-radius: 12px;
-          font-size: 14px;
+          border-radius: 10px;
+          font-size: 13px;
           font-weight: 500;
           background: #fff;
           cursor: pointer;

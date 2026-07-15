@@ -397,6 +397,7 @@ export const all_routes = {
   attendancesReport:"/MonthlyAttendanceReport",
   location: "/location",
   emailSetting: "/email",
+  documents: "/documents",
   brandingSettings: "/BrandingSettings",
   attendances: "/attendances",
   policy: "/policy",

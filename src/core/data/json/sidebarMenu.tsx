@@ -524,6 +524,16 @@ export const SidebarDataTest = [
              
             ],
           },
+      // {
+      //   label: "Documents",
+      //   link: routes.documents,
+      //   base: "documents",
+      //   customSubmenuTwo: false,
+      //   submenu: false,
+      //   showSubRoute: false,
+      //   materialicons: "description",
+      //   submenuItems: [],
+      // },
       {
         label: "Settings",
         link: "Settings",
@@ -551,12 +561,12 @@ export const SidebarDataTest = [
             base: "workSchedulePolicy",
             customSubmenuTwo: false,
           },
-          {
-            label: "Email",
-            link: routes.emailSetting,
-            base: "email",
-            customSubmenuTwo: false,
-          },
+          // {
+          //   label: "Email",
+          //   link: routes.emailSetting,
+          //   base: "email",
+          //   customSubmenuTwo: false,
+          // },
           {
             label: "Branding",
             link: routes.brandingSettings,
