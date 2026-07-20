@@ -29,18 +29,27 @@ const LeaveApprovalTable: React.FC = () => {
   const [leaveFrom, setLeaveFrom] = useState("");
   const [leaveTo, setLeaveTo] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const fetchLeaves = async () => {
+  const fetchLeaves = async (pageNum: number = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      params.append("page", String(pageNum));
+      params.append("limit", "10");
       if (appliedFrom) params.append("appliedFrom", appliedFrom);
       if (appliedTo) params.append("appliedTo", appliedTo);
       if (leaveFrom) params.append("leaveFrom", leaveFrom);
       if (leaveTo) params.append("leaveTo", leaveTo);
       if (search.trim()) params.append("search", search.trim());
       const res = await axiosInstance.get(`/leave/all?${params.toString()}`);
-      setData(res.data.data || []);
+      const result = res.data.data || {};
+      setData(result.data || []);
+      setTotalPages(result.totalPages || 1);
+      setTotal(result.total || 0);
+      setPage(pageNum);
     } catch (err) {
       console.log(err);
     } finally {
@@ -49,7 +58,7 @@ const LeaveApprovalTable: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchLeaves();
+    fetchLeaves(1);
   }, []);
 
   // ✅ approve
@@ -200,10 +209,10 @@ const LeaveApprovalTable: React.FC = () => {
                 placeholder="Search employee name..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && fetchLeaves()}
+                onKeyDown={(e) => e.key === "Enter" && fetchLeaves(1)}
               />
             </div>
-            <button className="search-btn" onClick={fetchLeaves}>
+            <button className="search-btn" onClick={() => fetchLeaves(1)}>
               🔍
             </button>
           </div>
@@ -342,6 +351,27 @@ const LeaveApprovalTable: React.FC = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="pagination-bar">
+              <button
+                className="page-btn"
+                disabled={page <= 1}
+                onClick={() => fetchLeaves(page - 1)}
+              >
+                ← Previous
+              </button>
+              <span className="page-info">Page {page} of {totalPages} ({total} records)</span>
+              <button
+                className="page-btn"
+                disabled={page >= totalPages}
+                onClick={() => fetchLeaves(page + 1)}
+              >
+                Next →
+              </button>
             </div>
           )}
 
@@ -544,6 +574,43 @@ const LeaveApprovalTable: React.FC = () => {
         .reject-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(220,38,38,.2);
+        }
+
+        .pagination-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 20px;
+          padding-top: 16px;
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .page-btn {
+          padding: 8px 18px;
+          background: #2563eb;
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: .2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+          background: #1d4ed8;
+        }
+
+        .page-btn:disabled {
+          background: #d1d5db;
+          color: #999;
+          cursor: not-allowed;
+        }
+
+        .page-info {
+          font-size: 13px;
+          color: #555;
+          font-weight: 500;
         }
       `}</style>
         </div>
