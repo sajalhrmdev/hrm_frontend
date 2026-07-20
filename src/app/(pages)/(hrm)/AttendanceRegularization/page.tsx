@@ -10,8 +10,8 @@ const statusOptions = [
   "PRESENT",
   "HALF_DAY",
   "ABSENT",
-  "PAID_LEAVE",
-  "UNPAID_LEAVE",
+  // "PAID_LEAVE",
+  // "UNPAID_LEAVE",
   "HOLIDAY",
   "WEEKLY_OFF",
 ];
