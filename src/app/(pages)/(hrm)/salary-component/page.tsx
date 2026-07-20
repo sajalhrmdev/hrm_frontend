@@ -8,6 +8,7 @@ type SalaryComponent = {
   name: string;
   code: string;
   type: "EARNING" | "DEDUCTION";
+  prorated: boolean;
   createdAt: string;
 };
 
@@ -19,6 +20,7 @@ const SalaryComponentPage = () => {
     name: "",
     code: "",
     type: "EARNING",
+    prorated: false,
   });
 
   const [editId, setEditId] = useState<number | null>(null);
@@ -76,6 +78,7 @@ const SalaryComponentPage = () => {
         name: "",
         code: "",
         type: "EARNING",
+        prorated: false,
       });
 
       setEditId(null);
@@ -96,6 +99,7 @@ const SalaryComponentPage = () => {
       name: item.name,
       code: item.code,
       type: item.type,
+      prorated: item.prorated,
     });
 
     window.scrollTo({
@@ -183,6 +187,33 @@ const SalaryComponentPage = () => {
                       <option value="DEDUCTION">DEDUCTION</option>
                     </select>
                   </div>
+
+                  {/* PRORATED */}
+                  <div className="col-md-4 mb-3">
+                    <div
+                      className="form-check mt-4"
+                      style={{ paddingTop: "8px" }}
+                    >
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="prorated"
+                        checked={formData.prorated}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            prorated: e.target.checked,
+                          })
+                        }
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor="prorated"
+                      >
+                        Prorate on Payable Days
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <button
@@ -216,6 +247,8 @@ const SalaryComponentPage = () => {
 
                         <th>Type</th>
 
+                        <th>Prorated</th>
+
                         <th>Created</th>
 
                         <th style={{ width: "180px" }}>Action</th>
@@ -225,7 +258,7 @@ const SalaryComponentPage = () => {
                     <tbody>
                       {components.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="text-center">
+                          <td colSpan={7} className="text-center">
                             No components found
                           </td>
                         </tr>
@@ -247,6 +280,16 @@ const SalaryComponentPage = () => {
                                 }`}
                               >
                                 {item.type}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span
+                                className={`badge ${
+                                  item.prorated ? "bg-info" : "bg-secondary"
+                                }`}
+                              >
+                                {item.prorated ? "Yes" : "No"}
                               </span>
                             </td>
 
