@@ -478,4 +478,12 @@ export const all_routes = {
   import: "/import",
   importEntity: "/import/:entity",
 
+  // Field Track routes
+  fieldEmployee: "/field-track/employee",
+  fieldLiveTracking: "/field-track/live-tracking",
+  fieldRouteHistory: "/field-track/route-history",
+  fieldReports: "/field-track/reports",
+  fieldMyLocation: "/field-track/my-location",
+  fieldMyRouteHistory: "/field-track/my-route-history",
+
 };
