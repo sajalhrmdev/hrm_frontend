@@ -117,6 +117,7 @@ export default function MyLocation() {
               latitude: pos.coords.latitude,
               longitude: pos.coords.longitude,
               speed: pos.coords.speed ?? undefined,
+              accuracy: pos.coords.accuracy ?? undefined,
             });
           } catch (err: any) {
             if (err?.response?.status === 400) {

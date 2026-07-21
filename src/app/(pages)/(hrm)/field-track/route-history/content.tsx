@@ -23,6 +23,13 @@ interface RouteStop {
   duration: number;
 }
 
+function formatDuration(sec: number) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+}
+
 interface RouteData {
   locations: { latitude: number; longitude: number; timestamp: string }[];
   stops?: RouteStop[];
@@ -41,6 +48,45 @@ function MapController({ center }: { center: [number, number] }) {
     map.setView(center, map.getZoom());
   }, [center, map]);
   return null;
+}
+
+function StopCircle({ stop }: { stop: RouteStop }) {
+  const [addr, setAddr] = useState("");
+
+  return (
+    <Circle
+      center={[stop.latitude, stop.longitude]}
+      radius={6}
+      pathOptions={{ color: "#f59e0b", weight: 2, fillColor: "#f59e0b", fillOpacity: 1 }}
+      eventHandlers={{
+        popupopen: () => {
+          if (!addr) reverseGeocode(stop.latitude, stop.longitude).then(setAddr);
+        },
+      }}
+    >
+      <Popup>
+        <div className="ft-popup">
+          <strong>Stay Zone</strong>
+          <div className="fs-12 text-muted mt-1">
+            <i className="ti ti-map-pin me-1" />
+            {addr || "Loading..."}
+          </div>
+          <div className="fs-12 text-muted mt-1">
+            <i className="ti ti-login me-1" />
+            Entered: {new Date(stop.arrivedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
+          </div>
+          <div className="fs-12 text-muted">
+            <i className="ti ti-logout me-1" />
+            Exited: {new Date(stop.departedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
+          </div>
+          <div className="fs-12 text-muted">
+            <i className="ti ti-clock me-1" />
+            Duration: {formatDuration(stop.duration)}
+          </div>
+        </div>
+      </Popup>
+    </Circle>
+  );
 }
 
 interface FieldEmployee {
@@ -70,26 +116,11 @@ export default function RouteHistory() {
       setRoute(data);
       setStartAddr("");
       setEndAddr("");
-      if (data) {
-        if (data.startLocation) {
-          reverseGeocode(data.startLocation.lat, data.startLocation.lng).then(setStartAddr);
-        }
-        if (data.endLocation) {
-          reverseGeocode(data.endLocation.lat, data.endLocation.lng).then(setEndAddr);
-        }
-      }
     } catch {
       console.error("Failed to fetch route history");
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatDuration = (sec: number) => {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
-    return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
   };
 
   useEffect(() => {
@@ -282,35 +313,17 @@ export default function RouteHistory() {
                       opacity={0.7}
                     />
                     {route.stops?.map((stop, i) => (
-                      <Circle
-                        key={i}
-                        center={[stop.latitude, stop.longitude]}
-                        radius={50}
-                        pathOptions={{ color: "#f59e0b", weight: 5, fillColor: "#f59e0b", fillOpacity: 0.12 }}
-                      >
-                        <Popup>
-                          <div className="ft-popup">
-                            <strong>Stay Zone</strong>
-                            <div className="fs-12 text-muted mt-1">
-                              <i className="ti ti-login me-1" />
-                              Entered: {new Date(stop.arrivedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </div>
-                            <div className="fs-12 text-muted">
-                              <i className="ti ti-logout me-1" />
-                              Exited: {new Date(stop.departedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </div>
-                            <div className="fs-12 text-muted">
-                              <i className="ti ti-clock me-1" />
-                              Duration: {formatDuration(stop.duration)}
-                            </div>
-                          </div>
-                        </Popup>
-                      </Circle>
+                      <StopCircle key={i} stop={stop} />
                     ))}
                     {route.startLocation && (
                       <Marker
                         position={[route.startLocation.lat, route.startLocation.lng]}
                         icon={icon}
+                        eventHandlers={{
+                          popupopen: () => {
+                            if (!startAddr) reverseGeocode(route.startLocation!.lat, route.startLocation!.lng).then(setStartAddr);
+                          },
+                        }}
                       >
                         <Popup>
                           <div className="ft-popup">
@@ -333,6 +346,11 @@ export default function RouteHistory() {
                       <Marker
                         position={[route.endLocation.lat, route.endLocation.lng]}
                         icon={icon}
+                        eventHandlers={{
+                          popupopen: () => {
+                            if (!endAddr) reverseGeocode(route.endLocation!.lat, route.endLocation!.lng).then(setEndAddr);
+                          },
+                        }}
                       >
                         <Popup>
                           <div className="ft-popup">
