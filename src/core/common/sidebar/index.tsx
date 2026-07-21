@@ -508,6 +508,7 @@ const Sidebar = React.memo(() => {
                                             getLayoutClass(data?.label),
                                           );
                                         }
+                                        if (!hasSubmenu) dispatch(setMobileSidebar(false));
                                       }}
                                       className={`${hasSubmenu && isOpen ? "subdrop" : ""} ${hasSubmenu && isActive ? "active" : ""}`}
                                     >
@@ -547,6 +548,7 @@ const Sidebar = React.memo(() => {
                                             getLayoutClass(data?.label),
                                           );
                                         }
+                                        if (!hasSubmenu) dispatch(setMobileSidebar(false));
                                       }}
                                       className={`${hasSubmenu && isOpen ? "subdrop" : ""} ${hasSubmenu && isActive ? "active" : ""}`}
                                     >
@@ -614,6 +616,7 @@ const Sidebar = React.memo(() => {
                                                         item?.label,
                                                       );
                                                     }
+                                                    if (!hasSubSubmenu) dispatch(setMobileSidebar(false));
                                                   }}
                                                   className={`${hasSubSubmenu && isSubOpen ? "subdrop" : ""} ${isItemActive ? "active" : ""}`}
                                                 >
@@ -651,6 +654,7 @@ const Sidebar = React.memo(() => {
                                                         item?.label,
                                                       );
                                                     }
+                                                    if (!hasSubSubmenu) dispatch(setMobileSidebar(false));
                                                   }}
                                                   className={`${hasSubSubmenu && isSubOpen ? "subdrop" : ""} ${isItemActive ? "active" : ""}`}
                                                 >
@@ -733,6 +737,7 @@ const Sidebar = React.memo(() => {
                                                                     subItem?.label,
                                                                   );
                                                                 }
+                                                                if (!hasSubSubSubmenu) dispatch(setMobileSidebar(false));
                                                               }}
                                                               className={`${hasSubSubSubmenu && isSubThreeOpen ? "subdrop" : ""} ${isSubItemActive ? "active" : ""}`}
                                                             >
@@ -767,6 +772,7 @@ const Sidebar = React.memo(() => {
                                                                     subItem?.label,
                                                                   );
                                                                 }
+                                                                if (!hasSubSubSubmenu) dispatch(setMobileSidebar(false));
                                                               }}
                                                               className={`${hasSubSubSubmenu && isSubThreeOpen ? "subdrop" : ""} ${isSubItemActive ? "active" : ""}`}
                                                             >
@@ -810,6 +816,7 @@ const Sidebar = React.memo(() => {
                                                                           subSubItem?.link ||
                                                                           "#"
                                                                         }
+                                                                        onClick={() => dispatch(setMobileSidebar(false))}
                                                                         className={
                                                                           isSubSubItemActive
                                                                             ? "active"

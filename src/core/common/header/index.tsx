@@ -296,7 +296,10 @@ const Header = React.memo(() => {
 
           <Link
             id="mobile_btn"
-            onClick={toggleMobileSidebar}
+            onClick={(e) => {
+              e.preventDefault();
+              toggleMobileSidebar();
+            }}
             className="mobile_btn"
             href="#sidebar"
           >

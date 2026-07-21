@@ -89,7 +89,7 @@ export default function LiveTracking() {
 
           {locations.length > 0 && (
             <div className="row g-3 mb-4">
-              {locations.slice(0, 4).map((loc) => (
+              {locations.map((loc) => (
                 <div className="col-md-3" key={loc.employeeId}>
                   <div className="ft-mini-card">
                     <div className="d-flex align-items-center gap-2 mb-1">

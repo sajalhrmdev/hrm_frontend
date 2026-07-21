@@ -43,8 +43,13 @@ const ThemeInitializer: React.FC = () => {
     }
     
     // Initialize mobile sidebar state
+    let prevWidth = window.innerWidth;
     const handleResize = () => {
-      dispatch(setMobileSidebar(window.innerWidth < 992));
+      const cur = window.innerWidth;
+      const wasAbove = prevWidth >= 992;
+      const isAbove = cur >= 992;
+      if (wasAbove !== isAbove) dispatch(setMobileSidebar(!isAbove));
+      prevWidth = cur;
     };
     
     // Set initial state and add event listener
