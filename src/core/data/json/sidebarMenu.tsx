@@ -535,7 +535,7 @@ export const SidebarDataTest = [
       //   submenuItems: [],
       // },
       {
-        label: "Field Track",
+        label: "FieldTrack Manage",
         link: "fieldTrack",
         base: "fieldTrack",
         submenu: true,
