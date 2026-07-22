@@ -35,6 +35,9 @@ const Attendance = () => {
   const [nextAction, setNextAction] = useState<"CHECK_IN" | "CHECK_OUT">(
     "CHECK_IN",
   );
+  const [selectedMethod, setSelectedMethod] = useState<"FACE" | "NORMAL">("FACE");
+  const [allowedMethods, setAllowedMethods] = useState<string[]>(["FACE"]);
+  const [methodChosen, setMethodChosen] = useState(false);
 
   const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY;
 
@@ -76,6 +79,17 @@ const Attendance = () => {
       const res = await axiosInstance.get(`/attendance/today`);
       setAttendance(res.data.data || null);
       setNextAction(res.data.nextAction || "CHECK_IN");
+      const methods = res.data.allowedMethods || ["FACE"];
+      setAllowedMethods(methods);
+      if (methods.length === 1) {
+        setSelectedMethod(methods[0] as "FACE" | "NORMAL");
+        setMethodChosen(true);
+      } else if (methods.includes("NORMAL")) {
+        setSelectedMethod("NORMAL");
+        setMethodChosen(false);
+      } else {
+        setMethodChosen(false);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -231,6 +245,7 @@ const Attendance = () => {
       formData.append("latitude", String(latitude));
       formData.append("longitude", String(longitude));
       formData.append("accuracy", String(accuracy));
+      formData.append("method", "FACE");
 
       const endpoint =
         nextAction === "CHECK_IN"
@@ -269,9 +284,35 @@ const Attendance = () => {
     }
   };
 
+  const handleNormalAttendance = async () => {
+    if (loading) return;
+    try {
+      setLoading(true);
+      const { latitude, longitude, accuracy } = await getLocation();
+      const endpoint =
+        nextAction === "CHECK_IN"
+          ? "/attendance/check-in"
+          : "/attendance/check-out";
+      await axiosInstance.post(endpoint, {
+        latitude,
+        longitude,
+        accuracy,
+        method: "NORMAL",
+      });
+      setAttendanceMode(false);
+      resetBlinkState();
+      setInstruction("Attendance Successful ✅");
+      await fetchTodayAttendance();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatTime = (date: any) =>
     new Date(date).toLocaleTimeString("en-GB", {
-      hour12: false,
+      hour12: true,
     });
 
   const formatDate = (date: Date) => date.toDateString();
@@ -322,13 +363,39 @@ const Attendance = () => {
             {formatTime(time)}
           </h1>
 
+          {!attendanceMode && (allowedMethods.length >= 2 || allowedMethods.includes("NORMAL")) && (
+            <div className="d-flex gap-2 justify-content-center mb-3">
+              {allowedMethods.includes("FACE") && (
+                <button
+                  className={`btn btn-sm ${selectedMethod === "FACE" ? "btn-primary" : "btn-outline-primary"}`}
+                  onClick={() => { setSelectedMethod("FACE"); setMethodChosen(true); }}
+                >
+                  📸 Face
+                </button>
+              )}
+              {allowedMethods.includes("NORMAL") && (
+                <button
+                  className={`btn btn-sm ${selectedMethod === "NORMAL" ? "btn-success" : "btn-outline-success"}`}
+                  onClick={() => { setSelectedMethod("NORMAL"); setMethodChosen(true); }}
+                >
+                  ✅ Normal
+                </button>
+              )}
+            </div>
+          )}
+
           {!attendanceMode && (
             <button
               className="btn btn-primary"
+              disabled={allowedMethods.length > 1 && !methodChosen}
               onClick={() => {
-                setAttendanceMode(true);
-                resetBlinkState();
-                setInstruction("Please look at camera");
+                if (selectedMethod === "NORMAL") {
+                  handleNormalAttendance();
+                } else {
+                  setAttendanceMode(true);
+                  resetBlinkState();
+                  setInstruction("Please look at camera");
+                }
               }}
             >
               Start Attendance
@@ -403,7 +470,7 @@ const Attendance = () => {
               )}
             </div>
 
-            {attendanceMode && (
+            {attendanceMode && selectedMethod === "FACE" && (
               <div className="webcam-circle">
                 <Webcam
                   ref={webcamRef}

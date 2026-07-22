@@ -24,6 +24,7 @@ interface FormDataType {
   shiftId: string;
   isActive: boolean;
   weeklyOffPattern: WeeklyOffPattern[];
+  allowedMethods: string[];
 }
 
 // ======================================================
@@ -120,6 +121,7 @@ const WorkSchedulePolicyPage = () => {
     shiftId: "",
 
     isActive: true,
+    allowedMethods: ["FACE"],
 
     weeklyOffPattern: [],
   });
@@ -199,6 +201,7 @@ const WorkSchedulePolicyPage = () => {
       shiftId: "",
 
       isActive: true,
+      allowedMethods: ["FACE"],
 
       weeklyOffPattern: [],
     });
@@ -232,6 +235,7 @@ const WorkSchedulePolicyPage = () => {
       shiftId: policy?.shiftId || "",
 
       isActive: policy?.isActive,
+      allowedMethods: policy?.allowedMethods || ["FACE"],
 
       weeklyOffPattern: policy?.weeklyOffPattern || [],
     });
@@ -439,6 +443,7 @@ const WorkSchedulePolicyPage = () => {
                   <th>Shift / Work Time</th>
 
                   <th>Weekly Off</th>
+                  <th>Methods</th>
 
                   <th>Status</th>
 
@@ -482,6 +487,13 @@ const WorkSchedulePolicyPage = () => {
                       </td>
 
                       <td>{formatWeeklyOff(item.weeklyOffPattern)}</td>
+                      <td>
+                        {(item.allowedMethods || []).map((m: string) => (
+                          <span key={m} className={`badge ${m === "FACE" ? "badge-primary" : "badge-success"}`} style={{ marginRight: 4 }}>
+                            {m === "FACE" ? "📸 Face" : "✅ Normal"}
+                          </span>
+                        ))}
+                      </td>
 
                       <td>
                         <span
@@ -758,6 +770,40 @@ const WorkSchedulePolicyPage = () => {
                       </div>
                     ),
                   )}
+                </div>
+
+                {/* ====================================================== */}
+
+                <div className="field-box">
+                  <label>Allowed Attendance Methods</label>
+                  <div className="d-flex gap-3 mt-1">
+                    <label className="d-flex align-items-center gap-1" style={{ cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.allowedMethods.includes("FACE")}
+                        onChange={(e) => {
+                          const val = e.target.checked
+                            ? [...formData.allowedMethods, "FACE"]
+                            : formData.allowedMethods.filter((m) => m !== "FACE");
+                          setFormData({ ...formData, allowedMethods: val });
+                        }}
+                      />
+                      📸 Face Verification
+                    </label>
+                    <label className="d-flex align-items-center gap-1" style={{ cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.allowedMethods.includes("NORMAL")}
+                        onChange={(e) => {
+                          const val = e.target.checked
+                            ? [...formData.allowedMethods, "NORMAL"]
+                            : formData.allowedMethods.filter((m) => m !== "NORMAL");
+                          setFormData({ ...formData, allowedMethods: val });
+                        }}
+                      />
+                      ✅ Normal (No Face)
+                    </label>
+                  </div>
                 </div>
 
                 {/* ====================================================== */}
