@@ -51,7 +51,7 @@ const MonthlyAttendance: React.FC = () => {
         success: boolean;
 
         data: Attendance[];
-      }>(`/attendance/monthly-attendance-all?year=${y}&month=${m}`);
+      }>(`/attendance/monthly-attendance?year=${y}&month=${m}`);
 
       setData(res.data.data || []);
     } catch (err) {
