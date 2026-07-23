@@ -39,6 +39,18 @@ const PermissionPage = () => {
     label: "",
   });
 
+  const [bulkOpen, setBulkOpen] = useState(false);
+
+  const [bulkText, setBulkText] = useState("");
+
+  const [bulkLoading, setBulkLoading] = useState(false);
+
+  const [bulkResult, setBulkResult] = useState<{
+    created: number;
+    skipped: number;
+    skippedNames: string[];
+  } | null>(null);
+
   // ======================================================
   // FETCH
   // ======================================================
@@ -162,6 +174,40 @@ const PermissionPage = () => {
   };
 
   // ======================================================
+  // BULK CREATE
+  // ======================================================
+
+  const handleBulkCreate = async () => {
+    const lines = bulkText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    if (lines.length === 0) {
+      alert("Paste at least one permission name");
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+
+      const res = await axiosInstance.post("/permission/bulk", {
+        permissions: lines.map((name) => ({ name })),
+      });
+
+      setBulkResult(res.data.data);
+
+      fetchPermissions();
+    } catch (err: any) {
+      console.log(err);
+
+      alert(err?.response?.data?.message || "Bulk create failed");
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
+  // ======================================================
   // UI
   // ======================================================
 
@@ -178,22 +224,37 @@ const PermissionPage = () => {
               <p>Manage system permissions</p>
             </div>
 
-            <button
-              className="create-btn"
-              onClick={() => {
-                setEditId(null);
+            <div className="header-actions">
+              <button
+                className="create-btn"
+                onClick={() => {
+                  setEditId(null);
 
-                setFormData({
-                  name: "",
+                  setFormData({
+                    name: "",
 
-                  label: "",
-                });
+                    label: "",
+                  });
 
-                setOpenModal(true);
-              }}
-            >
-              ➕ Create Permission
-            </button>
+                  setOpenModal(true);
+                }}
+              >
+                ➕ Create Permission
+              </button>
+
+              <button
+                className="bulk-btn"
+                onClick={() => {
+                  setBulkText("");
+
+                  setBulkResult(null);
+
+                  setBulkOpen(true);
+                }}
+              >
+                📋 Bulk Create
+              </button>
+            </div>
           </div>
 
           {/* TABLE */}
@@ -314,6 +375,86 @@ const PermissionPage = () => {
             </div>
           )}
 
+          {/* BULK CREATE MODAL */}
+
+          {bulkOpen && (
+            <div className="modal-overlay">
+              <div className="modal-box bulk-modal">
+                <div className="modal-header">
+                  <h3>📋 Bulk Create Permissions</h3>
+
+                  <button
+                    className="close-btn"
+                    onClick={() => setBulkOpen(false)}
+                  >
+                    ✖
+                  </button>
+                </div>
+
+                {!bulkResult ? (
+                  <>
+                    <p className="bulk-hint">
+                      Paste one permission name per line
+                    </p>
+
+                    <textarea
+                      className="bulk-textarea"
+                      rows={12}
+                      value={bulkText}
+                      onChange={(e) => setBulkText(e.target.value)}
+                      placeholder={`Sidebar Leave\nSidebar Leave Approval\nSidebar Leave Balance\nSidebar Salary\nSidebar Salary Component`}
+                    />
+
+                    <button
+                      className="submit-btn"
+                      onClick={handleBulkCreate}
+                      disabled={bulkLoading}
+                    >
+                      {bulkLoading
+                        ? "Creating..."
+                        : `Create ${bulkText.split("\n").filter((l) => l.trim()).length} Permissions`}
+                    </button>
+                  </>
+                ) : (
+                  <div className="bulk-result">
+                    <div className="bulk-result-stat">
+                      <span className="bulk-created">
+                        ✅ Created: {bulkResult.created}
+                      </span>
+
+                      <span className="bulk-skipped">
+                        ⏭️ Skipped: {bulkResult.skipped}
+                      </span>
+                    </div>
+
+                    {bulkResult.skippedNames.length > 0 && (
+                      <div className="bulk-skipped-list">
+                        <p>Already existing:</p>
+
+                        {bulkResult.skippedNames.map((name) => (
+                          <span key={name} className="bulk-skip-item">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <button
+                      className="submit-btn"
+                      onClick={() => {
+                        setBulkOpen(false);
+
+                        setBulkResult(null);
+                      }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* STYLES */}
 
           <style jsx>{`
@@ -349,6 +490,11 @@ const PermissionPage = () => {
               color: #666;
             }
 
+            .header-actions {
+              display: flex;
+              gap: 10px;
+            }
+
             .create-btn {
               border: none;
 
@@ -368,6 +514,28 @@ const PermissionPage = () => {
             }
 
             .create-btn:hover {
+              transform: translateY(-2px);
+            }
+
+            .bulk-btn {
+              border: none;
+
+              background: #7c3aed;
+
+              color: #fff;
+
+              padding: 12px 18px;
+
+              border-radius: 12px;
+
+              font-weight: 600;
+
+              cursor: pointer;
+
+              transition: 0.2s;
+            }
+
+            .bulk-btn:hover {
               transform: translateY(-2px);
             }
 
@@ -543,6 +711,77 @@ const PermissionPage = () => {
               font-weight: 700;
 
               cursor: pointer;
+            }
+
+            .bulk-modal {
+              max-width: 600px;
+            }
+
+            .bulk-hint {
+              color: #666;
+              margin-bottom: 12px;
+              font-size: 14px;
+            }
+
+            .bulk-textarea {
+              width: 100%;
+              padding: 12px;
+              border-radius: 12px;
+              border: 1px solid #ddd;
+              font-family: monospace;
+              font-size: 14px;
+              resize: vertical;
+              margin-bottom: 16px;
+            }
+
+            .bulk-textarea:focus {
+              outline: none;
+              border-color: #7c3aed;
+            }
+
+            .bulk-result {
+              text-align: center;
+            }
+
+            .bulk-result-stat {
+              display: flex;
+              justify-content: center;
+              gap: 24px;
+              margin-bottom: 20px;
+              font-size: 18px;
+              font-weight: 600;
+            }
+
+            .bulk-created {
+              color: #16a34a;
+            }
+
+            .bulk-skipped {
+              color: #d97706;
+            }
+
+            .bulk-skipped-list {
+              background: #fef3c7;
+              padding: 12px;
+              border-radius: 10px;
+              margin-bottom: 20px;
+              text-align: left;
+            }
+
+            .bulk-skipped-list p {
+              margin: 0 0 8px;
+              font-weight: 600;
+              font-size: 13px;
+            }
+
+            .bulk-skip-item {
+              display: inline-block;
+              background: #fde68a;
+              padding: 4px 10px;
+              border-radius: 6px;
+              margin: 2px 4px 2px 0;
+              font-size: 12px;
+              font-family: monospace;
             }
           `}</style>
         </div>

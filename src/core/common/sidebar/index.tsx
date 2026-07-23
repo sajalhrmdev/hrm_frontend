@@ -330,12 +330,11 @@ const Sidebar = React.memo(() => {
         };
       })
       .filter((item) => {
-        // নিজে allowed
+        // Section headers: keep only if they have visible children
+        if (item.tittle) return item.submenuItems?.length > 0;
+        // Regular items: keep if allowed
         if (item.allowed) return true;
-
-        // child allowed
         if (item.submenuItems?.length > 0) return true;
-
         return false;
       });
   };

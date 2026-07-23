@@ -247,7 +247,7 @@ const buildPermissionTree = (permissions: Permission[]) => {
         makeLeaf(
           permissionsMap,
           usedIds,
-          "Sidebar Logs By Authorized",
+          "Sidebar Logs ByAuthorized",
           "Logs By Authorized",
         ),
         makeLeaf(
@@ -257,43 +257,228 @@ const buildPermissionTree = (permissions: Permission[]) => {
           "Logs By Employee",
         ),
       ]),
+      makeGroup(permissionsMap, usedIds, "Attendance Settings", undefined, [
+        makeLeaf(
+          permissionsMap,
+          usedIds,
+          "Sidebar WeekendSetup",
+          "Weekend Setup",
+        ),
+        makeLeaf(
+          permissionsMap,
+          usedIds,
+          "Sidebar HolidaySetup",
+          "Holiday Setup",
+        ),
+      ]),
     ],
   );
 
-  const employee = makeLeaf(
+  const employee = makeGroup(
     permissionsMap,
     usedIds,
-    "Sidebar Employee",
     "Employee",
+    "Sidebar Employee",
+    [
+      makeLeaf(permissionsMap, usedIds, "Sidebar Employee", "Employee List"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Department", "Department"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Designation", "Designation"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Role", "Role"),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar AssignRolePermissions",
+        "Assign Role Permissions",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar PerformanceReview",
+        "Performance Review",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar RewardManage",
+        "Reward Manage",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar Resignation",
+        "Resignation",
+      ),
+    ],
   );
   const user = makeLeaf(permissionsMap, usedIds, "Sidebar User", "User");
-  const hr = makeGroup(permissionsMap, usedIds, "HR", "Sidebar HR", [
-    makeLeaf(permissionsMap, usedIds, "Sidebar Department", "Department"),
-    makeLeaf(permissionsMap, usedIds, "Sidebar Designation", "Designation"),
-  ]);
-
-  const role = makeLeaf(permissionsMap, usedIds, "Sidebar Role", "Role");
   const assignRolePermissions = makeLeaf(
     permissionsMap,
     usedIds,
     "Sidebar AssignRolePermissions",
     "Assign Role Permissions",
   );
+
+  const leave = makeGroup(permissionsMap, usedIds, "Leave", "Sidebar Leave", [
+    makeLeaf(
+      permissionsMap,
+      usedIds,
+      "Sidebar Leave Approval",
+      "Leave Approval",
+    ),
+    makeLeaf(permissionsMap, usedIds, "Sidebar Leave Balance", "Leave Balance"),
+    makeLeaf(permissionsMap, usedIds, "Sidebar Leave Types", "Leave Types"),
+    makeGroup(
+      permissionsMap,
+      usedIds,
+      "Leave Increment",
+      undefined,
+      [
+        makeLeaf(
+          permissionsMap,
+          usedIds,
+          "Sidebar Leave Increment Processor",
+          "Processor",
+        ),
+        makeLeaf(
+          permissionsMap,
+          usedIds,
+          "Sidebar Leave Increment Policy",
+          "Policy",
+        ),
+        makeLeaf(
+          permissionsMap,
+          usedIds,
+          "Sidebar Leave Increment Logs",
+          "Logs",
+        ),
+      ],
+    ),
+  ]);
+
+  const salary = makeGroup(
+    permissionsMap,
+    usedIds,
+    "Salary",
+    "Sidebar Salary",
+    [
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar Salary Component",
+        "Salary Component",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar Salary Assign",
+        "Salary Assign",
+      ),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Payroll", "Payroll"),
+    ],
+  );
+
+  const workSchedule = makeGroup(
+    permissionsMap,
+    usedIds,
+    "Work Schedule",
+    "Sidebar WorkSchedule",
+    [
+      makeLeaf(permissionsMap, usedIds, "Sidebar Schedule", "Schedule"),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar WorkSchedule Assign",
+        "Assign",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar WorkSchedule Policy",
+        "Work Schedule Policy",
+      ),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Shift", "Shift"),
+    ],
+  );
+
   const notice = makeLeaf(
     permissionsMap,
     usedIds,
-    "Sidebar NoticeManage",
-    "Notice Management",
+    "Sidebar Notice",
+    "Notice",
+  );
+
+  const report = makeGroup(
+    permissionsMap,
+    usedIds,
+    "Report",
+    "Sidebar Report",
+    [
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar Attendance Report",
+        "Attendance Report",
+      ),
+    ],
+  );
+
+  const fieldTrack = makeGroup(
+    permissionsMap,
+    usedIds,
+    "FieldTrack",
+    "Sidebar FieldTrack",
+    [
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar FieldEmployees",
+        "Field Employees",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar FieldLiveTracking",
+        "Live Tracking",
+      ),
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar FieldRouteHistory",
+        "Route History",
+      ),
+      makeLeaf(permissionsMap, usedIds, "Sidebar FieldReports", "Reports"),
+    ],
+  );
+
+  const settings = makeGroup(
+    permissionsMap,
+    usedIds,
+    "Settings",
+    "Sidebar Settings",
+    [
+      makeLeaf(
+        permissionsMap,
+        usedIds,
+        "Sidebar CompanySettings",
+        "Company Settings",
+      ),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Location", "Location"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Branding", "Branding"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar Import", "Import"),
+    ],
   );
 
   const sections = [
     attendance,
     employee,
     user,
-    hr,
-    role,
-    assignRolePermissions,
+    leave,
+    salary,
+    workSchedule,
     notice,
+    report,
+    fieldTrack,
+    settings,
   ].filter(Boolean) as TreeNode[];
 
   tree.push(...sections);

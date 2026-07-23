@@ -1,5 +1,4 @@
 import { all_routes } from "@/routes/all_routes";
-import { permission } from "process";
 
 const routes = all_routes;
 
@@ -149,7 +148,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
-            permission: "Sidebar AssignRolePermissions",
+            permission: "Sidebar PerformanceReview",
             submenuItems: [],
           },
            {
@@ -160,7 +159,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
-            permission: "Sidebar AssignRolePermissions",
+            permission: "Sidebar RewardManage",
             submenuItems: [],
           },
           {
@@ -170,7 +169,7 @@ export const SidebarDataTest = [
             submenu: false,
             showSubRoute: false,
             materialicons: "external-link",
-            permission: "Sidebar AssignRolePermissions",
+            permission: "Sidebar Resignation",
             submenuItems: [],
           },
         ],
@@ -183,7 +182,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
-        permission: "	Sidebar Attendance",
+        permission: "Sidebar Attendance",
         submenuItems: [
           {
             label: "Userless",
@@ -191,7 +190,7 @@ export const SidebarDataTest = [
             base: routes.userless,
             submenu: false,
             showSubRoute: false,
-
+            permission: "Sidebar Attendance",
             // permission: "Attendance Dashboard",
           },
           {
@@ -203,7 +202,7 @@ export const SidebarDataTest = [
             // icon: "calendar-event",
             materialicons: "confirmation_number",
 
-            permission: "Attendance Dashboard",
+            permission: "Sidebar Attendance Dashboard",
           },
           {
             label: "Attendance Regularization",
@@ -224,7 +223,7 @@ export const SidebarDataTest = [
             // icon: "file-time",
             base: "sales",
             materialicons: "track_changes",
-            permission: "Attendance Dashboard",
+            permission: "Sidebar Attendance Dashboard",
             submenuItems: [
               {
                 label: "Processor",
@@ -245,12 +244,14 @@ export const SidebarDataTest = [
                 // link: routes.logByDay,
                 base: "adjustment-log",
                 customSubmenuTwo: false,
+                permission: "Sidebar Logs ByAuthorized",
               },
               {
                 label: "Logs By Employee",
                 // link: routes.logByDay,
                 base: "adjustment-log",
                 customSubmenuTwo: false,
+                permission: "Sidebar Logs By Employee",
               },
             ],
           },
@@ -264,6 +265,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Attendance",
             submenuItems: [
               {
                 label: "Weekend Setup",
@@ -273,6 +275,7 @@ export const SidebarDataTest = [
                 showSubRoute: false,
                 // icon: "calendar-event",
                 materialicons: "confirmation_number",
+                permission: "Sidebar WeekendSetup",
                 submenuItems: [],
               },
               {
@@ -283,6 +286,7 @@ export const SidebarDataTest = [
                 showSubRoute: false,
                 // icon: "calendar-event",
                 materialicons: "confirmation_number",
+                permission: "Sidebar HolidaySetup",
                 submenuItems: [],
               },
             ],
@@ -298,6 +302,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
+        permission: "Sidebar User",
         // submenuItems: [],
       },
       // {
@@ -351,6 +356,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
+        permission: "Sidebar Leave",
         submenuItems: [
           {
             label: "Leave Approval",
@@ -358,6 +364,7 @@ export const SidebarDataTest = [
             base: routes.leaveApproval,
             customSubmenuTwo: false,
             showSubRoute: false,
+            permission: "Sidebar Leave Approval",
             submenuItems: [],
           },
           {
@@ -368,6 +375,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Leave Balance",
             submenuItems: [],
           },
           {
@@ -378,6 +386,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Leave Types",
             submenuItems: [],
           },
           {
@@ -388,24 +397,28 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Leave",
             submenuItems: [
               {
                 label: "Processor",
                 link: routes.leaveIncrement,
                 base: routes.leaveIncrement,
                 customSubmenuTwo: false,
+                permission: "Sidebar Leave Increment Processor",
               },
               {
                 label: "Policy",
                 link: routes.leaveIncrementPolicy,
                 base: routes.leaveIncrementPolicy,
                 customSubmenuTwo: false,
+                permission: "Sidebar Leave Increment Policy",
               },
               {
                 label: "Logs",
                 link: routes.leaveIncrementLogs,
                 base: routes.leaveIncrementLogs,
                 customSubmenuTwo: false,
+                permission: "Sidebar Leave Increment Logs",
               },
             ],
           },
@@ -419,6 +432,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
+        permission: "Sidebar Salary",
         submenuItems: [
           {
             label: "Salary Component",
@@ -428,6 +442,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Salary Component",
             submenuItems: [],
           },
           {
@@ -438,6 +453,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Salary Assign",
             submenuItems: [],
           },
           {
@@ -448,6 +464,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Payroll",
             submenuItems: [],
           },
         ],
@@ -461,30 +478,35 @@ export const SidebarDataTest = [
         icon: "file-time",
         base: "WokSchedule",
         materialicons: "track_changes",
+        permission: "Sidebar WorkSchedule",
         submenuItems: [
           {
             label: "Schedule",
             link: routes.schedule,
             base: "schedeule",
             customSubmenuTwo: false,
+            permission: "Sidebar Schedule",
           },
           {
             label: "Assign",
             link: routes.workScheduleAssign,
             base: "workScheduleAssign",
             customSubmenuTwo: false,
+            permission: "Sidebar WorkSchedule Assign",
           },
           {
             label: "Work Schedule Policy",
             link: routes.workSchedulePolicy,
             base: "workSchedulePolicy",
             customSubmenuTwo: false,
+            permission: "Sidebar WorkSchedule Policy",
           },
           {
             label: "Shift",
             link: routes.shift,
             base: routes.shift,
             customSubmenuTwo: false,
+            permission: "Sidebar Shift",
             // showSubRoute: false,
             // icon: "calendar-event",
             // materialicons: "confirmation_number",
@@ -500,6 +522,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "calendar-event",
         materialicons: "confirmation_number",
+        permission: "Sidebar Notice",
         submenuItems: [],
       },
        {
@@ -510,6 +533,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             // icon: "calendar-event",
             materialicons: "confirmation_number",
+            permission: "Sidebar Report",
             submenuItems: [
               {
                 label: "Attendance Report",
@@ -519,6 +543,7 @@ export const SidebarDataTest = [
                 showSubRoute: false,
                 // icon: "calendar-event",
                 materialicons: "confirmation_number",
+                permission: "Sidebar Attendance Report",
                 submenuItems: [],
               },
              
@@ -542,6 +567,7 @@ export const SidebarDataTest = [
         showSubRoute: false,
         icon: "map-pin",
         materialicons: "explore",
+        permission: "Sidebar FieldTrack",
         submenuItems: [
           {
             label: "Field Employees",
@@ -549,6 +575,7 @@ export const SidebarDataTest = [
             base: routes.fieldEmployee,
             submenu: false,
             showSubRoute: false,
+            permission: "Sidebar FieldEmployees",
             submenuItems: [],
           },
           {
@@ -557,6 +584,7 @@ export const SidebarDataTest = [
             base: routes.fieldLiveTracking,
             submenu: false,
             showSubRoute: false,
+            permission: "Sidebar FieldLiveTracking",
             submenuItems: [],
           },
           {
@@ -565,6 +593,7 @@ export const SidebarDataTest = [
             base: routes.fieldRouteHistory,
             submenu: false,
             showSubRoute: false,
+            permission: "Sidebar FieldRouteHistory",
             submenuItems: [],
           },
           {
@@ -573,6 +602,7 @@ export const SidebarDataTest = [
             base: routes.fieldReports,
             submenu: false,
             showSubRoute: false,
+            permission: "Sidebar FieldReports",
             submenuItems: [],
           },
         ],
@@ -585,24 +615,28 @@ export const SidebarDataTest = [
         icon: "file-time",
         base: "Settings",
         materialicons: "track_changes",
+        permission: "Sidebar Settings",
         submenuItems: [
           {
             label: "Company Settings",
             link: routes.companySetting,
             base: "companySettings",
             customSubmenuTwo: false,
+            permission: "Sidebar CompanySettings",
           },
           {
             label: "Location",
             link: routes.location,
             base: "location",
             customSubmenuTwo: false,
+            permission: "Sidebar Location",
           },
           {
             label: "Work Schedule Policy",
             link: routes.workSchedulePolicy,
             base: "workSchedulePolicy",
             customSubmenuTwo: false,
+            permission: "Sidebar WorkSchedulePolicy",
           },
           // {
           //   label: "Email",
@@ -615,6 +649,7 @@ export const SidebarDataTest = [
             link: routes.brandingSettings,
             base: "branding",
             customSubmenuTwo: false,
+            permission: "Sidebar Branding",
           },
           {
             label: "Import",
@@ -623,6 +658,7 @@ export const SidebarDataTest = [
             showSubRoute: false,
             icon: "",
             submenuItems: [],
+            permission: "Sidebar Import",
           },
         ],
       },
