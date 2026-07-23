@@ -355,6 +355,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ============================================
 // TYPES
@@ -535,7 +536,7 @@ const PayrollRunPage = () => {
           <div className="card border-0 shadow-sm">
             <div className="card-body">
               {loading ? (
-                <div className="text-center py-5">Loading...</div>
+                <SkeletonTable rows={5} columns={5} />
               ) : (
                 <div className="table-responsive">
                   <table className="table table-bordered align-middle">

@@ -359,6 +359,7 @@ import React, {
 import { useRouter } from "next/navigation";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ============================================
 // TYPES
@@ -651,11 +652,7 @@ const PayrollRunPage = () => {
 
           {loading ? (
 
-            <div className="text-center py-5">
-
-              Loading...
-
-            </div>
+            <SkeletonTable rows={5} columns={6} />
 
           ) : (
 

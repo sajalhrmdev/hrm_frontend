@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { Resignation } from "../types";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type Props = {
   resignations: Resignation[];
@@ -37,34 +38,7 @@ const ResignationTable: React.FC<Props> = ({
   onRevert,
 }) => {
   if (loading) {
-    return (
-      <div
-        style={{
-          background: "rgba(255,255,255,0.8)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "24px",
-          padding: "80px",
-          textAlign: "center",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
-          border: "1px solid rgba(255,255,255,0.5)",
-        }}
-      >
-        <div
-          style={{
-            width: 48,
-            height: 48,
-            border: "4px solid #e5e7eb",
-            borderTopColor: "#4f46e5",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-            margin: "0 auto 16px",
-          }}
-        />
-        <p style={{ color: "#9ca3af", fontSize: "14px" }}>
-          Loading resignations...
-        </p>
-      </div>
-    );
+    return <SkeletonTable rows={5} columns={6} />;
   }
 
   if (resignations.length === 0) {

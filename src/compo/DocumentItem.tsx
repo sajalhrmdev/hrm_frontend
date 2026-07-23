@@ -6,6 +6,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type Props = {
   employeeId: number;
@@ -516,9 +517,7 @@ const DocumentTab = ({
 
           {loading ? (
 
-            <div className="text-center py-5">
-              Loading...
-            </div>
+            <SkeletonTable />
 
           ) : documents.length ===
             0 ? (

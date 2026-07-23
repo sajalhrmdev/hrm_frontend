@@ -14,6 +14,7 @@ import {
   BellRing,
   ShieldAlert,
 } from "lucide-react";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -774,9 +775,7 @@ const EmployeeNoticePage: React.FC = () => {
           {/* ================================================= */}
 
           {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-light" />
-            </div>
+            <SkeletonCard />
           ) : notices.length === 0 ? (
             <div className="lux-empty">
               <Megaphone size={90} />

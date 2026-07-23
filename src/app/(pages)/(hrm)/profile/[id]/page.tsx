@@ -18,6 +18,7 @@ import EmployeePayrollTab from "@/compo/EmployeePayrollTab";
 import EmployeeLeaveTab from "@/compo/EmployeeLeaveTab";
 import EmployeeExperienceTab from "@/compo/EmployeeExperienceTab";
 import EmployeeFaceRegister from "@/compo/EmployeeFaceRegister";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 type Employee = {
   id: number;
@@ -98,13 +99,7 @@ const EmployeeProfilePage = () => {
   // ============================================
 
   if (loading) {
-    return (
-      <div className="page-wrapper">
-        <div className="content">
-          <div className="text-center py-5">Loading...</div>
-        </div>
-      </div>
-    );
+    return <SkeletonPage />;
   }
 
   // ============================================

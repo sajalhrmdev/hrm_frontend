@@ -6,6 +6,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type Holiday = {
 
@@ -194,18 +195,7 @@ const UpcomingHolidayWidget = () => {
 
         {loading ? (
 
-          <div className="text-center py-4">
-
-            <div
-              className="spinner-border spinner-border-sm text-primary"
-              role="status"
-            />
-
-            <p className="mt-2 mb-0 small">
-              Loading...
-            </p>
-
-          </div>
+          <SkeletonCard />
 
         ) : holidays.length ===
           0 ? (

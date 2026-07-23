@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axiosFieldTrack from "@/utils/axiosFieldTrack";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 interface DashboardStats {
   totalEmployees: number;
@@ -34,7 +35,7 @@ const ReportsView = () => {
   if (loading) {
     return (
       <div className="container-fluid p-4 text-center">
-        <div className="spinner-border text-primary" role="status" />
+        <SkeletonCard />
       </div>
     );
   }

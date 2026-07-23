@@ -1,5 +1,6 @@
 // "use client";
 // import { all_routes } from "@/routes/all_routes";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // import CollapseHeader from "../../core/common/collapse-header/collapse-header";
 // import Table from "../../core/common/dataTable/index";
@@ -385,11 +386,7 @@ const HolidayPage = () => {
           <div className="card border-0 shadow-sm">
             <div className="card-body">
               {loading ? (
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" role="status" />
-
-                  <p className="mt-3">Loading holidays...</p>
-                </div>
+                <SkeletonTable rows={5} columns={5} />
               ) : (
                 <div className="table-responsive">
                   <table className="table table-bordered align-middle">

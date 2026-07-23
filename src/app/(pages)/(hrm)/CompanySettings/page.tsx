@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 type CompanyForm = {
   name: string;
@@ -74,28 +75,7 @@ export default function CompanySettings() {
   };
 
   if (loading) {
-    return (
-      <>
-        <div className="company-settings-page">
-          <div className="loading-card">Loading company settings...</div>
-        </div>
-
-        <style jsx>{`
-          .company-settings-page {
-            padding: 24px;
-          }
-
-          .loading-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-          }
-        `}</style>
-      </>
-    );
+    return <SkeletonPage />;
   }
 
   return (

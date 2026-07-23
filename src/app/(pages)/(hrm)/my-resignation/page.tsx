@@ -7,6 +7,7 @@ import MyResignationCard from "./components/MyResignationCard";
 import SubmitResignationModal from "./components/SubmitResignationModal";
 import ResignationDetailModal from "./components/ResignationDetailModal";
 import ConfirmModal from "@/components/shared/ConfirmModal";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type Resignation = {
   id: number;
@@ -114,10 +115,7 @@ const MyResignationPage: React.FC = () => {
 
           {/* Content */}
           {loading ? (
-            <div style={{ textAlign: "center", padding: "80px", background: "rgba(255,255,255,0.7)", borderRadius: "24px", boxShadow: "0 4px 20px rgba(0,0,0,0.04)" }}>
-              <div style={{ width: 48, height: 48, border: "4px solid #e5e7eb", borderTopColor: "#6366f1", borderRadius: "50%", animation: "spin 0.8s linear infinite", margin: "0 auto 16px" }} />
-              <p style={{ color: "#9ca3af", fontSize: "14px" }}>Loading...</p>
-            </div>
+            <SkeletonCard />
           ) : resignations.length === 0 ? (
             <div style={{
               background: "rgba(255,255,255,0.8)",

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type LeaveItem = {
   id: number;
@@ -140,7 +141,7 @@ const LeaveApprovalTable: React.FC = () => {
 
       {/* LOADING */}
       {loading ? (
-        <p>Loading...</p>
+        <SkeletonTable rows={5} columns={8} />
       ) : data.length === 0 ? (
         <p>No leave requests found</p>
       ) : (

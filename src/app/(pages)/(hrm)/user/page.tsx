@@ -1,6 +1,7 @@
 "use client";
 import axiosInstance from "@/utils/axiosInstance";
 import React, { useEffect, useMemo, useState } from "react";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type User = {
   id: number;
@@ -622,7 +623,7 @@ const Users = () => {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={7}>Loading...</td>
+                        <td colSpan={7}><SkeletonTable rows={5} columns={7} /></td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>

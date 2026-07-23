@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -236,8 +237,8 @@ const CompanyDailyAttendanceDashboard = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="empty">
-                      Loading attendance...
+                    <td colSpan={7}>
+                      <SkeletonTable rows={5} columns={7} />
                     </td>
                   </tr>
                 ) : filteredData.length ? (

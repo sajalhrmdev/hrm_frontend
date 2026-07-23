@@ -5,6 +5,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import CollapseHeader from "@/core/common/collapse-header/collapse-header";
 import TiptapEditor from "./components/TiptapEditor";
 import { TemplateVariable } from "./components/TiptapEditor";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type EmailSettingsData = {
   id?: number;
@@ -286,7 +287,7 @@ const EmailPage = () => {
                 <h4>SMTP Configuration</h4>
               </div>
               {settingsLoading ? (
-                <div className="text-center py-4">Loading...</div>
+                <SkeletonCard />
               ) : (
                 <form onSubmit={handleSettingsSubmit}>
                   <div className="row g-3">
@@ -377,7 +378,7 @@ const EmailPage = () => {
                 </button>
               </div>
               {templatesLoading ? (
-                <div className="text-center py-4">Loading...</div>
+                <SkeletonCard />
               ) : templates.length === 0 ? (
                 <div className="text-center py-4 text-muted">No templates found</div>
               ) : (

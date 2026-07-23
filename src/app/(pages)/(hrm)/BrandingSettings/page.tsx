@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 type BrandingData = {
   logo: string;
@@ -161,19 +162,7 @@ export default function BrandingSettings() {
   const selectedTheme = themes.find((t) => t.id === selectedThemeId);
 
   if (loading) {
-    return (
-      <div className="page-wrapper">
-        <div className="content">
-          <div className="bg-light rounded" style={{ height: 32, width: 200, marginBottom: 8 }} />
-          <div className="bg-light rounded" style={{ height: 16, width: 300, marginBottom: 24 }} />
-          <div className="card"><div className="card-body p-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-light rounded mb-3" style={{ height: 48 }} />
-            ))}
-          </div></div>
-        </div>
-      </div>
-    );
+    return <SkeletonPage />;
   }
 
   return (

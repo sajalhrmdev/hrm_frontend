@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 const HELP_API = process.env.NEXT_PUBLIC_HELP_CHATBOT_URL ;
 
@@ -266,7 +267,7 @@ const HelpArticlesComponent = () => {
       {/* table */}
       {loading ? (
         <div style={{ textAlign: "center", padding: 40, color: "#888" }}>
-          Loading...
+          <SkeletonTable rows={5} columns={5} />
         </div>
       ) : (
         <div style={{ overflowX: "auto" }}>

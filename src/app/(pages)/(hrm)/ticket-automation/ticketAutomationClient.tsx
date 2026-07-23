@@ -1,16 +1,11 @@
 "use client";
 import dynamic from 'next/dynamic';
+import { SkeletonPage } from "@/core/common/Skeleton";
 const TicketAutomationComponent = dynamic(
   () => import("@/components/hrm/ticket-automation/ticketAutomation"),
   {
     ssr: false,
-    loading: () => (
-      <div>
-        <div id="global-loader">
-          <div className="whirly-loader"> </div>
-        </div>
-      </div>
-    ),
+    loading: () => <SkeletonPage />,
   },
 );
 const TicketAutomationClient = () => {

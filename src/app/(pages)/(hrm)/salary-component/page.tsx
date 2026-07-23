@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type SalaryComponent = {
   id: number;
@@ -233,7 +234,7 @@ const SalaryComponentPage = () => {
               <h5 className="mb-3">📋 Salary Components</h5>
 
               {loading ? (
-                <p>Loading...</p>
+                <SkeletonTable rows={5} columns={5} />
               ) : (
                 <div className="table-responsive">
                   <table className="table table-bordered align-middle">

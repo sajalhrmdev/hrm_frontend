@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type AttendanceStatus =
   | "PRESENT"
@@ -439,12 +440,7 @@ const MonthlyAttendanceReport: React.FC = () => {
                     <div className="alert alert-danger mb-0">{error}</div>
                   </div>
                 ) : loading ? (
-                  <div className="p-5 text-center">
-                    <div className="spinner-border text-primary" role="status" />
-                    <div className="mt-2 fw-semibold text-muted">
-                      Loading attendance...
-                    </div>
-                  </div>
+                  <SkeletonTable rows={5} columns={5} />
                 ) : employees.length === 0 ? (
                   <div className="p-5 text-center">
                     <div className="empty-state">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 interface Props {
   companyId: number;
@@ -150,7 +151,7 @@ export default function OfficeLocationsTab({ companyId }: Props) {
       </div>
 
       {loading ? (
-        <div>Loading...</div>
+        <SkeletonCard />
       ) : (
         <div className="row g-3">
           {locations.map((item) => (

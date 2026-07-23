@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ============================================
 // TYPES
@@ -391,9 +392,7 @@ const LeaveAllocationPage = () => {
             </div>
 
             {tableLoading ? (
-              <div className="text-center py-5">
-                Loading...
-              </div>
+              <SkeletonTable rows={5} columns={5} />
             ) : (
               <div className="table-responsive">
                 <table className="table table-bordered align-middle">

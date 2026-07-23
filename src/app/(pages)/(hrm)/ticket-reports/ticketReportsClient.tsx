@@ -1,18 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 const TicketReportsComponent = dynamic(
   () => import("@/components/hrm/ticket-reports/ticketReports"),
   {
     ssr: false,
-    loading: () => (
-      <div>
-        <div id="global-loader">
-          <div className="whirly-loader"> </div>
-        </div>
-      </div>
-    ),
+    loading: () => <SkeletonPage />,
   },
 );
 

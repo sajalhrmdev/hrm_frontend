@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import ImportConfigCard from "@/components/import/ImportConfigCard";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 interface ImportConfig {
   entity: string;
@@ -83,11 +84,7 @@ const ImportPage = () => {
         </div>
 
         {loading ? (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
+          <SkeletonCard />
         ) : (
           <div className="row">
             {filteredConfigs.map((config) => (

@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -124,7 +125,7 @@ const AttendanceAdjustmentHistoryPage = () => {
           {/* ====================================================== */}
 
           {loading ? (
-            <div className="empty-card">Loading...</div>
+            <SkeletonCard />
           ) : filteredData.length ? (
             <div className="timeline">
               {filteredData.map((item: any) => {

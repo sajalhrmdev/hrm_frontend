@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -253,7 +254,7 @@ const LeaveIncrementPolicyPage = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7}>Loading...</td>
+                    <td colSpan={7}><SkeletonTable rows={5} columns={7} /></td>
                   </tr>
                 ) : policies.length ? (
                   policies.map((item: any) => (

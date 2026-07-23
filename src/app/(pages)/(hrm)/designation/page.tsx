@@ -6,6 +6,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type Department = {
 
@@ -525,10 +526,7 @@ const DesignationPage = () => {
           <div className="card-body">
 
             {loading ? (
-
-              <div className="text-center py-5">
-                Loading...
-              </div>
+              <SkeletonTable rows={5} columns={5} />
 
             ) : (
 

@@ -6,6 +6,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type Props = {
   employeeId: number;
@@ -184,12 +185,7 @@ const AddressTab = ({
 
   if (loading) {
 
-    return (
-
-      <div className="text-center py-5">
-        Loading...
-      </div>
-    );
+    return <SkeletonCard />;
   }
 
   return (

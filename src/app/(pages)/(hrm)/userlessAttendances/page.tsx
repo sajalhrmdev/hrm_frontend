@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type AnyObj = Record<string, any>;
 
@@ -273,11 +274,7 @@ export default function AdminAttendancePage() {
               </div>
             </div>
 
-            {loading && (
-              <div className="alert alert-info border-0 rounded-4 shadow-sm mb-4">
-                Loading...
-              </div>
-            )}
+            {loading && (<SkeletonCard />)}
 
             {!selectedPolicy && (
               <>

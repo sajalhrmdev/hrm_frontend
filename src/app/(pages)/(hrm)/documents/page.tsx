@@ -6,6 +6,7 @@ import CollapseHeader from "@/core/common/collapse-header/collapse-header";
 import Handlebars from "handlebars";
 import TiptapEditor from "../email/components/TiptapEditor";
 import { TemplateVariable } from "../email/components/TiptapEditor";
+import { SkeletonCard, SkeletonTable } from "@/core/common/Skeleton";
 
 const CATEGORIES = [
   { label: "All", value: "" },
@@ -460,9 +461,7 @@ const DocumentsPage = () => {
             </div>
             <div className="card-body">
               {loading ? (
-                <div className="text-center p-4">
-                  <div className="spinner-border" />
-                </div>
+                <SkeletonCard />
               ) : templates.length === 0 ? (
                 <div className="text-center p-4 text-muted">
                   No templates found
@@ -547,9 +546,7 @@ const DocumentsPage = () => {
           <div className="card">
             <div className="card-body">
               {historyLoading ? (
-                <div className="text-center p-4">
-                  <div className="spinner-border" />
-                </div>
+                <SkeletonTable rows={5} columns={5} />
               ) : history.length === 0 ? (
                 <div className="text-center p-4 text-muted">
                   No documents generated yet

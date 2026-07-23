@@ -4,6 +4,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type BalanceItem = {
   id: number;
@@ -91,7 +92,7 @@ const LeaveBalanceCards: React.FC = () => {
 
       {/* LOADING */}
       {loading ? (
-        <p>Loading...</p>
+        <SkeletonCard />
       ) : (
         <div className="balance-grid">
           {data.map((item) => {

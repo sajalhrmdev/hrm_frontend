@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axiosFieldTrack from "@/utils/axiosFieldTrack";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 interface FieldEmployee {
   id: string;
@@ -62,7 +63,7 @@ const FieldEmployeeList = () => {
 
       {loading ? (
         <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status" />
+          <SkeletonTable rows={5} columns={7} />
         </div>
       ) : (
         <div className="table-responsive">

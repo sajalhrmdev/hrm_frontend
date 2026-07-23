@@ -4,6 +4,7 @@ import React, {
 } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type LeaveItem = {
   id: number;
@@ -127,7 +128,7 @@ const MyLeavesTable: React.FC = () => {
 
       {/* LOADING */}
       {loading ? (
-        <p>Loading...</p>
+        <SkeletonTable rows={5} columns={10} />
       ) : data.length === 0 ? (
         <div className="empty-box">
           No leave history found

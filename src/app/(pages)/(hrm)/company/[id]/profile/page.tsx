@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 
 import axiosInstance from "@/utils/axiosInstance";
 import OfficeLocationsTab from "@/components/company/OfficeLocationsTab";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 export default function CompanyProfilePage() {
   const params = useParams();
@@ -68,7 +69,7 @@ export default function CompanyProfilePage() {
   }, [companyId]);
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return <SkeletonPage />;
   }
 
   return (

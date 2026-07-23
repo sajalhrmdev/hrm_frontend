@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 export default function OfficeLocationsPage() {
   const [loading, setLoading] = useState(false);
@@ -104,7 +105,7 @@ export default function OfficeLocationsPage() {
 
             <div className="card-body">
               {loading ? (
-                <div>Loading...</div>
+                <SkeletonTable rows={5} columns={5} />
               ) : (
                 <div className="table-responsive">
                   <table className="table table-bordered align-middle">

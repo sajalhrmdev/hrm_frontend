@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type Props = {
   employeeId: number;
@@ -128,7 +129,7 @@ const PersonalInfoTab = ({ employeeId, isViewOnly }: Props) => {
   // ============================================
 
   if (loading) {
-    return <div className="text-center py-5">Loading...</div>;
+    return <SkeletonCard />;
   }
 
   return (

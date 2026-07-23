@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -454,7 +455,7 @@ const WorkSchedulePolicyPage = () => {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={5}>Loading...</td>
+                    <td colSpan={5}><SkeletonTable rows={5} columns={5} /></td>
                   </tr>
                 ) : filteredPolicies.length ? (
                   filteredPolicies.map((item: any) => (

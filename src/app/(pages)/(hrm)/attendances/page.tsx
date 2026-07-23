@@ -321,7 +321,7 @@ const Attendance = () => {
 
   return (
     <>
-      <div className="container d-flex justify-content-center align-items-center vh-100 bg-light">
+      <div className="container d-flex justify-content-center align-items-center vh-100" style={{ background: "linear-gradient(135deg, #eff6ff 0%, #ecfeff 35%, #f0fdfa 70%, #e0f2fe 100%)" }}>
         <div
           className="card border-0 shadow-lg p-4"
           style={{

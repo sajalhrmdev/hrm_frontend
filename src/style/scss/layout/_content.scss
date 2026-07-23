@@ -7,15 +7,49 @@
     padding: 50px 0 0;
     position: relative;
     left: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 35%, #f0fdfa 70%, #e0f2fe 100%);
     @include mixins.transition(all 0.2s ease);
     @include mixins.respond-below(lg) {
         margin: 0;
         padding:50px 0 0 ;
     }
+
+    &::before {
+        content: '';
+        position: fixed;
+        top: -15%;
+        right: -5%;
+        width: 900px;
+        height: 900px;
+        background: radial-gradient(circle, rgba(59,130,246,0.22) 0%, rgba(59,130,246,0.08) 40%, transparent 70%);
+        border-radius: 50%;
+        animation: meshFloat1 15s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    &::after {
+        content: '';
+        position: fixed;
+        bottom: -10%;
+        left: 10%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(20,184,166,0.20) 0%, rgba(20,184,166,0.07) 40%, transparent 70%);
+        border-radius: 50%;
+        animation: meshFloat2 18s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
     .content {
         padding: 24px;
         padding-bottom: 0;
         min-height: calc(100vh - 105px);
+        position: relative;
+        z-index: 1;
+        background: radial-gradient(ellipse at 50% 50%, rgba(34,211,238,0.15) 0%, transparent 55%);
         @include mixins.respond-below(lg) {
             padding: 15px;
             padding-bottom: 0;
@@ -28,6 +62,19 @@
         }
     }
 }
+
+@keyframes meshFloat1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-60px, 50px) scale(1.1); }
+    66% { transform: translate(40px, -30px) scale(0.95); }
+}
+
+@keyframes meshFloat2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(50px, -60px) scale(1.08); }
+    66% { transform: translate(-40px, 40px) scale(1.12); }
+}
+
 .page-header {
     display: -webkit-box;
     display: -ms-flexbox;

@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type Holiday = {
   id: number;
@@ -237,7 +238,7 @@ const HolidayCalendarPage = () => {
 
                 <div className="holiday-list-body">
                   {loading ? (
-                    <div className="text-center py-5">Loading...</div>
+                    <SkeletonTable />
                   ) : currentMonthHolidays.length === 0 ? (
                     <div className="text-center py-5 text-muted">
                       No Holidays

@@ -1,18 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 const WorkFromHomeComponent = dynamic(
   () => import("@/components/hrm/attendance/work-from-home/workFromHome"),
   {
     ssr: false,
-    loading: () => (
-      <div>
-        <div id="global-loader">
-          <div className="whirly-loader"> </div>
-        </div>
-      </div>
-    ),
+    loading: () => <SkeletonPage />,
   },
 );
 

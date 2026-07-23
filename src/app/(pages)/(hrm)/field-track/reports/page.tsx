@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axiosFieldTrack from "@/utils/axiosFieldTrack";
+import { SkeletonPage } from "@/core/common/Skeleton";
 
 interface DashboardStats {
   totalEmployees: number;
@@ -77,15 +78,7 @@ export default function Reports() {
   ];
 
   if (loading) {
-    return (
-      <div className="page-wrapper">
-        <div className="content">
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status" />
-          </div>
-        </div>
-      </div>
-    );
+    return <SkeletonPage />;
   }
 
   return (

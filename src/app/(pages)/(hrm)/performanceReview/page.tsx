@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { isAxiosError } from "axios";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-toastify";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 interface Employee {
   id: number;
@@ -272,8 +273,8 @@ const PerformanceReviewManagement = () => {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={9} className="text-center">
-                          Loading...
+                        <td colSpan={9}>
+                          <SkeletonTable rows={5} columns={9} />
                         </td>
                       </tr>
                     ) : filteredReviews.length === 0 ? (

@@ -10,10 +10,10 @@ import {
   Empty,
   Input,
   message,
-  Spin,
   Switch,
   Tag,
 } from "antd";
+import { SkeletonCard, SkeletonTable } from "@/core/common/Skeleton";
 import {
   AppstoreOutlined,
   ArrowRightOutlined,
@@ -717,9 +717,7 @@ const AssignRolePermissionsPage = () => {
 
                   <div className="role-list">
                     {initialLoading ? (
-                      <div className="loading-box">
-                        <Spin />
-                      </div>
+                      <SkeletonCard />
                     ) : (
                       filteredRoles.map((role) => {
                         const count = rolePermissionCountMap.get(role.id) || 0;
@@ -849,8 +847,7 @@ const AssignRolePermissionsPage = () => {
                     </Button>
                   </div>
 
-                  <Spin spinning={initialLoading}>
-                    <div className="permission-list">
+                  {initialLoading ? <SkeletonTable rows={5} columns={5} /> : (<div className="permission-list">
                       {filteredTree.length ? (
                         filteredTree.map((node) => (
                           <Card
@@ -880,8 +877,7 @@ const AssignRolePermissionsPage = () => {
                           image={Empty.PRESENTED_IMAGE_SIMPLE}
                         />
                       )}
-                    </div>
-                  </Spin>
+                    </div>)}
 
                   <Divider className="soft-divider" />
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 type LeaveType = {
   id: number;
@@ -131,7 +132,7 @@ const LeaveTypeList: React.FC = () => {
 
       {/* LOADING */}
       {loading ? (
-        <p>Loading...</p>
+        <SkeletonTable rows={5} columns={7} />
       ) : (
         <div style={{ overflowX: "auto" }}>
           <table

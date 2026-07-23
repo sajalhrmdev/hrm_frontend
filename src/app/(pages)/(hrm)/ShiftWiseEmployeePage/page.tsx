@@ -3,6 +3,7 @@
 // import React, { useEffect, useMemo, useState } from "react";
 
 // import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 // // ======================================================
 
@@ -640,6 +641,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 // ======================================================
 
@@ -1001,7 +1003,7 @@ const ShiftWiseEmployeePage = () => {
 
             <div className="shift-sidebar">
               {loading ? (
-                <div className="empty">Loading...</div>
+                <SkeletonCard />
               ) : shifts.length ? (
                 <>
                   {shifts.map((shift: any) => {

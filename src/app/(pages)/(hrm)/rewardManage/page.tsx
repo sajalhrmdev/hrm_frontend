@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { toast } from "react-toastify";
+import { SkeletonTable } from "@/core/common/Skeleton";
 
 interface Employee {
   id: number;
@@ -259,8 +260,8 @@ const RewardManagement = () => {
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center">
-                          Loading...
+                        <td colSpan={7}>
+                          <SkeletonTable rows={5} columns={7} />
                         </td>
                       </tr>
                     ) : filteredRewards.length === 0 ? (

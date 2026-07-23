@@ -15,6 +15,7 @@ import {
   Sparkles,
   FileText,
 } from "lucide-react";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 // ======================================================
 // TYPES
@@ -662,9 +663,7 @@ const NoticeManagement: React.FC = () => {
 
             <div className="row g-4">
               {loading ? (
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary" />
-                </div>
+                <SkeletonCard />
               ) : notices.length === 0 ? (
                 <div className="col-12">
                   <div className="notice-empty">

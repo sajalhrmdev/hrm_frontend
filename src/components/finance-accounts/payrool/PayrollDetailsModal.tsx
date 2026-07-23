@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
+import { SkeletonCard } from "@/core/common/Skeleton";
 
 type PayrollDetailsModalProps = {
   payrollId: number | null;
@@ -183,9 +184,7 @@ const PayrollDetailsModal = ({
           <div className="modal-body">
             {loading ? (
               <div className="text-center py-5">
-                <div className="spinner-border text-primary" role="status" />
-
-                <p className="mt-3">Loading payroll...</p>
+                <SkeletonCard />
               </div>
             ) : data ? (
               <>
