@@ -217,10 +217,20 @@ const AttendanceRegularizationPage = () => {
     try {
       if (!selectedAttendance) return;
 
+      const payload = {
+        ...formData,
+        check_in_time: formData.check_in_time
+          ? new Date(formData.check_in_time).toISOString()
+          : "",
+        check_out_time: formData.check_out_time
+          ? new Date(formData.check_out_time).toISOString()
+          : "",
+      };
+
       await axiosInstance.patch(
         `/attendance/${selectedAttendance.id}/regularize`,
 
-        formData,
+        payload,
       );
 
       alert("Attendance regularized successfully");
