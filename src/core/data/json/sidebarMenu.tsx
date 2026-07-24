@@ -652,6 +652,13 @@ export const SidebarDataTest = [
             permission: "Sidebar Branding",
           },
           {
+            label: "Professional Tax",
+            link: routes.professionalTaxSettings,
+            base: "professional-tax",
+            customSubmenuTwo: false,
+            permission: "Sidebar ProfessionalTax",
+          },
+          {
             label: "Import",
             link: "/import",
             submenu: false,

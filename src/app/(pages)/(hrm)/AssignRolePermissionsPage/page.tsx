@@ -464,6 +464,7 @@ const buildPermissionTree = (permissions: Permission[]) => {
       ),
       makeLeaf(permissionsMap, usedIds, "Sidebar Location", "Location"),
       makeLeaf(permissionsMap, usedIds, "Sidebar Branding", "Branding"),
+      makeLeaf(permissionsMap, usedIds, "Sidebar ProfessionalTax", "Professional Tax"),
       makeLeaf(permissionsMap, usedIds, "Sidebar Import", "Import"),
     ],
   );

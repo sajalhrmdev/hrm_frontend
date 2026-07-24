@@ -399,6 +399,7 @@ export const all_routes = {
   emailSetting: "/email",
   documents: "/documents",
   brandingSettings: "/BrandingSettings",
+  professionalTaxSettings: "/professional-tax-settings",
   attendances: "/attendances",
   policy: "/policy",
   holidays: "/hrm/holidays",
