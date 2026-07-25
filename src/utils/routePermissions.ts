@@ -4,6 +4,7 @@ export const routePermissions: Record<string, string> = {
   "/AttendanceRegularization": "Sidebar Attendance Regularization",
   "/ShiftAttendanceProcessorPage": "Sidebar Processor",
   "/AttendanceAdjustmentHistoryPage": "Sidebar Logs By Day",
+  "/LogsByAuthorizedPage": "Sidebar Logs ByAuthorized",
   "/hrm/weekly-off": "Sidebar WeekendSetup",
   "/hrm/holidays-admin": "Sidebar HolidaySetup",
   "/MonthlyAttendanceReport": "Sidebar Attendance Report",

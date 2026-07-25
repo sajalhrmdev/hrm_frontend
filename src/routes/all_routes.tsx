@@ -361,6 +361,7 @@ export const all_routes = {
   attendanceRegularization:"/AttendanceRegularization" ,
   monthlyAttendances:"/MonthlyAttendanceCalendar",
   logByDay:"/AttendanceAdjustmentHistoryPage",
+  logByAuthorized:"/LogsByAuthorizedPage",
   workSchedulePolicy:"/WorkSchedulePolicyPage",
   workScheduleAssign:"/EmployeeWorkScheduleAssignmentPage",
   schedule:"/ShiftWiseEmployeePage",

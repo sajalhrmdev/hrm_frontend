@@ -239,10 +239,10 @@ export const SidebarDataTest = [
                 customSubmenuTwo: false,
                 permission: "Sidebar Logs By Day",
               },
-              {
-                label: "Logs By Authorized",
-                // link: routes.logByDay,
-                base: "adjustment-log",
+          {
+            label: "Logs By Authorized",
+            link: routes.logByAuthorized,
+            base: "adjustment-log",
                 customSubmenuTwo: false,
                 permission: "Sidebar Logs ByAuthorized",
               },

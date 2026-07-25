@@ -254,7 +254,7 @@ const EntityImportPage = () => {
                   <button className="btn btn-secondary btn-sm" onClick={() => setStep("upload")}>
                     <i className="ti ti-arrow-left me-1"></i> Back
                   </button>
-                  {result.failed > 0 && (
+                  {result.errors.length > 0 && (
                     <button className="btn btn-outline-danger btn-sm" onClick={handleDownloadErrors}>
                       <i className="ti ti-download me-1"></i> Download Errors
                     </button>
@@ -302,9 +302,24 @@ const EntityImportPage = () => {
                 </div>
               </div>
 
-              {previewRows.length > 0 && (
+              {previewRows.length > 0 ? (
                 <PreviewTable rows={previewRows} />
-              )}
+              ) : result.errors.length > 0 ? (
+                <div className="alert alert-danger border-0" style={{ borderRadius: 14 }}>
+                  <h6 className="alert-heading mb-3">
+                    <i className="ti ti-alert-triangle me-1"></i> Validation Errors
+                  </h6>
+                  <ul className="mb-0" style={{ listStyle: "none", padding: 0 }}>
+                    {result.errors.map((err, i) => (
+                      <li key={i} className="mb-2 pb-2" style={{ borderBottom: i < result.errors.length - 1 ? "1px solid rgba(0,0,0,0.08)" : "none" }}>
+                        <strong className="text-danger">{err.field}</strong>
+                        {err.row > 0 && <span className="text-muted ms-2">(Row {err.row})</span>}
+                        <span className="ms-2">{err.message}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
           </div>
         )}
