@@ -87,6 +87,7 @@ type PayrollData = {
     PRESENT: number;
     ABSENT: number;
     HALF_DAY: number;
+    HALF_DAY_LEAVE: number;
     WEEKLY_OFF: number;
     HOLIDAY: number;
     PAID_LEAVE: number;
@@ -417,6 +418,15 @@ const PayrollDetailsModal = ({
                           <small>Half Day</small>
                           <h5 className="text-warning">
                             {data.attendanceSummary?.HALF_DAY || 0}
+                          </h5>
+                        </div>
+                      </div>
+
+                      <div className="col-md-2">
+                        <div className="border rounded p-3 text-center">
+                          <small>Half Day Leave</small>
+                          <h5 className="text-info">
+                            {data.attendanceSummary?.HALF_DAY_LEAVE || 0}
                           </h5>
                         </div>
                       </div>

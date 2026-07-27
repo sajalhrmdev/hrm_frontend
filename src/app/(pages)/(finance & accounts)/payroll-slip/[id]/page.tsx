@@ -59,6 +59,7 @@ type PayrollData = {
     PRESENT: number;
     ABSENT: number;
     HALF_DAY: number;
+    HALF_DAY_LEAVE: number;
     WEEKLY_OFF: number;
     HOLIDAY: number;
     PAID_LEAVE: number;
@@ -196,12 +197,14 @@ const PayrollSlipPage = () => {
     { label: "Present", val: att.PRESENT },
     { label: "Absent", val: att.ABSENT },
     { label: "Half Day", val: att.HALF_DAY },
+    { label: "Half Lv", val: att.HALF_DAY_LEAVE },
     { label: "W/O", val: att.WEEKLY_OFF },
     { label: "Holiday", val: att.HOLIDAY },
     { label: "Paid Lv", val: att.PAID_LEAVE },
     { label: "Unpaid Lv", val: att.UNPAID_LEAVE },
     { label: "OT/OD", val: att.ON_DUTY },
     { label: "WFH", val: att.WORK_FROM_HOME },
+    { label: "Payable", val: data.payable_days },
     { label: "Total", val: data.total_days },
   ];
   const maxRows = Math.max(earnings.length, deductions.length);

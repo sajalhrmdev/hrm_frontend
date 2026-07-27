@@ -61,10 +61,19 @@ const ApplyLeaveModal: React.FC<Props> = ({
   ) => {
     const { name, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+
+      // HALF mode: lock toDate = fromDate
+      if (name === "leaveMode" && value === "HALF") {
+        next.toDate = next.fromDate;
+      }
+      if (name === "fromDate" && prev.leaveMode === "HALF") {
+        next.toDate = value;
+      }
+
+      return next;
+    });
   };
 
   // 🚀 submit
@@ -183,6 +192,7 @@ const ApplyLeaveModal: React.FC<Props> = ({
                 value={formData.toDate}
                 onChange={handleChange}
                 required
+                disabled={formData.leaveMode === "HALF"}
                 className="leave-input"
               />
             </div>

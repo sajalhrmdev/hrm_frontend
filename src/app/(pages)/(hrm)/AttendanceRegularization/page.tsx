@@ -10,6 +10,7 @@ import { SkeletonTable } from "@/core/common/Skeleton";
 const statusOptions = [
   "PRESENT",
   "HALF_DAY",
+  "HALF_DAY_LEAVE",
   "ABSENT",
   // "PAID_LEAVE",
   // "UNPAID_LEAVE",
@@ -889,6 +890,12 @@ const AttendanceRegularizationPage = () => {
               background: #fef3c7;
 
               color: #92400e;
+            }
+
+            .badge.HALF_DAY_LEAVE {
+              background: #d1fae5;
+
+              color: #065f46;
             }
 
             .badge.PAID_LEAVE {
