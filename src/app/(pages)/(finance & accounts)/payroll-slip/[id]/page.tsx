@@ -22,6 +22,9 @@ type PayrollData = {
     email: string;
     employeeCode: string;
     joiningDate: string | null;
+    pfNumber: string | null;
+    esiNumber: string | null;
+    uan: string | null;
     designation: { title: string } | null;
     department: { title: string } | null;
   };
@@ -257,12 +260,12 @@ const PayrollSlipPage = () => {
           <tr>
             <td><span className="slip-label">Designation</span> : {data.employee.designation?.title || "-"}</td>
             <td><span className="slip-label">DOJ</span> : {formatDate(data.employee.joiningDate)}</td>
-            <td><span className="slip-label">PF No</span> : -</td>
+            <td><span className="slip-label">PF No</span> : {data.employee.pfNumber || "-"}</td>
           </tr>
           <tr>
             <td><span className="slip-label">Department</span> : {data.employee.department?.title || "-"}</td>
-            <td><span className="slip-label">ESIC No</span> : -</td>
-            <td><span className="slip-label">UAN</span> : -</td>
+            <td><span className="slip-label">ESIC No</span> : {data.employee.esiNumber || "-"}</td>
+            <td><span className="slip-label">UAN</span> : {data.employee.uan || "-"}</td>
           </tr>
         </tbody>
       </table>

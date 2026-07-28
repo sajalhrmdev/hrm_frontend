@@ -25,6 +25,14 @@ type Employee = {
 
   joiningDate: string;
 
+  pfNumber?: string | null;
+
+  esiNumber?: string | null;
+
+  uan?: string | null;
+
+  userId?: number | null;
+
   role?: {
     id: number;
     name: string;
@@ -99,6 +107,9 @@ const EmployeePage = () => {
 
     employeeCode: "",
     joiningDate: "",
+    pfNumber: "",
+    esiNumber: "",
+    uan: "",
 
     status: "ACTIVE",
 
@@ -251,6 +262,9 @@ const EmployeePage = () => {
 
       employeeCode: "",
       joiningDate: "",
+      pfNumber: "",
+      esiNumber: "",
+      uan: "",
 
       status: "ACTIVE",
 
@@ -306,9 +320,15 @@ const EmployeePage = () => {
         ? new Date(employee.joiningDate).toISOString().split("T")[0]
         : "",
 
+      pfNumber: employee.pfNumber || "",
+
+      esiNumber: employee.esiNumber || "",
+
+      uan: employee.uan || "",
+
       status: employee.status,
 
-      createUser: false,
+      createUser: !!employee.userId,
 
       password: "",
     });
@@ -770,6 +790,52 @@ const EmployeePage = () => {
                         onChange={handleChange}
                       />
                     </div>
+
+                    {/* PF NUMBER */}
+                    <div className="col-md-4">
+                      <label className="form-label fw-semibold">
+                        PF Number
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="pfNumber"
+                        value={formData.pfNumber}
+                        onChange={handleChange}
+                        placeholder="e.g. MH/BOM/123456789"
+                      />
+                    </div>
+
+                    {/* ESIC NUMBER */}
+                    <div className="col-md-4">
+                      <label className="form-label fw-semibold">
+                        ESIC Number
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="esiNumber"
+                        value={formData.esiNumber}
+                        onChange={handleChange}
+                        placeholder="e.g. 1234567890"
+                      />
+                    </div>
+
+                    {/* UAN */}
+                    <div className="col-md-4">
+                      <label className="form-label fw-semibold">
+                        UAN
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        name="uan"
+                        value={formData.uan}
+                        onChange={handleChange}
+                        placeholder="e.g. 123456789012"
+                      />
+                    </div>
+
                     <div className="col-md-6">
                       <label className="form-label">Status</label>
 

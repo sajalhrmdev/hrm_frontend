@@ -57,16 +57,19 @@ const ImportPage = () => {
                 <div className="mb-3">
                   <h6>Import Order Guide</h6>
                   <p className="text-muted small mb-0">
-                    <strong>Phase 1:</strong> Role, Department, Designation, Shift, Work Schedule, Leave Type, Salary Component
+                    <strong>Phase 1:</strong> Role, Department, Designation, Shift, Work Schedule, Leave Type, Salary Component, Holiday, Office Location, Professional Tax, Weekly Off
                   </p>
                   <p className="text-muted small mb-0">
-                    <strong>Phase 2:</strong> Employee
+                    <strong>Phase 2:</strong> Employee, Personal Info, Address, Bank Detail, Emergency Contact, Experience, Document
                   </p>
                   <p className="text-muted small mb-0">
-                    <strong>Phase 3:</strong> Employee Personal Info, Address, Bank Detail, Emergency Contact
+                    <strong>Phase 3:</strong> Salary Component Assign, Leave Balance, Leave Increment Policy, Attendance, Leave Application
                   </p>
                   <p className="text-muted small mb-0">
-                    <strong>Phase 4:</strong> Salary Component Assign, Leave Balance, Holiday, Attendance, Performance Review
+                    <strong>Phase 4:</strong> <strong>Salary History</strong> (previous months' payroll — auto-creates PayRollRun + PayRoll + Snap Components)
+                  </p>
+                  <p className="text-muted small mb-0">
+                    <strong>Phase 5:</strong> Notice, Employee Reward, Resignation, PayRollRun, PayRoll, Payroll Snap Component
                   </p>
                 </div>
               </div>

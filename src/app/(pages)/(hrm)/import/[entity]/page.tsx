@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import axiosInstance from "@/utils/axiosInstance";
@@ -15,6 +15,12 @@ interface ImportResult {
   previewRows?: any[];
 }
 
+interface EntityConfig {
+  entity: string;
+  label: string;
+  instructions?: string;
+}
+
 const EntityImportPage = () => {
   const params = useParams();
   const entity = params.entity as string;
@@ -25,6 +31,21 @@ const EntityImportPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [previewRows, setPreviewRows] = useState<any[]>([]);
+  const [entityConfig, setEntityConfig] = useState<EntityConfig | null>(null);
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await axiosInstance.get("/import/configs");
+        const configs = res?.data?.data || [];
+        const found = configs.find((c: EntityConfig) => c.entity === entity);
+        if (found) setEntityConfig(found);
+      } catch (err) {
+        console.error("Failed to load entity config");
+      }
+    };
+    fetchConfig();
+  }, [entity]);
 
   const entityLabels: Record<string, string> = {
     role: "Role",
@@ -45,6 +66,19 @@ const EntityImportPage = () => {
     leaveBalance: "Leave Balance",
     attendance: "Attendance",
     performanceReview: "Performance Review",
+    employeeExperience: "Employee Experience",
+    leaveApplication: "Leave Application",
+    leaveIncrementPolicy: "Leave Increment Policy",
+    weeklyOffConfig: "Weekly Off Config",
+    notice: "Notice",
+    employeeReward: "Employee Reward",
+    professionalTaxSlab: "Professional Tax Slab",
+    employeeDocument: "Employee Document",
+    resignation: "Resignation",
+    payRollRun: "Payroll Run",
+    payRoll: "Payroll",
+    payrollSnapComponent: "Payroll Snap Component",
+    salaryHistory: "Salary History",
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,6 +272,17 @@ const EntityImportPage = () => {
                     <i className="ti ti-download me-1"></i>
                     Download {entityLabels[entity]} Template
                   </button>
+
+                  {entityConfig?.instructions && (
+                    <div className="mt-3 p-3 rounded" style={{ background: "#f0f4ff", border: "1px solid #d6e0ff" }}>
+                      <h6 className="mb-2" style={{ color: "#3b5bdb" }}>
+                        <i className="ti ti-info-circle me-1"></i> Instructions
+                      </h6>
+                      <div className="small" style={{ whiteSpace: "pre-line", color: "#495057" }}>
+                        {entityConfig.instructions}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
