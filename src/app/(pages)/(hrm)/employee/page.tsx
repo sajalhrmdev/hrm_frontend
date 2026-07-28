@@ -549,6 +549,52 @@ const EmployeePage = () => {
                 </table>
               </div>
             )}
+
+            {/* PAGINATION */}
+            {pagination.totalPages > 1 && (
+              <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-3 border-top">
+                <span className="text-muted small mb-2 mb-md-0">
+                  Showing {(page - 1) * pagination.limit + 1}–{Math.min(page * pagination.limit, pagination.total)} of {pagination.total} employees
+                </span>
+                <div className="d-flex gap-1 flex-wrap">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    <i className="ti ti-chevron-left"></i>
+                  </button>
+                  {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                    let pageNum: number;
+                    if (pagination.totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (page <= 3) {
+                      pageNum = i + 1;
+                    } else if (page >= pagination.totalPages - 2) {
+                      pageNum = pagination.totalPages - 4 + i;
+                    } else {
+                      pageNum = page - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        className={`btn btn-sm ${pageNum === page ? "btn-primary" : "btn-outline-secondary"}`}
+                        onClick={() => setPage(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    disabled={page >= pagination.totalPages}
+                    onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                  >
+                    <i className="ti ti-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
