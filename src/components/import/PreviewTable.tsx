@@ -35,10 +35,9 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ rows, maxDisplay = 50 }) =>
             <tr>
               <th>Row</th>
               <th>Status</th>
-              {columns.slice(0, 8).map((col) => (
+              {columns.map((col) => (
                 <th key={col}>{col}</th>
               ))}
-              {columns.length > 8 && <th>...</th>}
               <th>Errors</th>
             </tr>
           </thead>
@@ -56,10 +55,9 @@ const PreviewTable: React.FC<PreviewTableProps> = ({ rows, maxDisplay = 50 }) =>
                     <span className="badge bg-danger">Invalid</span>
                   )}
                 </td>
-                {columns.slice(0, 8).map((col) => (
+                {columns.map((col) => (
                   <td key={col}>{String(row.data[col] ?? "")}</td>
                 ))}
-                {columns.length > 8 && <td>...</td>}
                 <td>
                   {row.errors.length > 0 ? (
                     <ul className="list-unstyled mb-0">

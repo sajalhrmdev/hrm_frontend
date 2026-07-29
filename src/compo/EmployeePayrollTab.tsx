@@ -374,7 +374,7 @@ const EmployeePayrollTab = ({
                         </td>
 
                         <td>
-
+                          <div className="d-flex gap-2">
                           <button
                             className="view-btn"
 
@@ -389,7 +389,13 @@ const EmployeePayrollTab = ({
                             View Payroll
 
                           </button>
-
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => window.open(`/payroll-slip/${item.id}`, "_blank")}
+                          >
+                            View Payslip
+                          </button>
+                          </div>
                         </td>
 
                       </tr>
