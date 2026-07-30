@@ -225,9 +225,9 @@ const RolePage = () => {
               </thead>
 
               <tbody>
-                {roles.map((role) => (
+                {roles.map((role,idx) => (
                   <tr key={role.id}>
-                    <td>{role.id}</td>
+                    <td>{idx + 1}</td>
 
                     <td>
                       <span className="role-badge">{role.name}</span>
