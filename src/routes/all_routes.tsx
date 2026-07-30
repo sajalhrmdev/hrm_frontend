@@ -480,6 +480,10 @@ export const all_routes = {
   import: "/import",
   importEntity: "/import/:entity",
 
+  // Goal
+  goal: "/goal",
+  myGoal: "/my-goal",
+
   // Field Track routes
   fieldEmployee: "/field-track/employee",
   fieldLiveTracking: "/field-track/live-tracking",

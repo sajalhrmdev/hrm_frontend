@@ -18,6 +18,7 @@ import EmployeePayrollTab from "@/compo/EmployeePayrollTab";
 import EmployeeLeaveTab from "@/compo/EmployeeLeaveTab";
 import EmployeeExperienceTab from "@/compo/EmployeeExperienceTab";
 import EmployeeFaceRegister from "@/compo/EmployeeFaceRegister";
+import GoalTab from "@/compo/GoalTab";
 import { SkeletonPage } from "@/core/common/Skeleton";
 
 type Employee = {
@@ -341,6 +342,16 @@ const EmployeeProfilePage = () => {
               >
                 Experience
               </button>
+              <button
+                className={`btn ${
+                  activeTab === "goals"
+                    ? "btn-primary"
+                    : "btn-outline-primary"
+                }`}
+                onClick={() => setActiveTab("goals")}
+              >
+                Goals
+              </button>
             </div>
 
             {/* ================================== */}
@@ -468,6 +479,9 @@ const EmployeeProfilePage = () => {
             )}
             {activeTab === "experience" && (
               <EmployeeExperienceTab employeeId={employeeId} isViewOnly={!canEdit} />
+            )}
+            {activeTab === "goals" && (
+              <GoalTab employeeId={employeeId} />
             )}
           </div>
         </div>

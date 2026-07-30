@@ -337,7 +337,7 @@ const PayrollSlipPage = () => {
       {/* LEAVE SUMMARY */}
       {data.leaveSummary?.length > 0 ? (
         <div className="slip-section">
-          <div className="slip-section-title">Leave Balance Details</div>
+          <div className="slip-section-title">Leave Taken</div>
           <table className="slip-leave-table">
             <thead>
               <tr>

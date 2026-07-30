@@ -47,6 +47,9 @@ export const routePermissions: Record<string, string> = {
   "/field-track/route-history": "Sidebar FieldRouteHistory",
   "/field-track/reports": "Sidebar FieldReports",
 
+  // Goal
+  "/goal": "Sidebar Goal",
+
   // Settings
   "/CompanySettings": "Sidebar CompanySettings",
   "/location": "Sidebar Location",
