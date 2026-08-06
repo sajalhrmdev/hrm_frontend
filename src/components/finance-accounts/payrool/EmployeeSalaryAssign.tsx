@@ -11,7 +11,7 @@ type SalaryComponent = {
   id: number;
   name: string;
   code: string;
-  type: "EARNING" | "DEDUCTION";
+  type: "EARNING" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
 };
 
 type SelectedComponent = {
@@ -123,6 +123,16 @@ const EmployeeSalaryAssign = () => {
     const component = components.find((c) => c.id === item.salaryComponentId);
 
     if (component?.type === "DEDUCTION") {
+      return acc + Number(item.amount);
+    }
+
+    return acc;
+  }, 0);
+
+  const totalEmployerContribution = salaryRows.reduce((acc, item) => {
+    const component = components.find((c) => c.id === item.salaryComponentId);
+
+    if (component?.type === "EMPLOYER_CONTRIBUTION") {
       return acc + Number(item.amount);
     }
 
@@ -308,7 +318,10 @@ const EmployeeSalaryAssign = () => {
                                 className={`badge ${
                                   selectedComponent.type === "EARNING"
                                     ? "bg-success"
-                                    : "bg-danger"
+                                    : selectedComponent.type ===
+                                        "EMPLOYER_CONTRIBUTION"
+                                      ? "bg-secondary"
+                                      : "bg-danger"
                                 }`}
                               >
                                 {selectedComponent.type}
@@ -384,6 +397,20 @@ const EmployeeSalaryAssign = () => {
                     <h6 className="mb-2">Net Salary</h6>
 
                     <h3 className="mb-0">₹{netSalary.toFixed(2)}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="row mt-4">
+              <div className="col-md-4 mb-3">
+                <div className="card border-0 bg-secondary text-white shadow-sm">
+                  <div className="card-body">
+                    <h6 className="mb-2">Employer Contribution</h6>
+
+                    <h3 className="mb-0">
+                      ₹{totalEmployerContribution.toFixed(2)}
+                    </h3>
                   </div>
                 </div>
               </div>

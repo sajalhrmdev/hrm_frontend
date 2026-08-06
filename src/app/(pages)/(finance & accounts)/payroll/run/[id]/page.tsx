@@ -60,6 +60,12 @@ const PayrollDetailsPage = () => {
 
   const [payrolls, setPayrolls] = useState<Payroll[]>([]);
 
+  const [search, setSearch] = useState("");
+
+  const [page, setPage] = useState(1);
+
+  const PAGE_SIZE = 10;
+
   // ============================================
   // FETCH PAYROLLS
   // ============================================
@@ -95,6 +101,10 @@ const PayrollDetailsPage = () => {
       fetchPayrolls();
     }
   }, [id]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   // ============================================
   // PRINT
@@ -171,6 +181,51 @@ const PayrollDetailsPage = () => {
       alert(err?.response?.data?.message || "Failed to mark paid");
     }
   };
+  // ============================================
+  // SEARCH + PAGINATION
+  // ============================================
+
+  const query = search.trim().toLowerCase();
+
+  const filteredPayrolls = payrolls.filter((p) => {
+    if (!query) return true;
+
+    return (
+      p.employee.name.toLowerCase().includes(query) ||
+      (p.employee.employeeCode || "").toLowerCase().includes(query) ||
+      (p.employee.email || "").toLowerCase().includes(query)
+    );
+  });
+
+  const totalPages = Math.max(1, Math.ceil(filteredPayrolls.length / PAGE_SIZE));
+
+  const currentPage = Math.min(page, totalPages);
+
+  const paginated = filteredPayrolls.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
+
+  const startIndex = filteredPayrolls.length
+    ? (currentPage - 1) * PAGE_SIZE + 1
+    : 0;
+
+  const endIndex = Math.min(currentPage * PAGE_SIZE, filteredPayrolls.length);
+
+  const pageNumbers: (number | string)[] = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (
+      i === 1 ||
+      i === totalPages ||
+      Math.abs(i - currentPage) <= 2
+    ) {
+      pageNumbers.push(i);
+    } else if (pageNumbers[pageNumbers.length - 1] !== "...") {
+      pageNumbers.push("...");
+    }
+  }
+
   return (
     <div className="page-wrapper">
       <div className="content">
@@ -203,6 +258,20 @@ const PayrollDetailsPage = () => {
 
         <div className="card border-0 shadow-sm">
           <div className="card-body">
+            {/* SEARCH */}
+
+            <div className="row mb-3">
+              <div className="col-md-6 col-lg-4">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search by name, code or email..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </div>
+
             {loading ? (
               <div className="text-center py-5">
                 <div className="spinner-border text-primary" role="status">
@@ -247,18 +316,20 @@ const PayrollDetailsPage = () => {
                   </thead>
 
                   <tbody>
-                    {payrolls.length === 0 ? (
+                    {filteredPayrolls.length === 0 ? (
                       <tr>
                         <td colSpan={14} className="text-center py-5">
-                          No payroll found
+                          {query
+                            ? "No payrolls match your search"
+                            : "No payroll found"}
                         </td>
                       </tr>
                     ) : (
-                      payrolls.map((item, index) => (
+                      paginated.map((item, index) => (
                         <tr key={item.id}>
                           {/* SERIAL */}
 
-                          <td>{index + 1}</td>
+                          <td>{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
 
                           {/* EMPLOYEE */}
 
@@ -380,6 +451,66 @@ const PayrollDetailsPage = () => {
                     )}
                   </tbody>
                 </table>
+
+                {/* PAGINATION */}
+
+                {!query && totalPages > 1 && (
+                  <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+                    <small className="text-muted">
+                      Showing {startIndex}–{endIndex} of {filteredPayrolls.length}
+                    </small>
+
+                    <ul className="pagination pagination-sm mb-0">
+                      <li
+                        className={`page-item ${
+                          currentPage === 1 ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => setPage(currentPage - 1)}
+                        >
+                          Prev
+                        </button>
+                      </li>
+
+                      {pageNumbers.map((p, i) =>
+                        p === "..." ? (
+                          <li key={`gap-${i}`} className="page-item disabled">
+                            <span className="page-link">…</span>
+                          </li>
+                        ) : (
+                          <li
+                            key={p}
+                            className={`page-item ${
+                              p === currentPage ? "active" : ""
+                            }`}
+                          >
+                            <button
+                              className="page-link"
+                              onClick={() => setPage(p as number)}
+                            >
+                              {p}
+                            </button>
+                          </li>
+                        ),
+                      )}
+
+                      <li
+                        className={`page-item ${
+                          currentPage === totalPages ? "disabled" : ""
+                        }`}
+                      >
+                        <button
+                          className="page-link"
+                          onClick={() => setPage(currentPage + 1)}
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -28,6 +28,8 @@ const EntityImportPage = () => {
   const [step, setStep] = useState<"upload" | "preview" | "result">("upload");
   const [file, setFile] = useState<File | null>(null);
   const [duplicateStrategy, setDuplicateStrategy] = useState<string>("skip");
+  const [periodStart, setPeriodStart] = useState<string>("");
+  const [periodEnd, setPeriodEnd] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [previewRows, setPreviewRows] = useState<any[]>([]);
@@ -87,6 +89,8 @@ const EntityImportPage = () => {
       setFile(selected);
       setStep("upload");
       setResult(null);
+      setPeriodStart("");
+      setPeriodEnd("");
     }
   };
 
@@ -113,6 +117,10 @@ const EntityImportPage = () => {
       setLoading(true);
       const formData = new FormData();
       formData.append("file", file);
+      if (entity === "salaryHistory") {
+        if (periodStart) formData.append("periodStart", periodStart);
+        if (periodEnd) formData.append("periodEnd", periodEnd);
+      }
 
       const res = await axiosInstance.post(`/import/${entity}/preview`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -136,6 +144,10 @@ const EntityImportPage = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("duplicateStrategy", duplicateStrategy);
+      if (entity === "salaryHistory") {
+        if (periodStart) formData.append("periodStart", periodStart);
+        if (periodEnd) formData.append("periodEnd", periodEnd);
+      }
 
       const res = await axiosInstance.post(`/import/${entity}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -230,6 +242,40 @@ const EntityImportPage = () => {
                       <option value="upsert">Update existing records</option>
                     </select>
                   </div>
+
+                  {entity === "salaryHistory" && (
+                    <>
+                      <h6 className="mb-2" style={{ color: "#3b5bdb" }}>
+                        <i className="ti ti-calendar me-1"></i> Payroll Period
+                      </h6>
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <label className="form-label">Period Start</label>
+                          <input
+                            type="date"
+                            className="form-control"
+                            value={periodStart}
+                            onChange={(e) => setPeriodStart(e.target.value)}
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Period End</label>
+                          <input
+                            type="date"
+                            className="form-control"
+                            value={periodEnd}
+                            onChange={(e) => setPeriodEnd(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      {periodStart && periodEnd && new Date(periodStart) > new Date(periodEnd) && (
+                        <div className="alert alert-danger py-2 mb-3">
+                          <i className="ti ti-alert-triangle me-1"></i>
+                          Period Start cannot be after Period End
+                        </div>
+                      )}
+                    </>
+                  )}
 
                   <div className="d-flex gap-2">
                     <button

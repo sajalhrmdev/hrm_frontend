@@ -6,7 +6,7 @@ type SalaryComponent = {
   id: number;
   name: string;
   code: string;
-  type: "EARNING" | "DEDUCTION";
+  type: "EARNING" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
   prorated: boolean;
   createdAt: string;
 };
@@ -230,6 +230,10 @@ const SalaryComponentPage = () => {
                   <option value="DEDUCTION">
                     DEDUCTION
                   </option>
+
+                  <option value="EMPLOYER_CONTRIBUTION">
+                    EMPLOYER CONTRIBUTION
+                  </option>
                 </select>
               </div>
 
@@ -343,7 +347,10 @@ const SalaryComponentPage = () => {
                                 item.type ===
                                 "EARNING"
                                   ? "bg-success"
-                                  : "bg-danger"
+                                  : item.type ===
+                                      "EMPLOYER_CONTRIBUTION"
+                                    ? "bg-secondary"
+                                    : "bg-danger"
                               }`}
                             >
                               {item.type}

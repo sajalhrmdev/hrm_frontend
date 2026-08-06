@@ -3,11 +3,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonCard } from "@/core/common/Skeleton";
+import { toast } from "react-toastify";
 
 type AnyObj = Record<string, any>;
 
 export default function AdminAttendancePage() {
   const [employees, setEmployees] = useState<AnyObj[]>([]);
+  const [summary, setSummary] = useState<AnyObj>({
+    total: 0,
+    present: 0,
+    absent: 0,
+  });
   const [loading, setLoading] = useState(false);
 
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
@@ -18,11 +24,22 @@ export default function AdminAttendancePage() {
   const [selectedPolicy, setSelectedPolicy] = useState<AnyObj | null>(null);
   const [selectedShift, setSelectedShift] = useState<AnyObj | null>(null);
 
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "present" | "absent">(
+    "all",
+  );
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [marking, setMarking] = useState(false);
+  const [markingId, setMarkingId] = useState<number | null>(null);
+
   const fetchEmployees = async (date = selectedDate) => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(`/attendance/user-less?date=${date}`);
-      setEmployees(res.data.data || []);
+      setEmployees(res.data.data.employees || []);
+      setSummary(res.data.data.summary || { total: 0, present: 0, absent: 0 });
     } catch (error) {
       console.error(error);
     } finally {
@@ -33,6 +50,12 @@ export default function AdminAttendancePage() {
   useEffect(() => {
     fetchEmployees(selectedDate);
   }, [selectedDate]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const policyGroups = useMemo(() => {
     const map = new Map<number, AnyObj>();
@@ -100,9 +123,35 @@ export default function AdminAttendancePage() {
     return Array.from(map.values());
   }, [selectedPolicy]);
 
-  const visibleEmployees = selectedShift?.employees || [];
+  const visibleEmployees = useMemo(
+    () => selectedShift?.employees || [],
+    [selectedShift],
+  );
   const selectedCount = selectedEmployees.length;
   const totalVisible = visibleEmployees.length;
+
+  const isPresent = (e: AnyObj) => e.attendances?.[0]?.status === "PRESENT";
+
+  const presentCount = visibleEmployees.filter(isPresent).length;
+  const absentCount = totalVisible - presentCount;
+
+  const filteredEmployees = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+
+    return visibleEmployees.filter((e: AnyObj) => {
+      const matchesSearch =
+        !q ||
+        String(e.employeeCode || "").toLowerCase().includes(q) ||
+        String(e.name || "").toLowerCase().includes(q);
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "present" && isPresent(e)) ||
+        (statusFilter === "absent" && !isPresent(e));
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [visibleEmployees, debouncedSearch, statusFilter]);
 
   const toggleEmployee = (id: number) => {
     setSelectedEmployees((prev) =>
@@ -111,7 +160,7 @@ export default function AdminAttendancePage() {
   };
 
   const toggleAll = () => {
-    const ids = visibleEmployees.map((e: AnyObj) => e.id);
+    const ids = filteredEmployees.map((e: AnyObj) => e.id);
     const allSelected =
       ids.length > 0 &&
       ids.every((id: number) => selectedEmployees.includes(id));
@@ -123,23 +172,65 @@ export default function AdminAttendancePage() {
     }
   };
 
+  const selectAllAbsent = () => {
+    const ids = visibleEmployees
+      .filter((e: AnyObj) => !isPresent(e))
+      .map((e: AnyObj) => e.id);
+
+    setSelectedEmployees((prev) => [...new Set([...prev, ...ids])]);
+  };
+
+  const openMarkConfirm = () => {
+    if (!selectedEmployees.length) {
+      toast.error("Select at least one employee");
+      return;
+    }
+
+    setConfirmOpen(true);
+  };
+
   const markAttendance = async () => {
     try {
       if (!selectedEmployees.length) {
-        alert("Select at least one employee");
+        toast.error("Select at least one employee");
         return;
       }
+
+      setMarking(true);
 
       await axiosInstance.post("/attendance/admin-mark", {
         employeeIds: selectedEmployees,
         date: selectedDate,
       });
 
-      alert("Attendance marked successfully");
+      toast.success("Attendance marked successfully");
       setSelectedEmployees([]);
+      setConfirmOpen(false);
       fetchEmployees(selectedDate);
     } catch (error: any) {
-      alert(error?.response?.data?.message || "Something went wrong");
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setMarking(false);
+    }
+  };
+
+  const markSingle = async (employeeId: number) => {
+    try {
+      setMarkingId(employeeId);
+
+      await axiosInstance.post("/attendance/admin-mark", {
+        employeeIds: [employeeId],
+        date: selectedDate,
+      });
+
+      toast.success("Attendance marked successfully");
+      fetchEmployees(selectedDate);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setMarkingId(null);
     }
   };
 
@@ -147,11 +238,15 @@ export default function AdminAttendancePage() {
     setSelectedShift(null);
     setSelectedPolicy(null);
     setSelectedEmployees([]);
+    setSearch("");
+    setStatusFilter("all");
   };
 
   const resetToShifts = () => {
     setSelectedShift(null);
     setSelectedEmployees([]);
+    setSearch("");
+    setStatusFilter("all");
   };
 
   const cardStyle: React.CSSProperties = {
@@ -237,6 +332,12 @@ export default function AdminAttendancePage() {
                         Policies: {policyGroups.length}
                       </span>
                       <span className="bg-success text-white" style={pillStyle}>
+                        Present: {summary.present}
+                      </span>
+                      <span className="bg-danger text-white" style={pillStyle}>
+                        Absent: {summary.absent}
+                      </span>
+                      <span className="bg-warning text-dark" style={pillStyle}>
                         Selected: {selectedCount}
                       </span>
                     </div>
@@ -255,19 +356,22 @@ export default function AdminAttendancePage() {
                           setSelectedPolicy(null);
                           setSelectedShift(null);
                           setSelectedEmployees([]);
+                          setSearch("");
+                          setStatusFilter("all");
                         }}
                       />
                     </div>
 
                     <button
                       className="btn btn-primary btn-lg px-4 rounded-4 shadow-sm fw-semibold"
-                      onClick={markAttendance}
+                      onClick={openMarkConfirm}
+                      disabled={marking || !selectedEmployees.length}
                       style={{
                         background: "linear-gradient(135deg, #2563eb, #4f46e5)",
                         border: "none",
                       }}
                     >
-                      ✅ Mark Attendance
+                      ✅ Mark Attendance ({selectedCount})
                     </button>
                   </div>
                 </div>
@@ -558,26 +662,82 @@ export default function AdminAttendancePage() {
 
                 <div className="card border-0 rounded-4 shadow-lg overflow-hidden">
                   <div className="card-body p-0">
-                    <div className="px-4 pt-4 pb-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <div>
-                        <h5 className="fw-bold mb-1">Employee List</h5>
-                        <div className="text-muted small">
-                          Tick the employees you want to mark present
+                    <div className="px-4 pt-4 pb-3 border-bottom">
+                      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                          <h5 className="fw-bold mb-1">Employee List</h5>
+                          <div className="text-muted small">
+                            Tick the employees you want to mark present
+                          </div>
+                        </div>
+
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <button
+                            className="btn btn-outline-primary rounded-4 px-3"
+                            onClick={toggleAll}
+                            disabled={filteredEmployees.length === 0}
+                          >
+                            {filteredEmployees.length > 0 &&
+                            filteredEmployees.every((e: AnyObj) =>
+                              selectedEmployees.includes(e.id),
+                            )
+                              ? "Unselect All"
+                              : "Select All"}
+                          </button>
+
+                          <button
+                            className="btn btn-outline-warning rounded-4 px-3"
+                            onClick={selectAllAbsent}
+                            disabled={absentCount === 0}
+                          >
+                            Select All Absent
+                          </button>
                         </div>
                       </div>
 
-                      <button
-                        className="btn btn-outline-primary rounded-4 px-3"
-                        onClick={toggleAll}
-                        disabled={visibleEmployees.length === 0}
-                      >
-                        {visibleEmployees.length > 0 &&
-                        visibleEmployees.every((e: AnyObj) =>
-                          selectedEmployees.includes(e.id),
-                        )
-                          ? "Unselect All"
-                          : "Select All"}
-                      </button>
+                      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search by code or name..."
+                          style={{ minWidth: 240, maxWidth: 340 }}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                        />
+
+                        <div className="btn-group" role="group">
+                          <button
+                            className={
+                              statusFilter === "all"
+                                ? "btn btn-dark btn-sm rounded-start-4"
+                                : "btn btn-light btn-sm border rounded-start-4"
+                            }
+                            onClick={() => setStatusFilter("all")}
+                          >
+                            All ({totalVisible})
+                          </button>
+                          <button
+                            className={
+                              statusFilter === "present"
+                                ? "btn btn-success btn-sm"
+                                : "btn btn-light btn-sm border text-success"
+                            }
+                            onClick={() => setStatusFilter("present")}
+                          >
+                            Present ({presentCount})
+                          </button>
+                          <button
+                            className={
+                              statusFilter === "absent"
+                                ? "btn btn-danger btn-sm rounded-end-4"
+                                : "btn btn-light btn-sm border text-danger rounded-end-4"
+                            }
+                            onClick={() => setStatusFilter("absent")}
+                          >
+                            Absent ({absentCount})
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     <div className="table-responsive">
@@ -589,8 +749,8 @@ export default function AdminAttendancePage() {
                                 type="checkbox"
                                 className="form-check-input"
                                 checked={
-                                  visibleEmployees.length > 0 &&
-                                  visibleEmployees.every((e: AnyObj) =>
+                                  filteredEmployees.length > 0 &&
+                                  filteredEmployees.every((e: AnyObj) =>
                                     selectedEmployees.includes(e.id),
                                   )
                                 }
@@ -600,37 +760,50 @@ export default function AdminAttendancePage() {
                             <th className="py-3">Code</th>
                             <th className="py-3">Name</th>
                             <th className="py-3">Status</th>
+                            <th className="py-3 text-end pe-4">Action</th>
                           </tr>
                         </thead>
 
                         <tbody>
-                          {visibleEmployees.length === 0 ? (
+                          {filteredEmployees.length === 0 ? (
                             <tr>
-                              <td colSpan={4} className="text-center py-5">
+                              <td colSpan={5} className="text-center py-5">
                                 <div style={{ fontSize: 42 }}>👤</div>
                                 <div className="fw-bold mt-2">
                                   No employees found
                                 </div>
                                 <div className="text-muted small">
-                                  There are no employees under this shift.
+                                  {search || statusFilter !== "all"
+                                    ? "Try adjusting the search or filter."
+                                    : "There are no employees under this shift."}
                                 </div>
                               </td>
                             </tr>
                           ) : (
-                            visibleEmployees.map(
+                            filteredEmployees.map(
                               (employee: AnyObj, index: number) => {
                                 const attendance = employee.attendances?.[0];
+                                const isPresentRow = isPresent(employee);
                                 const isChecked = selectedEmployees.includes(
                                   employee.id,
                                 );
+                                const isMarking = markingId === employee.id;
 
                                 return (
                                   <tr
                                     key={employee.id}
+                                    onClick={() =>
+                                      toggleEmployee(employee.id)
+                                    }
                                     style={{
-                                      background: isChecked
-                                        ? "rgba(37,99,235,0.04)"
-                                        : "#fff",
+                                      cursor: "pointer",
+                                      background: isPresentRow
+                                        ? isChecked
+                                          ? "rgba(22,163,74,0.08)"
+                                          : "rgba(22,163,74,0.04)"
+                                        : isChecked
+                                          ? "rgba(37,99,235,0.04)"
+                                          : "#fff",
                                       borderTop:
                                         index === 0 ? "none" : undefined,
                                     }}
@@ -640,6 +813,7 @@ export default function AdminAttendancePage() {
                                         type="checkbox"
                                         className="form-check-input"
                                         checked={isChecked}
+                                        onClick={(e) => e.stopPropagation()}
                                         onChange={() =>
                                           toggleEmployee(employee.id)
                                         }
@@ -684,13 +858,36 @@ export default function AdminAttendancePage() {
                                     <td className="py-3">
                                       <span
                                         className={`badge rounded-pill px-3 py-2 ${
-                                          attendance
+                                          isPresentRow
                                             ? "text-bg-success"
                                             : "text-bg-danger"
                                         }`}
                                       >
-                                        {attendance?.status || "ABSENT"}
+                                        {isPresentRow
+                                          ? "PRESENT"
+                                          : attendance?.status || "ABSENT"}
                                       </span>
+                                    </td>
+
+                                    <td className="py-3 text-end pe-4">
+                                      {isPresentRow ? (
+                                        <span className="text-muted small fw-semibold me-2">
+                                          ✓ Already marked
+                                        </span>
+                                      ) : (
+                                        <button
+                                          className="btn btn-sm btn-success rounded-4 px-3 fw-semibold"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            markSingle(employee.id);
+                                          }}
+                                          disabled={markingId !== null}
+                                        >
+                                          {isMarking
+                                            ? "Marking..."
+                                            : "✓ Mark"}
+                                        </button>
+                                      )}
                                     </td>
                                   </tr>
                                 );
@@ -701,22 +898,59 @@ export default function AdminAttendancePage() {
                       </table>
                     </div>
 
-                    <div className="p-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-                      <div className="text-muted small">
-                        Tip: select all visible employees, then click{" "}
-                        <b>Mark Attendance</b>.
+                    <div
+                      className="p-4 border-top d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3"
+                      style={{
+                        position: "sticky",
+                        bottom: 0,
+                        background: "rgba(255,255,255,0.92)",
+                        backdropFilter: "blur(8px)",
+                        zIndex: 5,
+                      }}
+                    >
+                      <div className="w-100" style={{ maxWidth: 440 }}>
+                        <div className="d-flex justify-content-between small text-muted mb-1">
+                          <span>
+                            Present: <b className="text-success">{presentCount}</b>
+                          </span>
+                          <span>
+                            Absent: <b className="text-danger">{absentCount}</b>
+                          </span>
+                          <span>
+                            Selected: <b>{selectedCount}</b>
+                          </span>
+                        </div>
+
+                        <div
+                          className="progress"
+                          style={{ height: 8, background: "#eef2f7" }}
+                        >
+                          <div
+                            className="progress-bar bg-success"
+                            style={{
+                              width: `${
+                                totalVisible
+                                  ? (presentCount / totalVisible) * 100
+                                  : 0
+                              }%`,
+                            }}
+                          />
+                        </div>
                       </div>
 
                       <button
                         className="btn btn-primary btn-lg px-4 rounded-4 shadow-sm fw-semibold"
-                        onClick={markAttendance}
+                        onClick={openMarkConfirm}
+                        disabled={marking || !selectedEmployees.length}
                         style={{
                           background:
                             "linear-gradient(135deg, #2563eb, #4f46e5)",
                           border: "none",
                         }}
                       >
-                        ✅ Mark Attendance ({selectedCount})
+                        {marking
+                          ? "Marking..."
+                          : `✅ Mark Attendance (${selectedCount})`}
                       </button>
                     </div>
                   </div>
@@ -726,6 +960,74 @@ export default function AdminAttendancePage() {
           </div>
         </div>
       </div>
+
+      {/* ====================================================== */}
+      {/* CONFIRM MODAL */}
+      {/* ====================================================== */}
+
+      {confirmOpen && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{
+            background: "rgba(15,23,42,0.5)",
+            backdropFilter: "blur(2px)",
+            zIndex: 1050,
+          }}
+          onClick={() => {
+            if (!marking) setConfirmOpen(false);
+          }}
+        >
+          <div
+            className="card border-0 shadow-lg rounded-4"
+            style={{ width: 420, maxWidth: "90vw" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="card-body p-4 text-center">
+              <div
+                className="d-inline-flex align-items-center justify-content-center mb-3"
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 18,
+                  background: "linear-gradient(135deg, #dbeafe, #ede9fe)",
+                  fontSize: 26,
+                }}
+              >
+                ✅
+              </div>
+
+              <h5 className="fw-bold mb-1">Mark Attendance</h5>
+
+              <p className="text-muted small mb-3">
+                Mark <b>{selectedCount}</b> employee(s) present for{" "}
+                <b>{selectedDate}</b>?
+              </p>
+
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-light border flex-fill rounded-4"
+                  onClick={() => setConfirmOpen(false)}
+                  disabled={marking}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="btn btn-primary flex-fill rounded-4 fw-semibold"
+                  onClick={markAttendance}
+                  disabled={marking}
+                  style={{
+                    background: "linear-gradient(135deg, #2563eb, #4f46e5)",
+                    border: "none",
+                  }}
+                >
+                  {marking ? "Marking..." : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

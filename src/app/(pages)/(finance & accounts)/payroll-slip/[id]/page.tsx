@@ -9,6 +9,7 @@ type PayrollData = {
   gross_salary: number;
   total_deduction: number;
   net_salary: number;
+  employer_contribution: number | null;
   total_days: number;
   present_days: number;
   paid_leave_days: number;
@@ -54,7 +55,7 @@ type PayrollData = {
     id: number;
     componentName: string;
     componentCode: string;
-    type: "EARNING" | "DEDUCTION";
+    type: "EARNING" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
     standardAmount: number;
     amount: number;
   }[];
@@ -195,6 +196,9 @@ const PayrollSlipPage = () => {
 
   const earnings = data.payrollSnapComponents.filter((i) => i.type === "EARNING");
   const deductions = data.payrollSnapComponents.filter((i) => i.type === "DEDUCTION");
+  const employerContributions = data.payrollSnapComponents.filter(
+    (i) => i.type === "EMPLOYER_CONTRIBUTION",
+  );
   const att = data.attendanceSummary;
   const dayItems = [
     { label: "Present", val: att.PRESENT },
@@ -320,6 +324,50 @@ const PayrollSlipPage = () => {
           </tr>
         </tfoot>
       </table>
+
+      {/* EMPLOYER CONTRIBUTION */}
+      {employerContributions.length > 0 && (
+        <div className="slip-section">
+          <div className="slip-section-title">Employer Contribution</div>
+          <div className="slip-empr-flex">
+            <table className="slip-leave-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {employerContributions.map((c, idx) => (
+                  <tr key={idx}>
+                    <td>{c.componentName}</td>
+                    <td className="slip-amt">{fmt(c.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th>Total Employer Contribution</th>
+                  <th className="slip-amt">
+                    {fmt(data.employer_contribution ?? 0)}
+                  </th>
+                </tr>
+              </tfoot>
+            </table>
+            <div className="slip-ctc-box">
+              <span className="slip-ctc-label">CTC</span>
+              <span className="slip-ctc-amount">
+                {fmt(
+                  (data.gross_salary ?? 0) + (data.employer_contribution ?? 0),
+                )}
+              </span>
+              <span className="slip-ctc-sub">
+                Gross + Employer Contribution
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* DAYS SUMMARY */}
       <div className="slip-section">
@@ -659,6 +707,45 @@ const PayrollSlipPage = () => {
         }
         .slip-leave-table tbody tr:nth-child(even) td {
           background: #f8f9fa;
+        }
+        .slip-empr-flex {
+          display: flex;
+          align-items: stretch;
+          gap: 14px;
+        }
+        .slip-empr-flex .slip-leave-table {
+          margin-bottom: 0;
+          flex: 0 0 auto;
+        }
+        .slip-ctc-box {
+          flex: 1;
+          min-width: 190px;
+          border: 2px solid #1a237e;
+          border-radius: 6px;
+          background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding: 14px;
+          text-align: center;
+        }
+        .slip-ctc-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: #1a237e;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .slip-ctc-amount {
+          font-size: 24px;
+          font-weight: 800;
+          color: #1a237e;
+        }
+        .slip-ctc-sub {
+          font-size: 10px;
+          color: #444;
+          margin-top: 2px;
         }
         .slip-no-leave {
           border: 1px solid #ccc;

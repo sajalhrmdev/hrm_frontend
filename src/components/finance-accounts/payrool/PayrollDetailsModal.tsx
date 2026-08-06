@@ -77,7 +77,7 @@ type PayrollData = {
 
     componentCode: string;
 
-    type: "EARNING" | "DEDUCTION";
+    type: "EARNING" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
 
     standardAmount: number;
 
@@ -528,7 +528,10 @@ const PayrollDetailsModal = ({
                                   className={`badge ${
                                     item.type === "EARNING"
                                       ? "bg-success"
-                                      : "bg-danger"
+                                      : item.type ===
+                                          "EMPLOYER_CONTRIBUTION"
+                                        ? "bg-secondary"
+                                        : "bg-danger"
                                   }`}
                                 >
                                   {item.type}

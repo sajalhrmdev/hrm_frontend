@@ -80,12 +80,35 @@ const SalarySheetPage = () => {
     ),
   );
 
+  const employerComponents = Array.from(
+    new Set(
+      payrolls.flatMap((payroll) =>
+        payroll.payrollSnapComponents
+          ?.filter((c: any) => c.type === "EMPLOYER_CONTRIBUTION")
+          ?.map((c: any) => c.componentName),
+      ),
+    ),
+  );
+
   // ======================================================
   // TOTAL
   // ======================================================
 
   const totalNetSalary = payrolls.reduce(
     (acc, item) => acc + item.net_salary,
+    0,
+  );
+
+  const totalEmployerContribution = payrolls.reduce(
+    (acc, item) => acc + (item.employer_contribution ?? 0),
+    0,
+  );
+
+  const totalCtc = payrolls.reduce(
+    (acc, item) =>
+      acc +
+      (item.gross_salary ?? 0) +
+      (item.employer_contribution ?? 0),
     0,
   );
 
@@ -188,6 +211,19 @@ const SalarySheetPage = () => {
                     Deductions
                   </th>
 
+                  {/* ====================================== */}
+                  {/* EMPLOYER CONTRIBUTION */}
+                  {/* ====================================== */}
+
+                  {employerComponents.length > 0 && (
+                    <th
+                      colSpan={employerComponents.length}
+                      className="employer-header"
+                    >
+                      Employer Contribution
+                    </th>
+                  )}
+
                   <th rowSpan={2}>Net Payable</th>
 
                   <th rowSpan={2}>CTC</th>
@@ -203,6 +239,10 @@ const SalarySheetPage = () => {
                   ))}
 
                   {deductionComponents.map((item: any) => (
+                    <th key={item}>{item}</th>
+                  ))}
+
+                  {employerComponents.map((item: any) => (
                     <th key={item}>{item}</th>
                   ))}
                 </tr>
@@ -278,6 +318,24 @@ const SalarySheetPage = () => {
                         })}
 
                         {/* ====================================== */}
+                        {/* EMPLOYER CONTRIBUTION */}
+                        {/* ====================================== */}
+
+                        {employerComponents.map((comp: any) => {
+                          const found =
+                            payroll.payrollSnapComponents?.find(
+                              (c: any) => c.componentName === comp,
+                            );
+
+                          return (
+                            <td key={comp}>
+                              ₹
+                              {found?.amount?.toLocaleString("en-IN") || 0}
+                            </td>
+                          );
+                        })}
+
+                        {/* ====================================== */}
                         {/* NET */}
                         {/* ====================================== */}
 
@@ -292,7 +350,10 @@ const SalarySheetPage = () => {
 
                         <td className="ctc-cell">
                           ₹
-                          {payroll.gross_salary?.toLocaleString("en-IN")}
+                          {(
+                            (payroll.gross_salary ?? 0) +
+                            (payroll.employer_contribution ?? 0)
+                          ).toLocaleString("en-IN")}
                         </td>
                       </tr>
                     );
@@ -310,7 +371,8 @@ const SalarySheetPage = () => {
                     colSpan={
                       5 +
                       earningComponents.length +
-                      deductionComponents.length
+                      deductionComponents.length +
+                      employerComponents.length
                     }
                     className="text-end"
                   >
@@ -323,6 +385,34 @@ const SalarySheetPage = () => {
 
                   <th></th>
                 </tr>
+
+                {employerComponents.length > 0 && (
+                  <tr>
+                    <th
+                      colSpan={
+                        5 +
+                        earningComponents.length +
+                        deductionComponents.length
+                      }
+                      className="text-end"
+                    >
+                      Total Employer Contribution
+                    </th>
+
+                    <th
+                      colSpan={employerComponents.length}
+                      className="footer-total"
+                    >
+                      ₹{totalEmployerContribution.toLocaleString("en-IN")}
+                    </th>
+
+                    <th></th>
+
+                    <th className="footer-total">
+                      ₹{totalCtc.toLocaleString("en-IN")}
+                    </th>
+                  </tr>
+                )}
               </tfoot>
             </table>
           </div>
@@ -408,6 +498,12 @@ const SalarySheetPage = () => {
 
         .deduction-header {
           background: #ffebee !important;
+          color: #111827 !important;
+          font-size: 15px;
+        }
+
+        .employer-header {
+          background: #ede7f6 !important;
           color: #111827 !important;
           font-size: 15px;
         }

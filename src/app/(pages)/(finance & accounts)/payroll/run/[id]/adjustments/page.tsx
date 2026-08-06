@@ -25,7 +25,7 @@ type SalaryComponent = {
 
   code: string;
 
-  type: "EARNING" | "DEDUCTION";
+  type: "EARNING" | "DEDUCTION" | "EMPLOYER_CONTRIBUTION";
 };
 
 type Adjustment = {
@@ -467,7 +467,10 @@ const PayrollAdjustmentsPage = () => {
                                 className={`badge ${
                                   item.salaryComponent.type === "EARNING"
                                     ? "bg-success"
-                                    : "bg-danger"
+                                    : item.salaryComponent.type ===
+                                        "EMPLOYER_CONTRIBUTION"
+                                      ? "bg-secondary"
+                                      : "bg-danger"
                                 }`}
                               >
                                 {item.salaryComponent.type}
