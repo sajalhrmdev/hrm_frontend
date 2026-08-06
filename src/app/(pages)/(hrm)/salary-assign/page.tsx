@@ -180,7 +180,7 @@ const EmployeeSalaryAssign = () => {
         signal: controller.signal,
       });
 
-      const list = res.data.data.employees || [];
+      const list: Employee[] = res.data.data.employees || [];
 
       if (isSearch) {
         setEmployees((prev) => {
