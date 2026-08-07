@@ -406,6 +406,8 @@ export const all_routes = {
   myVisit: "/my-visit",
   meeting: "/meeting",
   myMeeting: "/my-meeting",
+  projectManage: "/project",
+  myProject: "/my-project",
   brandingSettings: "/BrandingSettings",
   professionalTaxSettings: "/professional-tax-settings",
   attendances: "/attendances",

@@ -4,20 +4,21 @@ import React, { useEffect, useRef, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonTable } from "@/core/common/Skeleton";
+import ScrollProgressBar from "@/core/common/ScrollProgressBar";
 
-type Meeting = {
+type Project = {
   id: number;
-  title: string;
+  name: string;
   description: string;
-  location: string;
-  meetingType: "INTERNAL" | "EXTERNAL" | "VIRTUAL";
-  date: string;
-  organizerId?: number | null;
-  organizer?: { id: number; name: string; employeeCode?: string | null } | null;
-  startTime: string;
-  endTime: string;
-  status: "SCHEDULED" | "COMPLETED" | "CANCELLED";
-  attendees?: {
+  clientId?: number | null;
+  client?: { id: number; name: string; companyName?: string | null } | null;
+  managerId?: number | null;
+  manager?: { id: number; name: string; employeeCode?: string | null } | null;
+  startDate: string;
+  endDate?: string | null;
+  status: "NOT_STARTED" | "IN_PROGRESS" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
+  priority: "LOW" | "MEDIUM" | "HIGH";
+  teamMembers?: {
     id: number;
     employeeId: number;
     employee?: { id: number; name: string; employeeCode?: string | null } | null;
@@ -31,30 +32,40 @@ type Employee = {
   employeeCode?: string | null;
 };
 
+type ClientOption = {
+  id: number;
+  name: string;
+  companyName?: string | null;
+};
+
 const STATUS_BADGE: Record<string, string> = {
-  SCHEDULED: "bg-primary",
+  NOT_STARTED: "bg-secondary",
+  IN_PROGRESS: "bg-info",
+  ON_HOLD: "bg-warning",
   COMPLETED: "bg-success",
   CANCELLED: "bg-danger",
 };
 
-const TYPE_BADGE: Record<string, string> = {
-  INTERNAL: "bg-info",
-  EXTERNAL: "bg-warning",
-  VIRTUAL: "bg-secondary",
+const PRIORITY_BADGE: Record<string, string> = {
+  LOW: "bg-success",
+  MEDIUM: "bg-warning",
+  HIGH: "bg-danger",
 };
 
-const toDateInputValue = (d: string) => {
+const toDateInputValue = (d?: string | null) => {
+  if (!d) return "";
   const dt = new Date(d);
+  if (Number.isNaN(dt.getTime())) return "";
   const m = String(dt.getMonth() + 1).padStart(2, "0");
   const day = String(dt.getDate()).padStart(2, "0");
   return `${dt.getFullYear()}-${m}-${day}`;
 };
 
-const MeetingPage = () => {
+const ProjectPage = () => {
   const [loading, setLoading] = useState(false);
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Meeting | null>(null);
+  const [editing, setEditing] = useState<Project | null>(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({
@@ -64,88 +75,94 @@ const MeetingPage = () => {
   });
 
   const [formData, setFormData] = useState({
-    title: "",
+    name: "",
     description: "",
-    location: "",
-    meetingType: "INTERNAL",
-    date: "",
-    startTime: "",
-    endTime: "",
-    status: "SCHEDULED",
+    startDate: "",
+    endDate: "",
+    status: "NOT_STARTED",
+    priority: "MEDIUM",
   });
 
-  const [organizerSelected, setOrganizerSelected] = useState<Employee | null>(
-    null,
-  );
-  const [organizerSearch, setOrganizerSearch] = useState("");
-  const [organizerResults, setOrganizerResults] = useState<Employee[]>([]);
-  const [organizerLoading, setOrganizerLoading] = useState(false);
-  const [organizerOpen, setOrganizerOpen] = useState(false);
+  const [managerSelected, setManagerSelected] = useState<Employee | null>(null);
+  const [managerSearch, setManagerSearch] = useState("");
+  const [managerResults, setManagerResults] = useState<Employee[]>([]);
+  const [managerLoading, setManagerLoading] = useState(false);
+  const [managerOpen, setManagerOpen] = useState(false);
 
-  const [attendeeChips, setAttendeeChips] = useState<Employee[]>([]);
-  const [attendeeSearch, setAttendeeSearch] = useState("");
-  const [attendeeResults, setAttendeeResults] = useState<Employee[]>([]);
-  const [attendeeLoading, setAttendeeLoading] = useState(false);
-  const [attendeeOpen, setAttendeeOpen] = useState(false);
+  const [teamChips, setTeamChips] = useState<Employee[]>([]);
+  const [teamSearch, setTeamSearch] = useState("");
+  const [teamResults, setTeamResults] = useState<Employee[]>([]);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [teamOpen, setTeamOpen] = useState(false);
 
-  const organizerAbortRef = useRef<AbortController | null>(null);
-  const organizerDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const organizerDropdownRef = useRef<HTMLDivElement>(null);
+  const [clientSelected, setClientSelected] = useState<ClientOption | null>(null);
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientResults, setClientResults] = useState<ClientOption[]>([]);
+  const [clientLoading, setClientLoading] = useState(false);
+  const [clientOpen, setClientOpen] = useState(false);
 
-  const attendeeAbortRef = useRef<AbortController | null>(null);
-  const attendeeDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const attendeeDropdownRef = useRef<HTMLDivElement>(null);
+  const managerAbortRef = useRef<AbortController | null>(null);
+  const managerDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const managerDropdownRef = useRef<HTMLDivElement>(null);
 
-  const fetchMeetings = async () => {
+  const teamAbortRef = useRef<AbortController | null>(null);
+  const teamDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const teamDropdownRef = useRef<HTMLDivElement>(null);
+
+  const clientAbortRef = useRef<AbortController | null>(null);
+  const clientDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const clientDropdownRef = useRef<HTMLDivElement>(null);
+
+  const fetchProjects = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(
-        `/meeting?page=${page}&limit=10&search=${search}`,
+        `/project?page=${page}&limit=10&search=${search}`,
       );
-      setMeetings(res?.data?.data?.meetings || []);
+      setProjects(res?.data?.data?.projects || []);
       setPagination(res?.data?.data?.pagination);
     } catch (err: any) {
       console.log(err);
-      alert(err?.response?.data?.message || "Failed to fetch meetings");
+      alert(err?.response?.data?.message || "Failed to fetch projects");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMeetings();
+    fetchProjects();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1);
-    fetchMeetings();
+    fetchProjects();
   };
 
   useEffect(() => {
-    if (organizerDebounceRef.current) clearTimeout(organizerDebounceRef.current);
+    if (managerDebounceRef.current) clearTimeout(managerDebounceRef.current);
 
-    if (organizerSearch.trim().length < 2) {
-      setOrganizerResults([]);
-      setOrganizerLoading(false);
+    if (managerSearch.trim().length < 2) {
+      setManagerResults([]);
+      setManagerLoading(false);
       return;
     }
 
-    setOrganizerLoading(true);
+    setManagerLoading(true);
 
-    organizerDebounceRef.current = setTimeout(() => {
-      organizerAbortRef.current?.abort();
+    managerDebounceRef.current = setTimeout(() => {
+      managerAbortRef.current?.abort();
       const controller = new AbortController();
-      organizerAbortRef.current = controller;
+      managerAbortRef.current = controller;
 
       axiosInstance
         .get(
-          `/employee?search=${encodeURIComponent(organizerSearch.trim())}&limit=8`,
+          `/employee?search=${encodeURIComponent(managerSearch.trim())}&limit=8`,
           { signal: controller.signal },
         )
         .then((res) => {
-          setOrganizerResults(
+          setManagerResults(
             res?.data?.data?.employees || res?.data?.data || [],
           );
         })
@@ -154,66 +171,107 @@ const MeetingPage = () => {
             console.log(err);
           }
         })
-        .finally(() => setOrganizerLoading(false));
+        .finally(() => setManagerLoading(false));
     }, 500);
 
     return () => {
-      if (organizerDebounceRef.current)
-        clearTimeout(organizerDebounceRef.current);
+      if (managerDebounceRef.current) clearTimeout(managerDebounceRef.current);
     };
-  }, [organizerSearch]);
+  }, [managerSearch]);
 
   useEffect(() => {
-    if (attendeeDebounceRef.current) clearTimeout(attendeeDebounceRef.current);
+    if (teamDebounceRef.current) clearTimeout(teamDebounceRef.current);
 
-    if (attendeeSearch.trim().length < 2) {
-      setAttendeeResults([]);
-      setAttendeeLoading(false);
+    if (teamSearch.trim().length < 2) {
+      setTeamResults([]);
+      setTeamLoading(false);
       return;
     }
 
-    setAttendeeLoading(true);
+    setTeamLoading(true);
 
-    attendeeDebounceRef.current = setTimeout(() => {
-      attendeeAbortRef.current?.abort();
+    teamDebounceRef.current = setTimeout(() => {
+      teamAbortRef.current?.abort();
       const controller = new AbortController();
-      attendeeAbortRef.current = controller;
+      teamAbortRef.current = controller;
 
       axiosInstance
         .get(
-          `/employee?search=${encodeURIComponent(attendeeSearch.trim())}&limit=8`,
+          `/employee?search=${encodeURIComponent(teamSearch.trim())}&limit=8`,
           { signal: controller.signal },
         )
         .then((res) => {
-          setAttendeeResults(res?.data?.data?.employees || res?.data?.data || []);
+          setTeamResults(res?.data?.data?.employees || res?.data?.data || []);
         })
         .catch((err) => {
           if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
             console.log(err);
           }
         })
-        .finally(() => setAttendeeLoading(false));
+        .finally(() => setTeamLoading(false));
     }, 500);
 
     return () => {
-      if (attendeeDebounceRef.current)
-        clearTimeout(attendeeDebounceRef.current);
+      if (teamDebounceRef.current) clearTimeout(teamDebounceRef.current);
     };
-  }, [attendeeSearch]);
+  }, [teamSearch]);
+
+  useEffect(() => {
+    if (clientDebounceRef.current) clearTimeout(clientDebounceRef.current);
+
+    if (clientSearch.trim().length < 2) {
+      setClientResults([]);
+      setClientLoading(false);
+      return;
+    }
+
+    setClientLoading(true);
+
+    clientDebounceRef.current = setTimeout(() => {
+      clientAbortRef.current?.abort();
+      const controller = new AbortController();
+      clientAbortRef.current = controller;
+
+      axiosInstance
+        .get(
+          `/client?search=${encodeURIComponent(clientSearch.trim())}&limit=8`,
+          { signal: controller.signal },
+        )
+        .then((res) => {
+          setClientResults(res?.data?.data?.clients || res?.data?.data || []);
+        })
+        .catch((err) => {
+          if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
+            console.log(err);
+          }
+        })
+        .finally(() => setClientLoading(false));
+    }, 500);
+
+    return () => {
+      if (clientDebounceRef.current) clearTimeout(clientDebounceRef.current);
+    };
+  }, [clientSearch]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
-        organizerDropdownRef.current &&
-        !organizerDropdownRef.current.contains(e.target as Node)
+        managerDropdownRef.current &&
+        !managerDropdownRef.current.contains(e.target as Node)
       ) {
-        setOrganizerOpen(false);
+        setManagerOpen(false);
       }
       if (
-        attendeeDropdownRef.current &&
-        !attendeeDropdownRef.current.contains(e.target as Node)
+        teamDropdownRef.current &&
+        !teamDropdownRef.current.contains(e.target as Node)
       ) {
-        setAttendeeOpen(false);
+        setTeamOpen(false);
+      }
+      if (
+        clientDropdownRef.current &&
+        !clientDropdownRef.current.contains(e.target as Node)
+      ) {
+        setClientOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -229,42 +287,54 @@ const MeetingPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const selectOrganizer = (emp: Employee) => {
-    setOrganizerSelected(emp);
-    setOrganizerSearch(emp.name);
-    setOrganizerOpen(false);
+  const selectManager = (emp: Employee) => {
+    setManagerSelected(emp);
+    setManagerSearch(emp.name);
+    setManagerOpen(false);
   };
 
-  const clearOrganizer = () => {
-    setOrganizerSelected(null);
-    setOrganizerSearch("");
+  const clearManager = () => {
+    setManagerSelected(null);
+    setManagerSearch("");
   };
 
-  const toggleAttendee = (emp: Employee) => {
-    setAttendeeChips((prev) =>
+  const toggleTeam = (emp: Employee) => {
+    setTeamChips((prev) =>
       prev.some((x) => x.id === emp.id)
         ? prev.filter((x) => x.id !== emp.id)
         : [...prev, emp],
     );
   };
 
+  const selectClient = (c: ClientOption) => {
+    setClientSelected(c);
+    setClientSearch(c.name);
+    setClientOpen(false);
+  };
+
+  const clearClient = () => {
+    setClientSelected(null);
+    setClientSearch("");
+  };
+
   const resetForm = () => {
     setFormData({
-      title: "",
+      name: "",
       description: "",
-      location: "",
-      meetingType: "INTERNAL",
-      date: "",
-      startTime: "",
-      endTime: "",
-      status: "SCHEDULED",
+      startDate: "",
+      endDate: "",
+      status: "NOT_STARTED",
+      priority: "MEDIUM",
     });
-    setOrganizerSelected(null);
-    setOrganizerSearch("");
-    setOrganizerResults([]);
-    setAttendeeChips([]);
-    setAttendeeSearch("");
-    setAttendeeResults([]);
+    setManagerSelected(null);
+    setManagerSearch("");
+    setManagerResults([]);
+    setTeamChips([]);
+    setTeamSearch("");
+    setTeamResults([]);
+    setClientSelected(null);
+    setClientSearch("");
+    setClientResults([]);
     setEditing(null);
   };
 
@@ -273,53 +343,56 @@ const MeetingPage = () => {
     setShowModal(true);
   };
 
-  const handleEdit = (item: Meeting) => {
+  const handleEdit = (item: Project) => {
     setEditing(item);
     setFormData({
-      title: item.title,
-      description: item.description,
-      location: item.location,
-      meetingType: item.meetingType,
-      date: toDateInputValue(item.date),
-      startTime: item.startTime,
-      endTime: item.endTime,
+      name: item.name,
+      description: item.description || "",
+      startDate: toDateInputValue(item.startDate),
+      endDate: toDateInputValue(item.endDate),
       status: item.status,
+      priority: item.priority,
     });
-    setOrganizerSelected(item.organizer || null);
-    setOrganizerSearch(item.organizer?.name || "");
-    setOrganizerResults([]);
-    setAttendeeChips(
-      (item.attendees || [])
-        .map((a) => a.employee)
+    setManagerSelected(item.manager || null);
+    setManagerSearch(item.manager?.name || "");
+    setManagerResults([]);
+    setTeamChips(
+      (item.teamMembers || [])
+        .map((m) => m.employee)
         .filter((e): e is Employee => Boolean(e)),
     );
-    setAttendeeSearch("");
-    setAttendeeResults([]);
+    setTeamSearch("");
+    setTeamResults([]);
+    setClientSelected(item.client || null);
+    setClientSearch(item.client?.name || "");
+    setClientResults([]);
     setShowModal(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (!organizerSelected) {
-        alert("Organizer is required");
+      if (!managerSelected) {
+        alert("Manager is required");
         return;
       }
       const payload = {
         ...formData,
-        organizerId: organizerSelected.id,
-        attendees: attendeeChips.map((emp) => emp.id),
+        clientId: clientSelected ? clientSelected.id : null,
+        managerId: managerSelected.id,
+        teamMembers: teamChips.map((emp) => emp.id),
+        endDate: formData.endDate || null,
       };
       if (editing) {
-        await axiosInstance.put(`/meeting/${editing.id}`, payload);
-        alert("Meeting updated successfully");
+        await axiosInstance.put(`/project/${editing.id}`, payload);
+        alert("Project updated successfully");
       } else {
-        await axiosInstance.post("/meeting", payload);
-        alert("Meeting created successfully");
+        await axiosInstance.post("/project", payload);
+        alert("Project created successfully");
       }
       setShowModal(false);
       resetForm();
-      fetchMeetings();
+      fetchProjects();
     } catch (err: any) {
       console.log(err);
       alert(err?.response?.data?.message || "Failed");
@@ -328,33 +401,34 @@ const MeetingPage = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      const confirmDelete = window.confirm("Delete meeting?");
+      const confirmDelete = window.confirm("Delete project?");
       if (!confirmDelete) return;
-      await axiosInstance.delete(`/meeting/${id}`);
-      alert("Meeting deleted");
-      fetchMeetings();
+      await axiosInstance.delete(`/project/${id}`);
+      alert("Project deleted");
+      fetchProjects();
     } catch (err: any) {
       console.log(err);
       alert(err?.response?.data?.message || "Delete failed");
     }
   };
 
-  const attendeeNames = (item: Meeting) =>
-    (item.attendees || [])
-      .map((a) => a.employee?.name)
+  const teamNames = (item: Project) =>
+    (item.teamMembers || [])
+      .map((m) => m.employee?.name)
       .filter(Boolean)
       .join(", ");
 
   return (
     <div className="page-wrapper">
+      <ScrollProgressBar />
       <div className="content">
         <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
           <div>
-            <h3 className="fw-bold mb-1">Meeting Management</h3>
-            <p className="text-muted mb-0">Manage employee meetings</p>
+            <h3 className="fw-bold mb-1">Project Management</h3>
+            <p className="text-muted mb-0">Manage employee projects</p>
           </div>
           <button className="btn btn-primary" onClick={handleOpenCreate}>
-            <i className="ti ti-plus me-1" /> Add Meeting
+            <i className="ti ti-plus me-1" /> Add Project
           </button>
         </div>
 
@@ -366,7 +440,7 @@ const MeetingPage = () => {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Search meeting..."
+                    placeholder="Search project..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
@@ -384,69 +458,59 @@ const MeetingPage = () => {
         <div className="card border-0 shadow-sm">
           <div className="card-body">
             {loading ? (
-              <SkeletonTable rows={5} columns={9} />
+              <SkeletonTable rows={5} columns={10} />
             ) : (
               <div className="table-responsive">
                 <table className="table table-bordered align-middle">
                   <thead className="table-light">
                     <tr>
                       <th>#</th>
-                      <th>Title</th>
-                      <th>Organizer</th>
-                      <th>Type</th>
-                      <th>Date</th>
-                      <th>Start Time</th>
-                      <th>End Time</th>
-                      <th>Location</th>
-                      <th>Attendees</th>
+                      <th>Name</th>
+                      <th>Manager</th>
+                      <th>Client</th>
+                      <th>Start Date</th>
+                      <th>End Date</th>
+                      <th>Priority</th>
                       <th>Status</th>
+                      <th>Team</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {meetings.length === 0 ? (
+                    {projects.length === 0 ? (
                       <tr>
-                        <td colSpan={11} className="text-center py-4">
-                          No meetings found
+                        <td colSpan={10} className="text-center py-4">
+                          No projects found
                         </td>
                       </tr>
                     ) : (
-                      meetings.map((item, index) => (
+                      projects.map((item, index) => (
                         <tr key={item.id}>
                           <td>{(page - 1) * 10 + index + 1}</td>
                           <td>
-                            <div className="fw-semibold">{item.title}</div>
+                            <div className="fw-semibold">{item.name}</div>
                             {item.description && (
                               <small className="text-muted d-block">
                                 {item.description}
                               </small>
                             )}
                           </td>
-                          <td>{item.organizer?.name || "-"}</td>
+                          <td>{item.manager?.name || "-"}</td>
+                          <td>{item.client?.name || "-"}</td>
+                          <td>{new Date(item.startDate).toLocaleDateString()}</td>
+                          <td>
+                            {item.endDate
+                              ? new Date(item.endDate).toLocaleDateString()
+                              : "-"}
+                          </td>
                           <td>
                             <span
                               className={`badge ${
-                                TYPE_BADGE[item.meetingType] || "bg-secondary"
+                                PRIORITY_BADGE[item.priority] || "bg-secondary"
                               }`}
                             >
-                              {item.meetingType}
+                              {item.priority}
                             </span>
-                          </td>
-                          <td>{new Date(item.date).toLocaleDateString()}</td>
-                          <td>{item.startTime}</td>
-                          <td>{item.endTime}</td>
-                          <td>{item.location || "-"}</td>
-                          <td>
-                            {item.attendees?.length ? (
-                              <span title={attendeeNames(item)}>
-                                {item.attendees.length}{" "}
-                                {item.attendees.length === 1
-                                  ? "attendee"
-                                  : "attendees"}
-                              </span>
-                            ) : (
-                              "-"
-                            )}
                           </td>
                           <td>
                             <span
@@ -456,6 +520,18 @@ const MeetingPage = () => {
                             >
                               {item.status}
                             </span>
+                          </td>
+                          <td>
+                            {item.teamMembers?.length ? (
+                              <span title={teamNames(item)}>
+                                {item.teamMembers.length}{" "}
+                                {item.teamMembers.length === 1
+                                  ? "member"
+                                  : "members"}
+                              </span>
+                            ) : (
+                              "-"
+                            )}
                           </td>
                           <td>
                             <div className="d-flex gap-2">
@@ -516,7 +592,7 @@ const MeetingPage = () => {
             <div className="modal-content border-0 shadow-lg">
               <div className="modal-header">
                 <h5 className="modal-title fw-bold">
-                  {editing ? "Edit Meeting" : "Add Meeting"}
+                  {editing ? "Edit Project" : "Add Project"}
                 </h5>
                 <button
                   className="btn-close"
@@ -529,104 +605,110 @@ const MeetingPage = () => {
                   <div className="row g-3">
                     <div className="col-md-6">
                       <label className="form-label fw-semibold">
-                        Title <span className="text-danger">*</span>
+                        Name <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
                         className="form-control"
-                        name="title"
-                        value={formData.title}
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
-                        placeholder="Enter Title"
+                        placeholder="Enter Project Name"
                         required
                       />
                     </div>
 
                     <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Location <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        placeholder="location"
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Meeting Type
-                      </label>
-                      <select
-                        className="form-select"
-                        name="meetingType"
-                        value={formData.meetingType}
-                        onChange={handleChange}
-                      >
-                        <option value="INTERNAL">INTERNAL</option>
-                        <option value="EXTERNAL">EXTERNAL</option>
-                        <option value="VIRTUAL">VIRTUAL</option>
-                      </select>
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Date Schedule <span className="text-danger">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        className="form-control"
-                        name="date"
-                        value={formData.date}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-semibold">
-                        Organizer <span className="text-danger">*</span>
-                      </label>
+                      <label className="form-label fw-semibold">Client</label>
                       <div
                         className="searchable-select"
-                        ref={organizerDropdownRef}
+                        ref={clientDropdownRef}
                       >
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="Search organizer (min 2 chars)..."
-                          value={organizerSearch}
+                          placeholder="Search client (min 2 chars)..."
+                          value={clientSearch}
                           onChange={(e) => {
-                            if (e.target.value !== organizerSelected?.name) {
-                              clearOrganizer();
+                            if (e.target.value !== clientSelected?.name) {
+                              clearClient();
                             }
-                            setOrganizerSearch(e.target.value);
-                            setOrganizerOpen(true);
+                            setClientSearch(e.target.value);
+                            setClientOpen(true);
                           }}
-                          onFocus={() => setOrganizerOpen(true)}
+                          onFocus={() => setClientOpen(true)}
                         />
-                        {organizerOpen && (
+                        {clientOpen && (
                           <div className="searchable-list">
-                            {organizerLoading ? (
+                            {clientLoading ? (
                               <div className="searchable-item empty">
                                 Searching...
                               </div>
-                            ) : organizerResults.length ? (
-                              organizerResults.map((emp) => (
+                            ) : clientResults.length ? (
+                              clientResults.map((c) => (
+                                <div
+                                  key={c.id}
+                                  className="searchable-item"
+                                  onClick={() => selectClient(c)}
+                                >
+                                  <strong>{c.name}</strong>
+                                  <span>{c.companyName || ""}</span>
+                                </div>
+                              ))
+                            ) : clientSearch.trim().length >= 2 ? (
+                              <div className="searchable-item empty">
+                                No clients found
+                              </div>
+                            ) : (
+                              <div className="searchable-item empty">
+                                Type at least 2 characters
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-semibold">
+                        Manager <span className="text-danger">*</span>
+                      </label>
+                      <div
+                        className="searchable-select"
+                        ref={managerDropdownRef}
+                      >
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Search manager (min 2 chars)..."
+                          value={managerSearch}
+                          onChange={(e) => {
+                            if (e.target.value !== managerSelected?.name) {
+                              clearManager();
+                            }
+                            setManagerSearch(e.target.value);
+                            setManagerOpen(true);
+                          }}
+                          onFocus={() => setManagerOpen(true)}
+                        />
+                        {managerOpen && (
+                          <div className="searchable-list">
+                            {managerLoading ? (
+                              <div className="searchable-item empty">
+                                Searching...
+                              </div>
+                            ) : managerResults.length ? (
+                              managerResults.map((emp) => (
                                 <div
                                   key={emp.id}
                                   className="searchable-item"
-                                  onClick={() => selectOrganizer(emp)}
+                                  onClick={() => selectManager(emp)}
                                 >
                                   <strong>{emp.name}</strong>
                                   <span>{emp.employeeCode || ""}</span>
                                 </div>
                               ))
-                            ) : organizerSearch.trim().length >= 2 ? (
+                            ) : managerSearch.trim().length >= 2 ? (
                               <div className="searchable-item empty">
                                 No employees found
                               </div>
@@ -642,13 +724,13 @@ const MeetingPage = () => {
 
                     <div className="col-md-6">
                       <label className="form-label fw-semibold">
-                        Start Time <span className="text-danger">*</span>
+                        Start Date <span className="text-danger">*</span>
                       </label>
                       <input
-                        type="time"
+                        type="date"
                         className="form-control"
-                        name="startTime"
-                        value={formData.startTime}
+                        name="startDate"
+                        value={formData.startDate}
                         onChange={handleChange}
                         required
                       />
@@ -656,16 +738,29 @@ const MeetingPage = () => {
 
                     <div className="col-md-6">
                       <label className="form-label fw-semibold">
-                        End Time <span className="text-danger">*</span>
+                        End Date
                       </label>
                       <input
-                        type="time"
+                        type="date"
                         className="form-control"
-                        name="endTime"
-                        value={formData.endTime}
+                        name="endDate"
+                        value={formData.endDate}
                         onChange={handleChange}
-                        required
                       />
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-semibold">Priority</label>
+                      <select
+                        className="form-select"
+                        name="priority"
+                        value={formData.priority}
+                        onChange={handleChange}
+                      >
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="HIGH">HIGH</option>
+                      </select>
                     </div>
 
                     <div className="col-md-6">
@@ -676,7 +771,9 @@ const MeetingPage = () => {
                         value={formData.status}
                         onChange={handleChange}
                       >
-                        <option value="SCHEDULED">SCHEDULED</option>
+                        <option value="NOT_STARTED">NOT_STARTED</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="ON_HOLD">ON_HOLD</option>
                         <option value="COMPLETED">COMPLETED</option>
                         <option value="CANCELLED">CANCELLED</option>
                       </select>
@@ -684,7 +781,7 @@ const MeetingPage = () => {
 
                     <div className="col-12">
                       <label className="form-label fw-semibold">
-                        Description <span className="text-danger">*</span>
+                        Description
                       </label>
                       <textarea
                         className="form-control"
@@ -693,17 +790,16 @@ const MeetingPage = () => {
                         value={formData.description}
                         onChange={handleChange}
                         placeholder="Enter Description"
-                        required
                       />
                     </div>
 
                     <div className="col-12">
                       <label className="form-label fw-semibold">
-                        Attendees
+                        Team Members
                       </label>
-                      {attendeeChips.length > 0 && (
+                      {teamChips.length > 0 && (
                         <div className="d-flex flex-wrap gap-2 mb-2">
-                          {attendeeChips.map((emp) => (
+                          {teamChips.map((emp) => (
                             <span
                               key={emp.id}
                               className="badge bg-primary d-inline-flex align-items-center gap-1"
@@ -713,7 +809,7 @@ const MeetingPage = () => {
                                 type="button"
                                 className="btn p-0 border-0 text-white"
                                 style={{ lineHeight: 1 }}
-                                onClick={() => toggleAttendee(emp)}
+                                onClick={() => toggleTeam(emp)}
                               >
                                 <i className="ti ti-x" />
                               </button>
@@ -723,35 +819,35 @@ const MeetingPage = () => {
                       )}
                       <div
                         className="searchable-select"
-                        ref={attendeeDropdownRef}
+                        ref={teamDropdownRef}
                       >
                         <input
                           type="text"
                           className="form-control"
-                          placeholder="Search employee to add as attendee..."
-                          value={attendeeSearch}
+                          placeholder="Search employee to add to team..."
+                          value={teamSearch}
                           onChange={(e) => {
-                            setAttendeeSearch(e.target.value);
-                            setAttendeeOpen(true);
+                            setTeamSearch(e.target.value);
+                            setTeamOpen(true);
                           }}
-                          onFocus={() => setAttendeeOpen(true)}
+                          onFocus={() => setTeamOpen(true)}
                         />
-                        {attendeeOpen && (
+                        {teamOpen && (
                           <div className="searchable-list">
-                            {attendeeLoading ? (
+                            {teamLoading ? (
                               <div className="searchable-item empty">
                                 Searching...
                               </div>
-                            ) : attendeeResults.length ? (
-                              attendeeResults.map((emp) => {
-                                const isSelected = attendeeChips.some(
+                            ) : teamResults.length ? (
+                              teamResults.map((emp) => {
+                                const isSelected = teamChips.some(
                                   (x) => x.id === emp.id,
                                 );
                                 return (
                                   <div
                                     key={emp.id}
                                     className="searchable-item"
-                                    onClick={() => toggleAttendee(emp)}
+                                    onClick={() => toggleTeam(emp)}
                                   >
                                     <strong>{emp.name}</strong>
                                     <span>
@@ -762,7 +858,7 @@ const MeetingPage = () => {
                                   </div>
                                 );
                               })
-                            ) : attendeeSearch.trim().length >= 2 ? (
+                            ) : teamSearch.trim().length >= 2 ? (
                               <div className="searchable-item empty">
                                 No employees found
                               </div>
@@ -787,7 +883,7 @@ const MeetingPage = () => {
                     Close
                   </button>
                   <button type="submit" className="btn btn-primary">
-                    {editing ? "Update Meeting" : "Create Meeting"}
+                    {editing ? "Update Project" : "Create Project"}
                   </button>
                 </div>
               </form>
@@ -846,4 +942,4 @@ const MeetingPage = () => {
   );
 };
 
-export default MeetingPage;
+export default ProjectPage;
