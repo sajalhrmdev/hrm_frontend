@@ -1,12 +1,28 @@
 "use client";
 
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
-import axiosInstance
-from "@/utils/axiosInstance";
+import axiosInstance from "@/utils/axiosInstance";
+
+import { Empty, Skeleton } from "antd";
+
+import { motion, AnimatePresence } from "framer-motion";
+
+import CountUp from "react-countup";
+
+import {
+  Wallet,
+  ReceiptText,
+  CalendarDays,
+  TrendingUp,
+  TrendingDown,
+  Building2,
+  Coins,
+  Eye,
+  FileText,
+} from "lucide-react";
+
+import { premiumSalaryStyles } from "@/utils/premiumSalaryStyles";
 
 // ======================================================
 
@@ -16,1064 +32,825 @@ type Props = {
 
 // ======================================================
 
-const EmployeePayrollTab = ({
-  employeeId,
-}: Props) => {
+const toneClass = (type?: string) => {
+  if (type === "EARNING") return "tone-emerald";
+  if (type === "DEDUCTION") return "tone-rose";
+  if (type === "EMPLOYER_CONTRIBUTION") return "tone-violet";
+  return "tone-slate";
+};
 
-  // ======================================================
-  // STATES
-  // ======================================================
+const accentOf = (type?: string) => {
+  if (type === "EARNING") return "emerald";
+  if (type === "DEDUCTION") return "rose";
+  if (type === "EMPLOYER_CONTRIBUTION") return "violet";
+  return "slate";
+};
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+const fmt = (n: number | null | undefined) =>
+  (n ?? 0).toLocaleString("en-IN");
 
-  const [
-    payrolls,
-    setPayrolls,
-  ] = useState<any[]>([]);
+// ======================================================
 
-  const [
-    summary,
-    setSummary,
-  ] = useState<any>(null);
+const EmployeePayrollTab = ({ employeeId }: Props) => {
+  const [loading, setLoading] = useState(false);
 
-  const [
-    selectedPayroll,
-    setSelectedPayroll,
-  ] = useState<any>(null);
+  const [payrolls, setPayrolls] = useState<any[]>([]);
 
-  const [
-    payrollLoading,
-    setPayrollLoading,
-  ] = useState(false);
+  const [summary, setSummary] = useState<any>(null);
+
+  const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
+
+  const [payrollLoading, setPayrollLoading] = useState(false);
 
   // ======================================================
   // FETCH EMPLOYEE PAYROLLS
   // ======================================================
 
-  const fetchEmployeePayrolls =
-    async () => {
+  const fetchEmployeePayrolls = async () => {
+    try {
+      setLoading(true);
 
-      try {
+      const res = await axiosInstance.get(`/payroll/employee/${employeeId}`);
 
-        setLoading(true);
+      setPayrolls(res?.data?.data?.payrolls || []);
 
-        const res =
-          await axiosInstance.get(
-
-            `/payroll/employee/${employeeId}`
-          );
-
-        setPayrolls(
-
-          res?.data?.data?.payrolls || []
-        );
-
-        setSummary(
-
-          res?.data?.data?.summary || null
-        );
-
-      } catch (err) {
-
-        console.log(err);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
+      setSummary(res?.data?.data?.summary || null);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-
     if (employeeId) {
-
       fetchEmployeePayrolls();
     }
-
   }, [employeeId]);
 
   // ======================================================
   // VIEW SINGLE PAYROLL
   // ======================================================
 
-  const handleViewPayroll =
-    async (
-      payrollId:number
-    ) => {
+  const handleViewPayroll = async (payrollId: number) => {
+    try {
+      setPayrollLoading(true);
 
-      try {
+      const res = await axiosInstance.get(`/payroll/${payrollId}`);
 
-        setPayrollLoading(true);
-
-        const res =
-          await axiosInstance.get(
-
-            `/payroll/${payrollId}`
-          );
-
-        setSelectedPayroll(
-
-          res?.data?.data || null
-        );
-
-      } catch (err) {
-
-        console.log(err);
-
-      } finally {
-
-        setPayrollLoading(false);
-      }
-    };
+      setSelectedPayroll(res?.data?.data || null);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setPayrollLoading(false);
+    }
+  };
 
   // ======================================================
-  // STATUS BADGE
+  // HELPERS
   // ======================================================
 
-  const getStatusClass =
-    (
-      status:string
-    ) => {
+  const getStatusClass = (status: string) => {
+    if (status === "PAID") return "is-paid";
 
-      if (
-        status === "PAID"
-      ) {
-        return "paid";
-      }
+    if (status === "FINALIZED") return "is-finalized";
 
-      if (
-        status === "FINALIZED"
-      ) {
-        return "finalized";
-      }
+    return "is-draft";
+  };
 
-      return "draft";
-    };
+  const totalGross = summary?.totalGrossSalary ?? 0;
+
+  const totalDeduction = summary?.totalDeduction ?? 0;
+
+  const totalEmployer = summary?.totalEmployerContribution ?? 0;
+
+  const totalNet = summary?.totalNetSalary ?? 0;
+
+  const totalCtc = totalGross + totalEmployer;
+
+  const sections = [
+    {
+      type: "EARNING",
+      label: "Earnings",
+      Icon: TrendingUp,
+      hint: "Incomes that build up the gross salary",
+    },
+    {
+      type: "DEDUCTION",
+      label: "Deductions",
+      Icon: TrendingDown,
+      hint: "Amounts subtracted from gross salary",
+    },
+    {
+      type: "EMPLOYER_CONTRIBUTION",
+      label: "Employer Contribution",
+      Icon: Building2,
+      hint: "Employer-side costs that add to CTC",
+    },
+  ];
+
+  const snap = selectedPayroll?.payrollSnapComponents || [];
+
+  const snapByType: Record<string, any[]> = {};
+
+  snap.forEach((item: any) => {
+    (snapByType[item.type] = snapByType[item.type] || []).push(item);
+  });
+
+  const periodText = (run: any) =>
+    run?.periodStart && run?.periodEnd
+      ? `${new Date(run.periodStart).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })} — ${new Date(run.periodEnd).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })}`
+      : "—";
 
   // ======================================================
   // UI
   // ======================================================
 
   return (
+    <div className="premium-shell">
+      <div className="payroll-wrap">
+        {/* ====================================== */}
+        {/* HEADER */}
+        {/* ====================================== */}
 
-    <div className="payroll-page">
+        <div className="premium-card payroll-head-card">
+          <div className="card-head">
+            <div className="card-head-copy">
+              <h3>Employee Payroll</h3>
+              <p>Payroll history, salary breakdown & payment status</p>
+            </div>
 
-      {/* ====================================== */}
-      {/* HEADER */}
-      {/* ====================================== */}
-
-      <div className="payroll-top-card">
-
-        <div>
-
-          <h3 className="payroll-title">
-            💸 Employee Payroll
-          </h3>
-
-          <p className="payroll-subtitle">
-            View payroll history, salary breakdown & payment status
-          </p>
-
+            <span className="card-head-tag">Payroll Analytics</span>
+          </div>
         </div>
 
-        <div className="payroll-badge">
-          Payroll Analytics
+        {/* ====================================== */}
+        {/* SUMMARY */}
+        {/* ====================================== */}
+
+        <div className="summary-grid">
+          <div className="stat-card stat-run">
+            <div className="stat-top">
+              <span className="stat-icon">
+                <ReceiptText size={20} />
+              </span>
+              <span className="stat-label">Total Payrolls</span>
+            </div>
+            <div className="stat-value">
+              <CountUp end={summary?.totalPayrolls ?? 0} duration={0.5} />
+            </div>
+          </div>
+
+          <div className="stat-card stat-earning">
+            <div className="stat-top">
+              <span className="stat-icon">
+                <TrendingUp size={20} />
+              </span>
+              <span className="stat-label">Gross Salary</span>
+            </div>
+            <div className="stat-value">
+              ₹<CountUp end={totalGross} duration={0.5} separator="," />
+            </div>
+          </div>
+
+          <div className="stat-card stat-deduction">
+            <div className="stat-top">
+              <span className="stat-icon">
+                <TrendingDown size={20} />
+              </span>
+              <span className="stat-label">Total Deduction</span>
+            </div>
+            <div className="stat-value">
+              ₹<CountUp end={totalDeduction} duration={0.5} separator="," />
+            </div>
+          </div>
+
+          <div className="stat-card stat-employer">
+            <div className="stat-top">
+              <span className="stat-icon">
+                <Building2 size={20} />
+              </span>
+              <span className="stat-label">Employer Contribution</span>
+            </div>
+            <div className="stat-value">
+              ₹<CountUp end={totalEmployer} duration={0.5} separator="," />
+            </div>
+          </div>
+
+          <div className="stat-card stat-net">
+            <div className="stat-top">
+              <span className="stat-icon">
+                <Wallet size={20} />
+              </span>
+              <span className="stat-label">Net Salary</span>
+            </div>
+            <div className="stat-value">
+              ₹<CountUp end={totalNet} duration={0.6} separator="," />
+            </div>
+          </div>
         </div>
 
-      </div>
+        {/* ====================================== */}
+        {/* CTC STRIP */}
+        {/* ====================================== */}
 
-      {/* ====================================== */}
-      {/* SUMMARY */}
-      {/* ====================================== */}
-
-      <div className="row g-4 mb-4">
-
-        <div className="col-md-4">
-
-          <div className="summary-card earning">
-
-            <h6>Total Payrolls</h6>
-
-            <h3>
-              {
-                summary?.totalPayrolls || 0
-              }
-            </h3>
-
+        {(summary?.totalPayrolls ?? 0) > 0 && (
+          <div className="ctc-strip">
+            <span className="ctc-strip-icon">
+              <Coins size={18} />
+            </span>
+            <div className="ctc-strip-copy">
+              <div className="ctc-strip-label">
+                Total CTC (Gross + Employer Contribution)
+              </div>
+              <div className="ctc-strip-value">
+                ₹<CountUp end={totalCtc} duration={0.6} separator="," />
+              </div>
+            </div>
           </div>
-
-        </div>
-
-        <div className="col-md-4">
-
-          <div className="summary-card deduction">
-
-            <h6>Total Deduction</h6>
-
-            <h3>
-
-              ₹
-              {
-                summary?.totalDeduction
-                  ?.toLocaleString(
-                    "en-IN"
-                  ) || 0
-              }
-
-            </h3>
-
-          </div>
-
-        </div>
-
-        <div className="col-md-4">
-
-          <div className="summary-card net">
-
-            <h6>Total Net Salary</h6>
-
-            <h3>
-
-              ₹
-              {
-                summary?.totalNetSalary
-                  ?.toLocaleString(
-                    "en-IN"
-                  ) || 0
-              }
-
-            </h3>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* ====================================== */}
-      {/* PAYROLL LIST */}
-      {/* ====================================== */}
-
-      <div className="payroll-list-card">
-
-        <div className="section-title">
-          Payroll History
-        </div>
-
-        {loading ? (
-
-          <div className="text-center py-5">
-
-            <div className="spinner-border text-primary" />
-
-          </div>
-
-        ) : payrolls.length === 0 ? (
-
-          <div className="empty-state">
-            No payroll history found
-          </div>
-
-        ) : (
-
-          <div className="table-responsive">
-
-            <table className="table payroll-table">
-
-              <thead>
-
-                <tr>
-
-                  <th>Payroll</th>
-
-                  <th>Period</th>
-
-                  <th>Status</th>
-
-                  <th>Net Salary</th>
-
-                  <th>Action</th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {payrolls.map(
-                  (item:any)=>{
-
-                    return (
-
-                      <tr
-                        key={item.id}
-                      >
-
-                        <td>
-
-                          <div className="fw-bold">
-
-                            {
-                              item.payrollRun?.title ||
-
-                              "Payroll Run"
-                            }
-
-                          </div>
-
-                        </td>
-
-                        <td>
-
-                          <div>
-
-                            {
-                              new Date(
-                                item.payrollRun?.periodStart
-                              ).toLocaleDateString()
-                            }
-
-                            {" - "}
-
-                            {
-                              new Date(
-                                item.payrollRun?.periodEnd
-                              ).toLocaleDateString()
-                            }
-
-                          </div>
-
-                        </td>
-
-                        <td>
-
-                          <span
-                            className={`status-badge ${getStatusClass(
-                              item.status
-                            )}`}
-                          >
-
-                            {item.status}
-
-                          </span>
-
-                        </td>
-
-                        <td>
-
-                          ₹
-                          {
-                            item.net_salary?.toLocaleString(
-                              "en-IN"
-                            )
-                          }
-
-                        </td>
-
-                        <td>
-                          <div className="d-flex gap-2">
-                          <button
-                            className="view-btn"
-
-                            onClick={()=>
-
-                              handleViewPayroll(
-                                item.id
-                              )
-                            }
-                          >
-
-                            View Payroll
-
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => window.open(`/payroll-slip/${item.id}`, "_blank")}
-                          >
-                            View Payslip
-                          </button>
-                          </div>
-                        </td>
-
-                      </tr>
-                    );
-                  }
-                )}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
         )}
 
-      </div>
+        {/* ====================================== */}
+        {/* PAYROLL HISTORY */}
+        {/* ====================================== */}
 
-      {/* ====================================== */}
-      {/* PAYROLL DETAILS */}
-      {/* ====================================== */}
-
-      {payrollLoading && (
-
-        <div className="loading-box">
-
-          <div className="spinner-border text-success" />
-
-        </div>
-      )}
-
-      {selectedPayroll && (
-
-        <div className="payroll-details-card">
-
-          {/* HEADER */}
-
-          <div className="detail-header">
-
-            <div>
-
-              <h4 className="mb-1 fw-bold">
-                Salary Breakdown
-              </h4>
-
-              <p className="text-muted mb-0">
-
-                {
-                  selectedPayroll
-                    ?.employee?.name
-                }
-
-              </p>
-
+        <div className="premium-card payroll-list-card">
+          <div className="card-head">
+            <div className="card-head-copy">
+              <h3>Payroll History</h3>
+              <p>All payroll runs generated for this employee</p>
             </div>
-
-            <span
-              className={`status-badge ${getStatusClass(
-                selectedPayroll.status
-              )}`}
-            >
-
-              {
-                selectedPayroll.status
-              }
-
-            </span>
-
           </div>
 
-          {/* SUMMARY */}
-
-          <div className="row g-4 mb-4">
-
-            <div className="col-md-4">
-
-              <div className="summary-card earning">
-
-                <h6>Gross Salary</h6>
-
-                <h3>
-
-                  ₹
-                  {
-                    selectedPayroll
-                      ?.gross_salary
-                      ?.toLocaleString(
-                        "en-IN"
-                      )
-                  }
-
-                </h3>
-
-              </div>
-
+          {loading ? (
+            <Skeleton active paragraph={{ rows: 5 }} />
+          ) : payrolls.length === 0 ? (
+            <div className="payroll-empty">
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No payroll history found for this employee"
+              />
             </div>
-
-            <div className="col-md-4">
-
-              <div className="summary-card deduction">
-
-                <h6>Total Deduction</h6>
-
-                <h3>
-
-                  ₹
-                  {
-                    selectedPayroll
-                      ?.total_deduction
-                      ?.toLocaleString(
-                        "en-IN"
-                      )
-                  }
-
-                </h3>
-
-              </div>
-
-            </div>
-
-            <div className="col-md-4">
-
-              <div className="summary-card net">
-
-                <h6>Net Salary</h6>
-
-                <h3>
-
-                  ₹
-                  {
-                    selectedPayroll
-                      ?.net_salary
-                      ?.toLocaleString(
-                        "en-IN"
-                      )
-                  }
-
-                </h3>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ATTENDANCE */}
-
-          <div className="attendance-grid">
-
-            <div className="attendance-box">
-
-              <span>Total Days</span>
-
-              <h5>
-                {
-                  selectedPayroll
-                    ?.total_days
-                }
-              </h5>
-
-            </div>
-
-            <div className="attendance-box">
-
-              <span>Present</span>
-
-              <h5>
-                {
-                  selectedPayroll
-                    ?.present_days
-                }
-              </h5>
-
-            </div>
-
-            <div className="attendance-box">
-
-              <span>Paid Leave</span>
-
-              <h5>
-                {
-                  selectedPayroll
-                    ?.paid_leave_days
-                }
-              </h5>
-
-            </div>
-
-            <div className="attendance-box">
-
-              <span>LOP</span>
-
-              <h5>
-                {
-                  selectedPayroll
-                    ?.lop_days
-                }
-              </h5>
-
-            </div>
-
-          </div>
-
-          {/* COMPONENTS */}
-
-          <div className="component-table-wrapper">
-
-            <div className="section-title">
-              Salary Components
-            </div>
-
-            <div className="table-responsive">
-
-              <table className="table component-table">
-
+          ) : (
+            <div className="table-scroll">
+              <table className="comp-table">
                 <thead>
-
                   <tr>
-
-                    <th>Component</th>
-
-                    <th>Code</th>
-
-                    <th>Type</th>
-
-                    <th>Standard</th>
-
-                    <th>Payable</th>
-
+                    <th className="th-comp">Payroll</th>
+                    <th>Run</th>
+                    <th>Status</th>
+                    <th className="th-num">Gross</th>
+                    <th className="th-num">Net Salary</th>
+                    <th className="th-action">Action</th>
                   </tr>
-
                 </thead>
 
                 <tbody>
+                  <AnimatePresence>
+                    {payrolls.map((item: any) => (
+                      <motion.tr
+                        key={item.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <td>
+                          <div className="pr-cell">
+                            <span className="pr-icon">
+                              <CalendarDays size={14} />
+                            </span>
 
-                  {selectedPayroll
-                    ?.payrollSnapComponents
-                    ?.map(
-                      (
-                        item:any
-                      )=>{
+                            <div>
+                              <div className="pr-title">
+                                {item.payrollRun?.title || "Payroll Run"}
+                              </div>
 
-                        return (
+                              <div className="pr-meta">
+                                {periodText(item.payrollRun)}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
 
-                          <tr
-                            key={item.id}
+                        <td>
+                          <span className="pr-status">
+                            {item.payrollRun?.status || "—"}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span
+                            className={`pay-status-badge ${getStatusClass(
+                              item.status,
+                            )}`}
                           >
+                            {item.status}
+                          </span>
+                        </td>
 
-                            <td>
-                              {
-                                item.componentName
+                        <td className="cell-num tabular">₹{fmt(item.gross_salary)}</td>
+
+                        <td className="cell-num tabular">
+                          <span className="net-amt">₹{fmt(item.net_salary)}</span>
+                        </td>
+
+                        <td className="cell-action">
+                          <div className="pay-actions">
+                            <button
+                              className="pay-btn pay-btn-view"
+                              onClick={() => handleViewPayroll(item.id)}
+                            >
+                              <Eye size={14} />
+                              View
+                            </button>
+
+                            <button
+                              className="pay-btn pay-btn-slip"
+                              onClick={() =>
+                                window.open(
+                                  `/payroll-slip/${item.id}`,
+                                  "_blank",
+                                )
                               }
-                            </td>
-
-                            <td>
-                              {
-                                item.componentCode
-                              }
-                            </td>
-
-                            <td>
-
-                              <span
-                                className={`mini-badge ${
-                                  item.type ===
-                                  "EARNING"
-
-                                    ? "earning"
-
-                                    : "deduction"
-                                }`}
-                              >
-
-                                {
-                                  item.type
-                                }
-
-                              </span>
-
-                            </td>
-
-                            <td>
-
-                              ₹
-                              {
-                                item.standardAmount
-                              }
-
-                            </td>
-
-                            <td>
-
-                              ₹
-                              {
-                                item.amount
-                              }
-
-                            </td>
-
-                          </tr>
-                        );
-                      }
-                    )}
-
+                            >
+                              <FileText size={14} />
+                              Slip
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
                 </tbody>
-
               </table>
-
             </div>
-
-          </div>
-
+          )}
         </div>
 
-      )}
+        {/* ====================================== */}
+        {/* PAYROLL DETAILS */}
+        {/* ====================================== */}
+
+        {payrollLoading && (
+          <div className="premium-card payroll-loading">
+            <Skeleton active paragraph={{ rows: 4 }} />
+          </div>
+        )}
+
+        <AnimatePresence>
+          {selectedPayroll && (
+            <motion.div
+              className="premium-card payroll-details-card"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+            >
+              {/* DETAIL HEADER */}
+              <div className="card-head">
+                <div className="card-head-copy">
+                  <h3>Salary Breakdown</h3>
+                  <p>
+                    {selectedPayroll?.employee?.name || "Employee"} ·{" "}
+                    {selectedPayroll?.employee?.designation?.title || "—"}
+                  </p>
+                </div>
+
+                <span
+                  className={`pay-status-badge ${getStatusClass(
+                    selectedPayroll.status,
+                  )}`}
+                >
+                  {selectedPayroll.status}
+                </span>
+              </div>
+
+              {/* DETAIL SUMMARY */}
+              <div className="summary-grid">
+                <div className="stat-card stat-earning">
+                  <div className="stat-top">
+                    <span className="stat-icon">
+                      <TrendingUp size={20} />
+                    </span>
+                    <span className="stat-label">Gross Salary</span>
+                  </div>
+                  <div className="stat-value">
+                    ₹{fmt(selectedPayroll.gross_salary)}
+                  </div>
+                </div>
+
+                <div className="stat-card stat-deduction">
+                  <div className="stat-top">
+                    <span className="stat-icon">
+                      <TrendingDown size={20} />
+                    </span>
+                    <span className="stat-label">Total Deduction</span>
+                  </div>
+                  <div className="stat-value">
+                    ₹{fmt(selectedPayroll.total_deduction)}
+                  </div>
+                </div>
+
+                <div className="stat-card stat-employer">
+                  <div className="stat-top">
+                    <span className="stat-icon">
+                      <Building2 size={20} />
+                    </span>
+                    <span className="stat-label">Employer Contribution</span>
+                  </div>
+                  <div className="stat-value">
+                    ₹{fmt(selectedPayroll.employer_contribution)}
+                  </div>
+                </div>
+
+                <div className="stat-card stat-net">
+                  <div className="stat-top">
+                    <span className="stat-icon">
+                      <Wallet size={20} />
+                    </span>
+                    <span className="stat-label">Net Salary</span>
+                  </div>
+                  <div className="stat-value">
+                    ₹{fmt(selectedPayroll.net_salary)}
+                  </div>
+                </div>
+
+                <div className="stat-card stat-ctc">
+                  <div className="stat-top">
+                    <span className="stat-icon">
+                      <Coins size={20} />
+                    </span>
+                    <span className="stat-label">Monthly CTC</span>
+                  </div>
+                  <div className="stat-value">
+                    ₹
+                    {fmt(
+                      (selectedPayroll.gross_salary || 0) +
+                        (selectedPayroll.employer_contribution || 0),
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ATTENDANCE */}
+              <div className="att-grid">
+                <div className="att-box">
+                  <span>Total Days</span>
+                  <strong>{selectedPayroll.total_days}</strong>
+                </div>
+
+                <div className="att-box">
+                  <span>Present</span>
+                  <strong>{selectedPayroll.present_days}</strong>
+                </div>
+
+                <div className="att-box">
+                  <span>Paid Leave</span>
+                  <strong>{selectedPayroll.paid_leave_days}</strong>
+                </div>
+
+                <div className="att-box">
+                  <span>LOP</span>
+                  <strong>{selectedPayroll.lop_days}</strong>
+                </div>
+
+                <div className="att-box">
+                  <span>Payable Days</span>
+                  <strong>{selectedPayroll.payable_days}</strong>
+                </div>
+
+                <div className="att-box">
+                  <span>Overtime</span>
+                  <strong>₹{fmt(selectedPayroll.overtime_amount)}</strong>
+                </div>
+              </div>
+
+              {/* SNAP COMPONENTS */}
+              {snap.length > 0 && (
+                <div className="snap-sections">
+                  {sections.map((section) => {
+                    const items = snapByType[section.type] || [];
+
+                    if (!items.length) return null;
+
+                    const Icon = section.Icon;
+
+                    const accent = accentOf(section.type);
+
+                    return (
+                      <div
+                        key={section.type}
+                        className={`comp-section section-accent-${accent}`}
+                      >
+                        <div className="section-head">
+                          <span className="section-title">
+                            <span
+                              className={`section-icon section-icon-${accent}`}
+                            >
+                              <Icon size={14} />
+                            </span>
+                            {section.label}
+                            <span
+                              className={`count-chip count-chip-${accent}`}
+                            >
+                              {items.length}
+                            </span>
+                          </span>
+
+                          <span className="section-hint">
+                            {section.hint}
+                          </span>
+                        </div>
+
+                        <div className="table-scroll">
+                          <table
+                            className={`comp-table table-${accent}`}
+                          >
+                            <thead>
+                              <tr>
+                                <th className="th-comp">Component</th>
+                                <th className="th-num">Standard</th>
+                                <th className="th-num">Payable</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {items.map((item: any) => (
+                                <tr key={item.id}>
+                                  <td>
+                                    <span
+                                      className={`p-dot ${toneClass(
+                                        item.type,
+                                      )}`}
+                                    />
+                                    {item.componentName}
+                                    <span className="p-code">
+                                      {item.componentCode}
+                                    </span>
+                                  </td>
+
+                                  <td className="cell-num tabular">
+                                    ₹{fmt(item.standardAmount)}
+                                  </td>
+
+                                  <td className="cell-num tabular">
+                                    <span className="net-amt">
+                                      ₹{fmt(item.amount)}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* ====================================== */}
       {/* STYLE */}
       {/* ====================================== */}
 
+      <style jsx global>{premiumSalaryStyles}</style>
+
       <style jsx>{`
-
-        .payroll-page {
-
+        .payroll-wrap {
           width: 100%;
         }
 
-        .payroll-top-card {
+        .payroll-head-card {
+          margin-bottom: 20px;
+        }
 
+        .premium-shell .stat-run {
+          background: linear-gradient(135deg, #38bdf8, #0284c7);
+          box-shadow: 0 16px 34px rgba(2, 132, 199, 0.3);
+        }
+
+        .ctc-strip {
           display: flex;
-
-          justify-content: space-between;
-
           align-items: center;
-
-          margin-bottom: 24px;
-
-          padding: 24px 28px;
-
-          border-radius: 20px;
-
-          background: linear-gradient(
-            135deg,
-            #ffffff,
-            #eff6ff
-          );
-
-          border: 1px solid #dbeafe;
-
-          box-shadow:
-            0 6px 24px
-            rgba(0,0,0,0.06);
+          gap: 14px;
+          background: linear-gradient(135deg, #fef3c7, #fffbeb);
+          border: 1px solid #fde68a;
+          border-radius: 16px;
+          padding: 16px 22px;
+          margin-bottom: 20px;
+          box-shadow: 0 8px 20px rgba(245, 158, 11, 0.14);
         }
 
-        .payroll-title {
-
-          font-size: 28px;
-
-          font-weight: 800;
-
-          margin-bottom: 6px;
-
-          color: #111827;
+        .ctc-strip-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: #fff;
+          flex-shrink: 0;
         }
 
-        .payroll-subtitle {
-
-          margin: 0;
-
-          color: #6b7280;
-
-          font-size: 14px;
+        .ctc-strip-copy {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
         }
 
-        .payroll-badge {
-
-          padding: 10px 18px;
-
-          border-radius: 999px;
-
-          color: white;
-
-          font-size: 13px;
-
-          font-weight: 700;
-
-          background: linear-gradient(
-            135deg,
-            #2563eb,
-            #1d4ed8
-          );
-        }
-
-        .payroll-list-card,
-        .payroll-details-card {
-
-          background: white;
-
-          border-radius: 20px;
-
-          padding: 28px;
-
-          margin-bottom: 24px;
-
-          border: 1px solid #edf2f7;
-
-          box-shadow:
-            0 6px 30px
-            rgba(0,0,0,0.08);
-        }
-
-        .section-title {
-
-          font-size: 18px;
-
-          font-weight: 700;
-
-          margin-bottom: 18px;
-
-          color: #111827;
-        }
-
-        .payroll-table th,
-        .component-table th {
-
-          background: #f9fafb;
-
-          color: #111827;
-
-          font-weight: 700;
-
-          padding: 16px;
-
-          border-bottom:
-            1px solid #e5e7eb;
-        }
-
-        .payroll-table td,
-        .component-table td {
-
-          padding: 16px;
-
-          vertical-align: middle;
-        }
-
-        .status-badge {
-
-          padding: 8px 14px;
-
-          border-radius: 999px;
-
+        .ctc-strip-label {
           font-size: 12px;
-
           font-weight: 700;
+          color: #92400e;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
-        .paid {
+        .ctc-strip-value {
+          font-size: 22px;
+          font-weight: 900;
+          color: #78350f;
+          font-variant-numeric: tabular-nums;
+        }
 
+        .pr-cell {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .pr-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 9px;
+          background: #eef2ff;
+          color: #6366f1;
+          flex-shrink: 0;
+        }
+
+        .pr-title {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #0f172a;
+          white-space: nowrap;
+        }
+
+        .pr-meta {
+          font-size: 12px;
+          color: #64748b;
+          font-weight: 500;
+          margin-top: 2px;
+          white-space: nowrap;
+        }
+
+        .pr-status {
+          display: inline-block;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #475569;
+          background: #f1f5f9;
+          padding: 3px 10px;
+          border-radius: 999px;
+        }
+
+        .pay-status-badge {
+          display: inline-block;
+          padding: 5px 12px;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+        }
+
+        .pay-status-badge.is-paid {
           background: #dcfce7;
-
           color: #166534;
         }
 
-        .finalized {
-
+        .pay-status-badge.is-finalized {
           background: #dbeafe;
-
           color: #1d4ed8;
         }
 
-        .draft {
-
+        .pay-status-badge.is-draft {
           background: #fef3c7;
-
           color: #92400e;
         }
 
-        .view-btn {
-
-          border: none;
-
-          height: 42px;
-
-          padding: 0 18px;
-
-          border-radius: 12px;
-
-          font-size: 13px;
-
-          font-weight: 700;
-
-          color: white;
-
-          background: linear-gradient(
-            135deg,
-            #2563eb,
-            #1d4ed8
-          );
+        .net-amt {
+          font-weight: 800;
+          color: #0f172a;
         }
 
-        .detail-header {
+        .pay-actions {
+          display: inline-flex;
+          gap: 8px;
+        }
 
-          display: flex;
-
-          justify-content: space-between;
-
+        .pay-btn {
+          display: inline-flex;
           align-items: center;
+          gap: 6px;
+          height: 34px;
+          padding: 0 13px;
+          border: none;
+          border-radius: 9px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+        }
 
+        .pay-btn:active {
+          transform: scale(0.96);
+        }
+
+        .pay-btn-view {
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: #fff;
+          box-shadow: 0 8px 16px rgba(99, 102, 241, 0.24);
+        }
+
+        .pay-btn-slip {
+          background: #eef2ff;
+          color: #4f46e5;
+        }
+
+        .payroll-empty {
+          padding: 40px 0;
+        }
+
+        .payroll-loading {
+          margin-bottom: 20px;
+        }
+
+        .att-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 14px;
           margin-bottom: 24px;
         }
 
-        .summary-card {
-
-          padding: 24px;
-
-          border-radius: 18px;
-
-          color: white;
-
-          box-shadow:
-            0 8px 24px
-            rgba(0,0,0,0.08);
-        }
-
-        .summary-card h6 {
-
-          margin-bottom: 12px;
-
-          opacity: 0.9;
-        }
-
-        .summary-card h3 {
-
-          margin: 0;
-
-          font-size: 28px;
-
-          font-weight: 800;
-        }
-
-        .earning {
-
-          background: linear-gradient(
-            135deg,
-            #16a34a,
-            #15803d
-          );
-        }
-
-        .deduction {
-
-          background: linear-gradient(
-            135deg,
-            #dc2626,
-            #b91c1c
-          );
-        }
-
-        .net {
-
-          background: linear-gradient(
-            135deg,
-            #2563eb,
-            #1d4ed8
-          );
-        }
-
-        .attendance-grid {
-
-          display: grid;
-
-          grid-template-columns:
-            repeat(
-              auto-fit,
-              minmax(180px,1fr)
-            );
-
-          gap: 18px;
-
-          margin-bottom: 28px;
-        }
-
-        .attendance-box {
-
-          background: #f9fafb;
-
-          border-radius: 16px;
-
-          padding: 22px;
-
-          border: 1px solid #e5e7eb;
-        }
-
-        .attendance-box span {
-
-          display: block;
-
-          margin-bottom: 8px;
-
-          color: #6b7280;
-
-          font-size: 13px;
-        }
-
-        .attendance-box h5 {
-
-          margin: 0;
-
-          font-size: 26px;
-
-          font-weight: 800;
-
-          color: #111827;
-        }
-
-        .mini-badge {
-
-          padding: 6px 12px;
-
-          border-radius: 999px;
-
-          font-size: 11px;
-
-          font-weight: 700;
-        }
-
-        .loading-box {
-
+        .att-box {
+          background: #f8fafc;
+          border: 1px solid #eef2f7;
+          border-radius: 14px;
+          padding: 16px 18px;
           display: flex;
-
-          justify-content: center;
-
-          padding: 30px;
+          flex-direction: column;
+          gap: 6px;
         }
 
-        .empty-state {
-
-          text-align: center;
-
-          padding: 60px 20px;
-
-          color: #6b7280;
+        .att-box span {
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
-        @media(max-width:768px){
+        .att-box strong {
+          font-size: 24px;
+          font-weight: 900;
+          color: #0f172a;
+          font-variant-numeric: tabular-nums;
+        }
 
-          .payroll-top-card {
+        .snap-sections {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
 
+        @media (max-width: 640px) {
+          .pay-actions {
             flex-direction: column;
+            align-items: flex-end;
+          }
 
+          .ctc-strip {
             align-items: flex-start;
-
-            gap: 16px;
-          }
-
-          .detail-header {
-
-            flex-direction: column;
-
-            align-items: flex-start;
-
-            gap: 14px;
-          }
-
-          .payroll-list-card,
-          .payroll-details-card {
-
-            padding: 18px;
-          }
-
-          .payroll-title {
-
-            font-size: 22px;
           }
         }
-
       `}</style>
-
     </div>
   );
 };
+
 export default EmployeePayrollTab;
