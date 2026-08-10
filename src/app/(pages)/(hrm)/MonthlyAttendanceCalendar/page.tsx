@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
 
@@ -58,6 +58,38 @@ const MonthlyAttendanceCalendar = () => {
   const [attendances, setAttendances] = useState<any[]>([]);
 
   const [selectedDay, setSelectedDay] = useState<any>(null);
+
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // ======================================================
+  // MODAL CONTROLS (Escape + body scroll lock + scroll reset)
+  // ======================================================
+
+  const closeModal = () => setSelectedDay(null);
+
+  useEffect(() => {
+    if (!selectedDay) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedDay(null);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+
+    document.body.style.overflow = "hidden";
+
+    if (modalRef.current) {
+      modalRef.current.scrollTop = 0;
+    }
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+
+      document.body.style.overflow = "";
+    };
+  }, [selectedDay]);
 
   // ======================================================
   // FETCH
@@ -318,12 +350,25 @@ const MonthlyAttendanceCalendar = () => {
           {/* ====================================================== */}
 
           {selectedDay && (
-            <div className="modal-overlay">
-              <div className="details-modal">
+            <div className="modal-overlay" onClick={closeModal}>
+              <div
+                className="details-modal"
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="modal-header">
                   <h2>Attendance Details</h2>
 
-                  <button onClick={() => setSelectedDay(null)}>✖</button>
+                  <button
+                    type="button"
+                    className="modal-close"
+                    aria-label="Close"
+                    onClick={closeModal}
+                  >
+                    ✖
+                  </button>
                 </div>
 
                 <div className="details-grid">
@@ -363,6 +408,14 @@ const MonthlyAttendanceCalendar = () => {
                     <h4>{selectedDay.overtime_minutes || 0} mins</h4>
                   </div>
                 </div>
+
+                <button
+                  type="button"
+                  className="modal-bottom-close"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
               </div>
             </div>
           )}
@@ -745,12 +798,20 @@ const MonthlyAttendanceCalendar = () => {
               z-index: 9999;
 
               padding: 20px;
+
+              animation: modalFadeIn 0.2s ease;
             }
 
             .details-modal {
               width: 100%;
 
               max-width: 760px;
+
+              max-height: 88vh;
+
+              overflow-y: auto;
+
+              -webkit-overflow-scrolling: touch;
 
               background: rgba(255, 255, 255, 0.95);
 
@@ -761,9 +822,15 @@ const MonthlyAttendanceCalendar = () => {
               padding: 30px;
 
               box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+
+              animation: modalScaleIn 0.25s ease;
             }
 
             .modal-header {
+              position: sticky;
+
+              top: 0;
+
               display: flex;
 
               justify-content: space-between;
@@ -771,6 +838,14 @@ const MonthlyAttendanceCalendar = () => {
               align-items: center;
 
               margin-bottom: 24px;
+
+              padding-bottom: 12px;
+
+              background: rgba(255, 255, 255, 0.92);
+
+              backdrop-filter: blur(10px);
+
+              z-index: 1;
             }
 
             .modal-header h2 {
@@ -781,14 +856,102 @@ const MonthlyAttendanceCalendar = () => {
               color: #0f172a;
             }
 
-            .modal-header button {
-              border: none;
+            .modal-close {
+              display: flex;
 
-              background: transparent;
+              align-items: center;
 
-              font-size: 24px;
+              justify-content: center;
+
+              width: 44px;
+
+              height: 44px;
+
+              min-width: 44px;
+
+              border: 1px solid #e2e8f0;
+
+              background: #f8fafc;
+
+              color: #334155;
+
+              font-size: 18px;
+
+              font-weight: 700;
+
+              border-radius: 50%;
 
               cursor: pointer;
+
+              transition: all 0.2s ease;
+            }
+
+            .modal-close:hover {
+              background: #fee2e2;
+
+              color: #b91c1c;
+
+              border-color: #fecaca;
+            }
+
+            .modal-close:active {
+              transform: scale(0.92);
+            }
+
+            .modal-bottom-close {
+              width: 100%;
+
+              margin-top: 22px;
+
+              padding: 15px;
+
+              border: none;
+
+              border-radius: 16px;
+
+              background: #111827;
+
+              color: white;
+
+              font-size: 16px;
+
+              font-weight: 800;
+
+              cursor: pointer;
+
+              transition: all 0.2s ease;
+            }
+
+            .modal-bottom-close:hover {
+              background: #1f2937;
+            }
+
+            .modal-bottom-close:active {
+              transform: scale(0.99);
+            }
+
+            @keyframes modalFadeIn {
+              from {
+                opacity: 0;
+              }
+
+              to {
+                opacity: 1;
+              }
+            }
+
+            @keyframes modalScaleIn {
+              from {
+                opacity: 0;
+
+                transform: scale(0.96) translateY(8px);
+              }
+
+              to {
+                opacity: 1;
+
+                transform: scale(1) translateY(0);
+              }
             }
 
             .details-grid {
@@ -875,8 +1038,41 @@ const MonthlyAttendanceCalendar = () => {
               .details-grid {
                 grid-template-columns: 1fr;
               }
-                .calendar-header {
+
+              .calendar-header {
                 display: none;
+              }
+
+              .modal-overlay {
+                padding: 0;
+
+                align-items: flex-end;
+              }
+
+              .details-modal {
+                max-width: 100%;
+
+                max-height: 90vh;
+
+                border-radius: 24px 24px 0 0;
+
+                padding: 20px 20px 24px;
+
+                animation: modalSheetIn 0.28s ease;
+              }
+
+              @keyframes modalSheetIn {
+                from {
+                  opacity: 0;
+
+                  transform: translateY(100%);
+                }
+
+                to {
+                  opacity: 1;
+
+                  transform: translateY(0);
+                }
               }
             }
 
