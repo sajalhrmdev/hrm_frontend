@@ -795,6 +795,11 @@ export const TowColData = [
                 route: routes.myResignation,
                 base: 'my-resignation',
               },
+              {
+                menuValue: 'My Issues',
+                route: routes.myIssues,
+                base: 'my-issues',
+              },
             ],
           },
           {

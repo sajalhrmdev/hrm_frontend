@@ -8,6 +8,7 @@ export const routePermissions: Record<string, string> = {
   "/hrm/weekly-off": "Sidebar WeekendSetup",
   "/hrm/holidays-admin": "Sidebar HolidaySetup",
   "/MonthlyAttendanceReport": "Sidebar Attendance Report",
+  "/salary-report": "Sidebar Salary Report",
 
   // Employee
   "/employee": "Sidebar Employee",

@@ -162,7 +162,7 @@ export const SidebarDataTest = [
             permission: "Sidebar RewardManage",
             submenuItems: [],
           },
-          {
+           {
              label: "Resignation",
              link: routes.resignation,
              base: routes.resignation,
@@ -170,6 +170,16 @@ export const SidebarDataTest = [
              showSubRoute: false,
              materialicons: "external-link",
              permission: "Sidebar Resignation",
+             submenuItems: [],
+           },
+           {
+             label: "Issues",
+             link: routes.issues,
+             base: routes.issues,
+             submenu: false,
+             showSubRoute: false,
+             materialicons: "lifebuoy",
+             permission: "Sidebar Issue",
              submenuItems: [],
            },
            {
@@ -600,7 +610,18 @@ export const SidebarDataTest = [
                 permission: "Sidebar Attendance Report",
                 submenuItems: [],
               },
-             
+              {
+                label: "Salary Report",
+                link: routes.salaryReport,
+                base: routes.salaryReport,
+                submenu: false,
+                showSubRoute: false,
+                // icon: "calendar-event",
+                materialicons: "confirmation_number",
+                permission: "Sidebar Salary Report",
+                submenuItems: [],
+              },
+              
             ],
           },
       // {
@@ -866,13 +887,22 @@ export const SidebarDataTest = [
         icon: "dots-horizontal",
         materialicons: "more_horiz",
         submenuItems: [
-          {
+           {
              label: "My Resignation",
              link: routes.myResignation,
              submenu: false,
              showSubRoute: false,
              icon: "",
              base: "my-resignation",
+             submenuItems: [],
+           },
+           {
+             label: "My Issues",
+             link: routes.myIssues,
+             submenu: false,
+             showSubRoute: false,
+             icon: "",
+             base: "my-issues",
              submenuItems: [],
            },
            {

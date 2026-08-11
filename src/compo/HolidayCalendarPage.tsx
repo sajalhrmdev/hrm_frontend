@@ -15,6 +15,8 @@ type Holiday = {
   type: "NATIONAL" | "FESTIVAL" | "COMPANY" | "OPTIONAL";
 
   isPaid: boolean;
+
+  isObserved: boolean;
 };
 
 const weekDays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -215,9 +217,11 @@ const HolidayCalendarPage = () => {
                       key={index}
                       className={`calendar-day ${
                         holiday
-                          ? holiday.isPaid
-                            ? "holiday-paid"
-                            : "holiday-unpaid"
+                          ? !holiday.isObserved
+                            ? "holiday-optional"
+                            : holiday.isPaid
+                              ? "holiday-paid"
+                              : "holiday-unpaid"
                           : ""
                       } ${isToday ? "today-day" : ""}`}
                     >
@@ -259,7 +263,11 @@ const HolidayCalendarPage = () => {
 
                             <div
                               className={`holiday-date ${
-                                item.isPaid ? "paid-date" : "unpaid-date"
+                                item.isObserved
+                                  ? item.isPaid
+                                    ? "paid-date"
+                                    : "unpaid-date"
+                                  : "optional-date"
                               }`}
                             >
                               {date.getDate()}
@@ -268,6 +276,12 @@ const HolidayCalendarPage = () => {
                             {/* TITLE */}
 
                             <div className="holiday-name">{item.title}</div>
+
+                            {!item.isObserved && (
+                              <span className="badge bg-secondary">
+                                Display Only
+                              </span>
+                            )}
                           </div>
                         );
                       })
@@ -420,6 +434,14 @@ const HolidayCalendarPage = () => {
           color: white;
         }
 
+        .holiday-optional {
+          background: #f59e0b;
+
+          color: white;
+
+          border: 1px dashed #b45309;
+        }
+
         .today-day {
           border: 3px solid #2563eb;
         }
@@ -498,6 +520,10 @@ const HolidayCalendarPage = () => {
 
         .unpaid-date {
           background: #15803d;
+        }
+
+        .optional-date {
+          background: #f59e0b;
         }
 
         .holiday-name {

@@ -23,6 +23,8 @@ type Holiday = {
     | "OPTIONAL";
 
   isPaid: boolean;
+
+  isObserved: boolean;
 };
 
 const UpcomingHolidayWidget = () => {
@@ -273,6 +275,15 @@ const UpcomingHolidayWidget = () => {
                           <span className="badge bg-success ms-1">
 
                             Paid
+
+                          </span>
+                        )}
+
+                        {!item.isObserved && (
+
+                          <span className="badge bg-secondary ms-1">
+
+                            Display Only
 
                           </span>
                         )}

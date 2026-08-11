@@ -18,6 +18,8 @@ type Holiday = {
 
   isPaid: boolean;
 
+  isObserved: boolean;
+
   description?: string;
 };
 
@@ -38,6 +40,8 @@ const HolidayPage = () => {
     type: "NATIONAL",
 
     isPaid: true,
+
+    isObserved: true,
 
     description: "",
   });
@@ -103,6 +107,8 @@ const HolidayPage = () => {
 
       isPaid: true,
 
+      isObserved: true,
+
       description: "",
     });
 
@@ -134,6 +140,8 @@ const HolidayPage = () => {
       type: holiday.type,
 
       isPaid: holiday.isPaid,
+
+      isObserved: holiday.isObserved,
 
       description: holiday.description || "",
     });
@@ -257,6 +265,8 @@ const HolidayPage = () => {
 
                         <th>Paid</th>
 
+                        <th>Status</th>
+
                         <th>Description</th>
 
                         <th>Action</th>
@@ -266,7 +276,7 @@ const HolidayPage = () => {
                     <tbody>
                       {holidays.length === 0 ? (
                         <tr>
-                          <td colSpan={7} className="text-center py-5">
+                          <td colSpan={8} className="text-center py-5">
                             No holidays found
                           </td>
                         </tr>
@@ -292,6 +302,18 @@ const HolidayPage = () => {
                                 <span className="badge bg-success">Paid</span>
                               ) : (
                                 <span className="badge bg-danger">Unpaid</span>
+                              )}
+                            </td>
+
+                            <td>
+                              {item.isObserved ? (
+                                <span className="badge bg-success">
+                                  Observed
+                                </span>
+                              ) : (
+                                <span className="badge bg-secondary">
+                                  Display Only
+                                </span>
                               )}
                             </td>
 
@@ -421,6 +443,27 @@ const HolidayPage = () => {
                       />
 
                       <label className="form-check-label">Paid Holiday</label>
+                    </div>
+
+                    {/* DISPLAY ONLY */}
+
+                    <div className="form-check mb-3">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        name="isObserved"
+                        checked={formData.isObserved}
+                        onChange={handleChange}
+                      />
+
+                      <label className="form-check-label">
+                        Observed Holiday (day off)
+                      </label>
+
+                      <div className="form-text">
+                        Uncheck to show this holiday in the calendar only —
+                        no day off, no effect on attendance/payroll.
+                      </div>
                     </div>
 
                     {/* DESCRIPTION */}

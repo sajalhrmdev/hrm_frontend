@@ -396,6 +396,7 @@ export const all_routes = {
   userless:"/userlessAttendances",
   rewardManage:"/rewardManage",
   attendancesReport:"/MonthlyAttendanceReport",
+  salaryReport:"/salary-report",
   location: "/location",
   emailSetting: "/email",
   documents: "/documents",
@@ -427,6 +428,8 @@ export const all_routes = {
   promotion: "/promotion",
   resignation: "/resignation",
   myResignation: "/my-resignation",
+  issues: "/issues",
+  myIssues: "/my-issues",
   termination: "/termination",
   // RECRUITMENT
   jobgrid: "/job-grid",

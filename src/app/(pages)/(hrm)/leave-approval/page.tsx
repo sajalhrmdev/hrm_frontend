@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonTable } from "@/core/common/Skeleton";
+import RejectReasonModal from "@/core/modals/RejectReasonModal";
 
 type LeaveItem = {
   id: number;
@@ -33,6 +34,7 @@ const LeaveApprovalTable: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [rejectId, setRejectId] = useState<number | null>(null);
 
   const fetchLeaves = async (pageNum: number = 1) => {
     try {
@@ -81,15 +83,21 @@ const LeaveApprovalTable: React.FC = () => {
   };
 
   // ❌ reject
-  const handleReject = async (id: number) => {
-    const confirmReject = window.confirm("Reject this leave?");
+  const handleReject = (id: number) => {
+    setRejectId(id);
+  };
 
-    if (!confirmReject) return;
+  const confirmReject = async (reason: string) => {
+    if (rejectId === null) return;
 
     try {
-      await axiosInstance.patch(`/leave/reject/${id}`);
+      await axiosInstance.patch(`/leave/reject/${rejectId}`, {
+        remark: reason || undefined,
+      });
 
       alert("❌ Leave rejected");
+
+      setRejectId(null);
 
       fetchLeaves();
     } catch (err: any) {
@@ -616,6 +624,12 @@ const LeaveApprovalTable: React.FC = () => {
       `}</style>
         </div>
       </div>
+
+      <RejectReasonModal
+        show={rejectId !== null}
+        onClose={() => setRejectId(null)}
+        onConfirm={confirmReject}
+      />
     </div>
   );
 };

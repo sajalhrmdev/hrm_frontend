@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonTable } from "@/core/common/Skeleton";
+import RejectReasonModal from "@/core/modals/RejectReasonModal";
 
 type LeaveItem = {
   id: number;
@@ -23,6 +24,7 @@ type LeaveItem = {
 const LeaveApprovalTable: React.FC = () => {
   const [data, setData] = useState<LeaveItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [rejectId, setRejectId] = useState<number | null>(null);
 
   // 🔥 fetch leaves
   const fetchLeaves = async () => {
@@ -72,19 +74,24 @@ const LeaveApprovalTable: React.FC = () => {
   };
 
   // ❌ reject
-  const handleReject = async (id: number) => {
-    const confirmReject = window.confirm(
-      "Reject this leave?"
-    );
+  const handleReject = (id: number) => {
+    setRejectId(id);
+  };
 
-    if (!confirmReject) return;
+  const confirmReject = async (reason: string) => {
+    if (rejectId === null) return;
 
     try {
       await axiosInstance.patch(
-        `/leave/reject/${id}`
+        `/leave/reject/${rejectId}`,
+        {
+          remark: reason || undefined,
+        }
       );
 
       alert("❌ Leave rejected");
+
+      setRejectId(null);
 
       fetchLeaves();
     } catch (err: any) {
@@ -123,7 +130,8 @@ const LeaveApprovalTable: React.FC = () => {
   };
 
   return (
-    <div className="leave-table-card">
+    <>
+      <div className="leave-table-card">
       {/* HEADER */}
       <div className="table-header">
         <div>
@@ -369,7 +377,14 @@ const LeaveApprovalTable: React.FC = () => {
           box-shadow: 0 8px 20px rgba(220,38,38,.2);
         }
       `}</style>
-    </div>
+      </div>
+
+      <RejectReasonModal
+        show={rejectId !== null}
+        onClose={() => setRejectId(null)}
+        onConfirm={confirmReject}
+      />
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import axiosInstance from "@/utils/axiosInstance";
 
@@ -42,6 +42,10 @@ interface Notice {
 
   attachmentUrl?: string;
 
+  employeeId?: number | null;
+
+  employee?: { id: number; name: string } | null;
+
   createdAt: string;
 
   updatedAt: string;
@@ -63,6 +67,16 @@ interface NoticeForm {
   isPublished: boolean;
 
   attachmentUrl: string;
+}
+
+// ======================================================
+
+interface EmployeeOption {
+  id: number;
+
+  name: string;
+
+  employeeCode?: string;
 }
 
 // ======================================================
@@ -109,6 +123,27 @@ const NoticeManagement: React.FC = () => {
   const [form, setForm] = useState<NoticeForm>(initialForm);
 
   // ======================================================
+  // SEARCHABLE TARGET EMPLOYEE
+  // ======================================================
+
+  const [targetSelected, setTargetSelected] =
+    useState<EmployeeOption | null>(null);
+
+  const [targetSearch, setTargetSearch] = useState("");
+
+  const [targetResults, setTargetResults] = useState<EmployeeOption[]>([]);
+
+  const [targetLoading, setTargetLoading] = useState(false);
+
+  const [targetOpen, setTargetOpen] = useState(false);
+
+  const targetAbortRef = useRef<AbortController | null>(null);
+
+  const targetDebounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const targetDropdownRef = useRef<HTMLDivElement>(null);
+
+  // ======================================================
   // FETCH
   // ======================================================
 
@@ -131,6 +166,98 @@ const NoticeManagement: React.FC = () => {
   useEffect(() => {
     fetchNotices();
   }, []);
+
+  // ======================================================
+  // TARGET EMPLOYEE SEARCH (debounce + abort)
+  // ======================================================
+
+  useEffect(() => {
+    if (targetDebounceRef.current) clearTimeout(targetDebounceRef.current);
+
+    if (targetSearch.trim().length < 2) {
+      setTargetResults([]);
+
+      setTargetLoading(false);
+
+      return;
+    }
+
+    setTargetLoading(true);
+
+    targetDebounceRef.current = setTimeout(() => {
+      targetAbortRef.current?.abort();
+
+      const controller = new AbortController();
+
+      targetAbortRef.current = controller;
+
+      axiosInstance
+        .get(
+          `/employee?search=${encodeURIComponent(targetSearch.trim())}&limit=8`,
+          { signal: controller.signal },
+        )
+        .then((res) => {
+          const list = res?.data?.data?.employees || res?.data?.data || [];
+
+          setTargetResults(
+            list.map((e: EmployeeOption) => ({
+              id: e.id,
+
+              name: e.name,
+
+              employeeCode: e.employeeCode,
+            })),
+          );
+        })
+        .catch((err) => {
+          if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
+            console.log(err);
+          }
+        })
+        .finally(() => setTargetLoading(false));
+    }, 500);
+
+    return () => {
+      if (targetDebounceRef.current) clearTimeout(targetDebounceRef.current);
+    };
+  }, [targetSearch]);
+
+  // ======================================================
+  // CLOSE DROPDOWN ON OUTSIDE CLICK
+  // ======================================================
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        targetDropdownRef.current &&
+        !targetDropdownRef.current.contains(e.target as Node)
+      ) {
+        setTargetOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ======================================================
+  // TARGET SELECT / CLEAR
+  // ======================================================
+
+  const selectTarget = (emp: EmployeeOption) => {
+    setTargetSelected(emp);
+
+    setTargetSearch(emp.name);
+
+    setTargetOpen(false);
+  };
+
+  const clearTarget = () => {
+    setTargetSelected(null);
+
+    setTargetSearch("");
+  };
 
   // ======================================================
   // HANDLE CHANGE
@@ -162,6 +289,8 @@ const NoticeManagement: React.FC = () => {
     setEditingId(null);
 
     setShowModal(false);
+
+    clearTarget();
   };
 
   // ======================================================
@@ -171,11 +300,29 @@ const NoticeManagement: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (
+      form.expiryDate &&
+      form.noticeDate &&
+      new Date(form.expiryDate) < new Date(form.noticeDate)
+    ) {
+      alert("Expiry date cannot be before the notice date");
+
+      return;
+    }
+
     try {
       if (editingId) {
-        await axiosInstance.put(`/notice/${editingId}`, form);
+        await axiosInstance.put(`/notice/${editingId}`, {
+          ...form,
+
+          employeeId: targetSelected ? targetSelected.id : null,
+        });
       } else {
-        await axiosInstance.post("/notice", form);
+        await axiosInstance.post("/notice", {
+          ...form,
+
+          employeeId: targetSelected ? targetSelected.id : null,
+        });
       }
 
       fetchNotices();
@@ -208,6 +355,14 @@ const NoticeManagement: React.FC = () => {
 
       attachmentUrl: notice.attachmentUrl || "",
     });
+
+    if (notice.employee) {
+      setTargetSelected({ id: notice.employee.id, name: notice.employee.name });
+
+      setTargetSearch(notice.employee.name);
+    } else {
+      clearTarget();
+    }
 
     setShowModal(true);
   };
@@ -547,6 +702,89 @@ const NoticeManagement: React.FC = () => {
               0 10px 40px rgba(0,0,0,0.08);
           }
 
+          /* ================================================= */
+
+          .searchable-select {
+
+            position: relative;
+          }
+
+          .searchable-list {
+
+            position: absolute;
+
+            top: calc(100% + 4px);
+
+            left: 0;
+
+            right: 0;
+
+            background: #fff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 10px;
+
+            box-shadow:
+              0 10px 30px rgba(0,0,0,0.12);
+
+            z-index: 999;
+
+            max-height: 220px;
+
+            overflow-y: auto;
+          }
+
+          .searchable-item {
+
+            padding: 10px 14px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            border-bottom: 1px solid #f3f4f6;
+
+            transition: background 0.15s ease;
+          }
+
+          .searchable-item:last-child {
+
+            border-bottom: none;
+          }
+
+          .searchable-item:hover {
+
+            background: #f9fafb;
+          }
+
+          .searchable-item.empty {
+
+            color: #9ca3af;
+
+            cursor: default;
+
+            justify-content: center;
+          }
+
+          .searchable-item strong {
+
+            font-size: 14px;
+
+            color: #111827;
+          }
+
+          .searchable-item span {
+
+            font-size: 12px;
+
+            color: #6b7280;
+          }
+
         `}
       </style>
       <div className="page-wrapper">
@@ -695,6 +933,17 @@ const NoticeManagement: React.FC = () => {
 
                             {!notice.isPublished && (
                               <span className="badge bg-secondary">Draft</span>
+                            )}
+
+                            {notice.expiryDate &&
+                              new Date(notice.expiryDate) < new Date() && (
+                                <span className="badge bg-dark">Expired</span>
+                              )}
+
+                            {notice.employee && (
+                              <span className="badge bg-info text-dark">
+                                Personal: {notice.employee.name}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -909,6 +1158,66 @@ const NoticeManagement: React.FC = () => {
                             onChange={handleChange}
                             className="form-control notice-input"
                           />
+                        </div>
+
+                        {/* TARGET EMPLOYEE */}
+
+                        <div className="mb-4">
+                          <label className="form-label fw-semibold">
+                            Target
+                          </label>
+
+                          <div
+                            className="searchable-select"
+                            ref={targetDropdownRef}
+                          >
+                            <input
+                              type="text"
+                              className="form-control notice-input"
+                              placeholder="All Employees (Company-wide) — type to search..."
+                              value={targetSearch}
+                              onChange={(e) => {
+                                if (e.target.value !== targetSelected?.name) {
+                                  clearTarget();
+                                }
+
+                                setTargetSearch(e.target.value);
+
+                                setTargetOpen(true);
+                              }}
+                              onFocus={() => setTargetOpen(true)}
+                            />
+
+                            {targetOpen && (
+                              <div className="searchable-list">
+                                {targetLoading ? (
+                                  <div className="searchable-item empty">
+                                    Searching...
+                                  </div>
+                                ) : targetResults.length ? (
+                                  targetResults.map((emp) => (
+                                    <div
+                                      key={emp.id}
+                                      className="searchable-item"
+                                      onClick={() => selectTarget(emp)}
+                                    >
+                                      <strong>{emp.name}</strong>
+
+                                      <span>{emp.employeeCode || ""}</span>
+                                    </div>
+                                  ))
+                                ) : targetSearch.trim().length >= 2 ? (
+                                  <div className="searchable-item empty">
+                                    No employees found
+                                  </div>
+                                ) : (
+                                  <div className="searchable-item empty">
+                                    Type at least 2 characters
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* PUBLISH */}
