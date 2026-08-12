@@ -16,6 +16,7 @@ import EmployeeEmergencyContactTab from "@/compo/EmployeeEmergencyContactTab";
 import EmployeeSalaryTab from "@/compo/EmployeeSalaryTab";
 import EmployeePayrollTab from "@/compo/EmployeePayrollTab";
 import EmployeeLeaveTab from "@/compo/EmployeeLeaveTab";
+import EmployeeAttendanceTab from "@/compo/EmployeeAttendanceTab";
 import EmployeeExperienceTab from "@/compo/EmployeeExperienceTab";
 import EmployeeFaceRegister from "@/compo/EmployeeFaceRegister";
 import GoalTab from "@/compo/GoalTab";
@@ -33,6 +34,8 @@ type Employee = {
   employeeCode?: string;
 
   joiningDate?: string;
+
+  companyId?: number;
 
   status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
 
@@ -470,9 +473,11 @@ const EmployeeProfilePage = () => {
             {/* ================================== */}
 
             {activeTab === "attendance" && (
-              <div className="alert alert-warning">
-                🚀 Attendance Module Coming Soon
-              </div>
+              <EmployeeAttendanceTab
+                employeeId={employeeId}
+                companyId={employee?.companyId}
+                isViewOnly={!canEdit}
+              />
             )}
             {activeTab === "leave" && (
               <EmployeeLeaveTab employeeId={employeeId} isViewOnly={!canEdit} />
