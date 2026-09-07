@@ -472,13 +472,18 @@ const EmployeeProfilePage = () => {
             {/* ATTENDANCE */}
             {/* ================================== */}
 
-            {activeTab === "attendance" && (
-              <EmployeeAttendanceTab
-                employeeId={employeeId}
-                companyId={employee?.companyId}
-                isViewOnly={!canEdit}
-              />
-            )}
+            {activeTab === "attendance" &&
+              (employee?.companyId != null ? (
+                <EmployeeAttendanceTab
+                  employeeId={employeeId}
+                  companyId={employee.companyId}
+                  isViewOnly={!canEdit}
+                />
+              ) : (
+                <div className="alert alert-warning">
+                  Company not assigned to this employee.
+                </div>
+              ))}
             {activeTab === "leave" && (
               <EmployeeLeaveTab employeeId={employeeId} isViewOnly={!canEdit} />
             )}
