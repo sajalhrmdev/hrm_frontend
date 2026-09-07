@@ -97,7 +97,7 @@ const EmployeeLeaveTab = ({
           ),
 
           axiosInstance.get(
-            "/leave/types"
+            "/leave/types?is_active=true"
           ),
         ]);
 

@@ -140,7 +140,7 @@ const Login2Component = () => {
           <div className="form-card">
             <div className="form-card__logo">
               <span className="brand-name">
-                Deb<span className="brand-name__accent">HRM</span>
+                Appstromed<span className="brand-name__accent">HRM</span>
               </span>
             </div>
 

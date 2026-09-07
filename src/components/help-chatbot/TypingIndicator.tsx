@@ -27,7 +27,7 @@ const TypingIndicator: React.FC = () => {
           flexShrink: 0,
         }}
       >
-        D
+        A
       </div>
       <div
         style={{
@@ -50,7 +50,7 @@ const TypingIndicator: React.FC = () => {
               borderRadius: "50%",
               backgroundColor: "#4F46E5",
               opacity: 0.5,
-              animation: `debai-bounce 1.4s ease-in-out ${i * 0.2}s infinite`,
+              animation: `appstromedai-bounce 1.4s ease-in-out ${i * 0.2}s infinite`,
             }}
           />
         ))}

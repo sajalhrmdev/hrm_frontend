@@ -352,14 +352,14 @@ const Sidebar = React.memo(() => {
             {company?.logo ? (
               <img src={company.logo} alt="Logo" style={{ height: 60 }} />
             ) : (
-              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>DebHRM</span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>AppstromedHRM</span>
             )}
           </Link>
           <Link href={all_routes.adminDashboard} className="logo logo-small">
             {company?.favicon ? (
               <img src={company.favicon} alt="Favicon" style={{ height: 30, width: 30 }} />
             ) : (
-              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>D</span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: "inherit" }}>A</span>
             )}
           </Link>
         </div>

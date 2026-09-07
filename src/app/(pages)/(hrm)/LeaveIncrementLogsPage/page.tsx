@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Select from "react-select";
 
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonTable } from "@/core/common/Skeleton";
@@ -19,6 +20,15 @@ const LeaveIncrementLogsPage = () => {
   const [loading, setLoading] = useState(false);
 
   const [pagination, setPagination] = useState<any>({});
+
+  const employeeOptions = useMemo(
+    () =>
+      employees.map((item: any) => ({
+        value: String(item.id),
+        label: `${item.name}${item.employeeCode ? ` (${item.employeeCode})` : ""}`,
+      })),
+    [employees],
+  );
 
   // ======================================================
   // FILTERS
@@ -78,7 +88,7 @@ const LeaveIncrementLogsPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axiosInstance.get("/employee");
+      const res = await axiosInstance.get("/employee?limit=1000");
 
       setEmployees(res?.data?.data?.employees || []);
     } catch (err) {
@@ -171,19 +181,25 @@ const LeaveIncrementLogsPage = () => {
               <div className="form-group">
                 <label>Employee</label>
 
-                <select
-                  name="employeeId"
-                  value={filters.employeeId}
-                  onChange={handleChange}
-                >
-                  <option value="">All Employees</option>
-
-                  {employees.map((item: any) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  classNamePrefix="react-select"
+                  options={employeeOptions}
+                  value={
+                    employeeOptions.find(
+                      (opt) => opt.value === String(filters.employeeId),
+                    ) || null
+                  }
+                  onChange={(opt: any) =>
+                    setFilters((prev: any) => ({
+                      ...prev,
+                      employeeId: opt ? opt.value : "",
+                      page: 1,
+                    }))
+                  }
+                  placeholder="All Employees"
+                  isClearable
+                  isSearchable
+                />
               </div>
 
               {/* LEAVE TYPE */}

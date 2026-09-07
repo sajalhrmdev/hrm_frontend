@@ -28,7 +28,7 @@ const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "bot",
-      content: "Hi! I'm DebAI, your HRM assistant. How can I help you today?",
+      content: "Hi! I'm AppstromedAI, your HRM assistant. How can I help you today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -88,16 +88,16 @@ const ChatWidget: React.FC = () => {
   return (
     <>
       <style>{`
-        @keyframes debai-pulse {
+        @keyframes appstromedai-pulse {
           0% { box-shadow: 0 0 0 0 rgba(79,70,229,0.6); }
           70% { box-shadow: 0 0 0 14px rgba(79,70,229,0); }
           100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); }
         }
-        @keyframes debai-slide-up {
+        @keyframes appstromedai-slide-up {
           from { opacity: 0; transform: translateY(20px) scale(0.96); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes debai-bounce {
+        @keyframes appstromedai-bounce {
           0%, 80%, 100% { transform: translateY(0); }
           40% { transform: translateY(-6px); }
         }
@@ -125,7 +125,7 @@ const ChatWidget: React.FC = () => {
           fontWeight: 700,
           letterSpacing: 0.5,
           zIndex: 9999,
-          animation: "debai-pulse 2s infinite",
+          animation: "appstromedai-pulse 2s infinite",
           transition: "transform 0.2s",
         }}
         onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.08)")}
@@ -134,7 +134,7 @@ const ChatWidget: React.FC = () => {
         {isOpen ? (
           <span style={{ fontSize: 20, lineHeight: 1 }}>✕</span>
         ) : (
-          <span style={{ fontSize: 13, lineHeight: 1 }}>DebAI</span>
+          <span style={{ fontSize: 13, lineHeight: 1 }}>AppstromedAI</span>
         )}
       </button>
 
@@ -154,7 +154,7 @@ const ChatWidget: React.FC = () => {
             flexDirection: "column",
             zIndex: 9999,
             overflow: "hidden",
-            animation: "debai-slide-up 0.25s ease-out",
+            animation: "appstromedai-slide-up 0.25s ease-out",
           }}
         >
           {/* header */}
@@ -184,7 +184,7 @@ const ChatWidget: React.FC = () => {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 15, letterSpacing: 0.3 }}>
-                DebAI
+                AppstromedAI
               </div>
               <div
                 style={{
@@ -319,7 +319,7 @@ const ChatWidget: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage(input)}
-                placeholder="Ask DebAI anything..."
+                placeholder="Ask AppstromedAI anything..."
                 style={{
                   flex: 1,
                   padding: "10px 0",

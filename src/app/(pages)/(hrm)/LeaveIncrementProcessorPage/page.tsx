@@ -1753,8 +1753,12 @@ const LeaveIncrementProcessorPage = () => {
                     Cancel
                   </button>
 
-                  <button className="confirm-btn" onClick={handleProcess}>
-                    Confirm Process
+                  <button
+                    className="confirm-btn"
+                    onClick={handleProcess}
+                    disabled={processing !== null}
+                  >
+                    {processing ? "Processing..." : "Confirm Process"}
                   </button>
                 </div>
               </div>
@@ -2151,6 +2155,11 @@ const LeaveIncrementProcessorPage = () => {
         .confirm-btn {
           background: #111827;
           color: white;
+        }
+
+        .confirm-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         @media (max-width: 1200px) {

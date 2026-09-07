@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Select from "react-select";
 
 import axiosInstance from "@/utils/axiosInstance";
 import { SkeletonTable } from "@/core/common/Skeleton";
@@ -72,6 +73,15 @@ const LeaveAllocationPage = () => {
   const [filterYear, setFilterYear] = useState(currentYear);
   const [searchName, setSearchName] = useState("");
 
+  const employeeOptions = useMemo(
+    () =>
+      employees.map((emp) => ({
+        value: String(emp.id),
+        label: `${emp.name}${emp.employeeCode ? ` (${emp.employeeCode})` : ""}`,
+      })),
+    [employees],
+  );
+
   // ============================================
   // FORM
   // ============================================
@@ -93,7 +103,7 @@ const LeaveAllocationPage = () => {
   const fetchInitialData = async () => {
     try {
       const [empRes, leaveRes] = await Promise.all([
-        axiosInstance.get("/employee"),
+        axiosInstance.get("/employee?limit=1000"),
 
         axiosInstance.get("/leave/types?is_active=true"),
       ]);
@@ -186,6 +196,12 @@ const LeaveAllocationPage = () => {
   ) => {
     e.preventDefault();
 
+    if (!formData.employeeId) {
+      alert("Please select an employee");
+
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -241,29 +257,25 @@ const LeaveAllocationPage = () => {
                     Employee *
                   </label>
 
-                  <select
-                    name="employeeId"
-                    value={formData.employeeId}
-                    onChange={handleChange}
-                    required
-                    className="form-select"
-                  >
-                    <option value="">
-                      Select Employee
-                    </option>
-
-                    {employees.map((emp) => (
-                      <option
-                        key={emp.id}
-                        value={emp.id}
-                      >
-                        {emp.name}
-                        {emp.employeeCode
-                          ? ` (${emp.employeeCode})`
-                          : ""}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    classNamePrefix="react-select"
+                    className="select"
+                    options={employeeOptions}
+                    value={
+                      employeeOptions.find(
+                        (opt) => opt.value === formData.employeeId,
+                      ) || null
+                    }
+                    onChange={(opt) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        employeeId: opt ? opt.value : "",
+                      }))
+                    }
+                    placeholder="Select Employee"
+                    isClearable
+                    isSearchable
+                  />
                 </div>
 
                 {/* LEAVE TYPE */}
