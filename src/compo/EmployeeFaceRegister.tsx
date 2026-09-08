@@ -156,24 +156,41 @@ export default function EmployeeFaceRegister({ employeeId, isViewOnly }: Props) 
           <>
             {!capturedImage ? (
               <div>
-                <Webcam
-                  ref={webcamRef}
-                  audio={false}
-                  screenshotFormat="image/jpeg"
-                  width={640}
-                  height={480}
-                  videoConstraints={{
-                    facingMode: "user",
-                    width: 640,
-                    height: 480,
+                <div
+                  style={{
+                    width: "100%",
+                    maxWidth: 480,
+                    overflow: "hidden",
+                    borderRadius: 12,
+                    backgroundColor: "#000",
                   }}
-                  onUserMedia={() => {
-                    console.log("CAMERA READY");
-                  }}
-                  onUserMediaError={(err) => {
-                    console.error("CAMERA ERROR", err);
-                  }}
-                />
+                >
+                  <Webcam
+                    ref={webcamRef}
+                    audio={false}
+                    screenshotFormat="image/jpeg"
+                    width={640}
+                    height={480}
+                    videoConstraints={{
+                      facingMode: "user",
+                      width: { ideal: 640 },
+                      height: { ideal: 480 },
+                    }}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      height: "auto",
+                      aspectRatio: "4 / 3",
+                      objectFit: "cover",
+                    }}
+                    onUserMedia={() => {
+                      console.log("CAMERA READY");
+                    }}
+                    onUserMediaError={(err) => {
+                      console.error("CAMERA ERROR", err);
+                    }}
+                  />
+                </div>
 
                 <button className="btn btn-primary mt-3" onClick={captureFace}>
                   Capture Face
