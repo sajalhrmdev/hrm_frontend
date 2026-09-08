@@ -15,6 +15,7 @@ type AttendanceStatus =
 interface Employee {
   id: number;
   name: string;
+  status?: "ACTIVE" | "INACTIVE" | "SUSPENDED";
 }
 
 interface Attendance {
@@ -29,6 +30,7 @@ interface Attendance {
 interface EmployeeAttendance {
   id: number;
   name: string;
+  status?: Employee["status"];
   attendance: Record<number, AttendanceStatus>;
   totals: {
     present: number;
@@ -56,6 +58,14 @@ const months = [
 ];
 
 const yearOptions = [2024, 2025, 2026, 2027, 2028, 2029, 2030];
+
+type ReportTab = "ACTIVE" | "INACTIVE" | "ALL";
+
+const monthlyAttendanceReportTabs: { value: ReportTab; label: string }[] = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "INACTIVE", label: "Inactive" },
+  { value: "ALL", label: "All" },
+];
 
 function normalizeStatus(status?: string): AttendanceStatus {
   switch (status) {
@@ -112,6 +122,7 @@ const MonthlyAttendanceReport: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
   const [error, setError] = useState<string>("");
+  const [tab, setTab] = useState<ReportTab>("ACTIVE");
 
   const selectedMonthLabel =
     months.find((m) => m.value === month)?.label ?? "Month";
@@ -167,6 +178,7 @@ const MonthlyAttendanceReport: React.FC = () => {
         map[employeeId] = {
           id: employeeId,
           name: employeeName,
+          status: item.employee?.status,
           attendance: {},
           totals: {
             present: 0,
@@ -186,6 +198,12 @@ const MonthlyAttendanceReport: React.FC = () => {
     });
 
     return Object.values(map)
+      .filter(
+        (emp) =>
+          tab === "ALL" ||
+          !emp.status ||
+          emp.status === tab,
+      )
       .map((emp) => {
         const attendance: Record<number, AttendanceStatus> = {
           ...emp.attendance,
@@ -231,7 +249,7 @@ const MonthlyAttendanceReport: React.FC = () => {
         };
       })
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [attendanceData, days]);
+  }, [attendanceData, days, tab]);
 
   const summary = useMemo(() => {
     const totalEmployees = employees.length;
@@ -386,6 +404,21 @@ const MonthlyAttendanceReport: React.FC = () => {
                 </h2>
                 <div className="report-subtitle">
                   Generated At : <strong>{generatedAt}</strong>
+                </div>
+
+                <div className="report-tabs mt-2 d-flex justify-content-center flex-wrap gap-2">
+                  {monthlyAttendanceReportTabs.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      className={`report-tab-btn btn btn-sm ${
+                        tab === t.value ? "btn-primary" : "btn-outline-secondary"
+                      }`}
+                      onClick={() => setTab(t.value)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
                 </div>
 
                 <div className="legend-wrap mt-1 d-flex justify-content-center flex-wrap gap-3">

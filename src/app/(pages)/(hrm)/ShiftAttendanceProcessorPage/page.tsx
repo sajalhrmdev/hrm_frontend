@@ -611,12 +611,31 @@ interface ProcessResult {
   unpaidLeave: number;
 }
 
+const formatToDDMMYYYY = (value: string) => {
+  const [y, m, d] = (value || "").split("-");
+  return d && m && y ? `${d}/${m}/${y}` : "";
+};
+
 const AttendanceProcessorPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0],
+  const minProcessableDate = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 2);
+    return d.toISOString().split("T")[0];
+  })();
+
+  const [selectedDate, setSelectedDate] = useState<string>(minProcessableDate);
+
+  const [dateInput, setDateInput] = useState<string>(
+    formatToDDMMYYYY(minProcessableDate),
   );
+
+  const isDateEligible = (() => {
+    const d = new Date(selectedDate + "T00:00:00");
+    const cutoff = new Date(minProcessableDate + "T00:00:00");
+    return !isNaN(d.getTime()) && d.getTime() <= cutoff.getTime();
+  })();
 
   const [result, setResult] = useState<ProcessResult | null>(null);
 
@@ -665,16 +684,33 @@ const AttendanceProcessorPage = () => {
             <div className="filter-item">
               <label>Attendance Date</label>
 
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
+              <div className="date-overlay-wrap">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  max={minProcessableDate}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setSelectedDate(v);
+                    if (v) setDateInput(formatToDDMMYYYY(v));
+                  }}
+                />
+
+                <span className="date-overlay-text">
+                  {dateInput || "DD/MM/YYYY"}
+                </span>
+              </div>
+            </div>
+
+            <div className="filter-item">
+              <small className="text-muted">
+                Only dates at least 2 days in the past can be processed.
+              </small>
             </div>
 
             <button
               className="process-btn mt-4"
-              disabled={loading}
+              disabled={loading || !isDateEligible}
               onClick={handleProcess}
             >
               {loading ? "Processing..." : "Process Attendance"}
@@ -778,6 +814,40 @@ const AttendanceProcessorPage = () => {
               border: 1px solid #d1d5db;
               padding: 0 16px;
               outline: none;
+            }
+
+            .date-overlay-wrap {
+              position: relative;
+              max-width: 280px;
+            }
+
+            .date-overlay-wrap input[type="date"] {
+              width: 100%;
+              height: 52px;
+              border-radius: 14px;
+              border: 1px solid #d1d5db;
+              padding: 0 16px;
+              outline: none;
+              color: transparent;
+              background: transparent;
+              position: relative;
+              z-index: 1;
+            }
+
+            .date-overlay-wrap input[type="date"]::-webkit-calendar-picker-indicator {
+              position: relative;
+              z-index: 2;
+              cursor: pointer;
+            }
+
+            .date-overlay-text {
+              position: absolute;
+              left: 16px;
+              top: 50%;
+              transform: translateY(-50%);
+              font-size: 15px;
+              color: #374151;
+              pointer-events: none;
             }
 
             .process-btn {
