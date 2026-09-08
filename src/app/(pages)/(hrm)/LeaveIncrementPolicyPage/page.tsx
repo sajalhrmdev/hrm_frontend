@@ -116,7 +116,7 @@ const LeaveIncrementPolicyPage = () => {
 
       if (editId) {
         await axiosInstance.put(
-          `/leave/increment-policy/${editId}`,
+          `/leave-increment/${editId}`,
 
           payload,
         );
@@ -184,7 +184,7 @@ const LeaveIncrementPolicyPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await axiosInstance.delete(`/leave/increment-policy/${id}`);
+      await axiosInstance.delete(`/leave-increment/${id}`);
 
       alert("Policy deleted successfully");
 
