@@ -83,6 +83,8 @@ const EmployeePage = () => {
 
   const [page, setPage] = useState(1);
 
+  const [statusFilter, setStatusFilter] = useState("ACTIVE");
+
   const [pagination, setPagination] = useState({
     total: 0,
 
@@ -126,7 +128,9 @@ const EmployeePage = () => {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `/employee?page=${page}&limit=10&search=${search}`,
+        `/employee?page=${page}&limit=10&search=${search}${
+          statusFilter !== "ACTIVE" ? `&status=${statusFilter}` : ""
+        }`,
       );
 
       setEmployees(res?.data?.data?.employees || []);
@@ -189,7 +193,7 @@ const EmployeePage = () => {
 
   useEffect(() => {
     fetchEmployees();
-  }, [page]);
+  }, [page, statusFilter]);
 
   useEffect(() => {
     fetchDropdowns();
@@ -328,7 +332,9 @@ const EmployeePage = () => {
 
       status: employee.status,
 
-      createUser: !!employee.userId,
+      // Unchecked by default — existing login stays untouched.
+      // Check it only to create a new login or reset the password.
+      createUser: false,
 
       password: "",
     });
@@ -455,7 +461,7 @@ const EmployeePage = () => {
           <div className="card-body">
             <form onSubmit={handleSearch}>
               <div className="row g-3">
-                <div className="col-md-10">
+                <div className="col-md-8">
                   <input
                     type="text"
                     className="form-control"
@@ -463,6 +469,21 @@ const EmployeePage = () => {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
+                </div>
+
+                <div className="col-md-2">
+                  <select
+                    className="form-select"
+                    value={statusFilter}
+                    onChange={(e) => {
+                      setStatusFilter(e.target.value);
+                      setPage(1);
+                    }}
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                    <option value="ALL">All</option>
+                  </select>
                 </div>
 
                 <div className="col-md-2">
