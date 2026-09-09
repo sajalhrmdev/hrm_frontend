@@ -62,11 +62,13 @@ type Employee = {
 
 const EmployeeProfilePage = () => {
   const params = useParams();
-  const { permissions } = useAuth();
+  const { permissions, employee: currentUserEmployee } = useAuth();
 
   const employeeId = Number(params?.id);
 
   const canEdit = permissions?.includes("*") || permissions?.includes("update-employee");
+
+  const isOwnProfile = employeeId === currentUserEmployee?.id;
 
   const [loading, setLoading] = useState(true);
 
@@ -422,7 +424,7 @@ const EmployeeProfilePage = () => {
             {/* Face register======================= */}
             {activeTab === "face-register" && (
               <div className="alert alert-info">
-                <EmployeeFaceRegister employeeId={employeeId} isViewOnly={!canEdit} />
+                <EmployeeFaceRegister employeeId={employeeId} isViewOnly={!(canEdit || isOwnProfile)} />
               </div>
             )}
             {/* ================================== */}
