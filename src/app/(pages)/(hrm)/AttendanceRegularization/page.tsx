@@ -245,6 +245,56 @@ const AttendanceRegularizationPage = () => {
   };
 
   // ======================================================
+  // RESET (mistaken check-in/out)
+  // ======================================================
+
+  const [showResetModal, setShowResetModal] = useState(false);
+
+  const [resetTarget, setResetTarget] = useState<any>(null);
+
+  const [resetReason, setResetReason] = useState("");
+
+  const [resetting, setResetting] = useState(false);
+
+  const [resetError, setResetError] = useState("");
+
+  const handleOpenReset = (attendance: any) => {
+    setResetTarget(attendance);
+
+    setResetReason("");
+
+    setResetError("");
+
+    setShowResetModal(true);
+  };
+
+  const handleReset = async () => {
+    if (!resetTarget) return;
+
+    try {
+      setResetting(true);
+
+      setResetError("");
+
+      await axiosInstance.patch(`/attendance/${resetTarget.id}/reset`, {
+        reason: resetReason,
+      });
+
+      setShowResetModal(false);
+
+      setResetTarget(null);
+
+      fetchAttendances();
+    } catch (err: any) {
+      setResetError(
+        err?.response?.data?.message || "Failed to reset attendance",
+      );
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  // ======================================================
 
   return (
     <div className="page-wrapper">
@@ -351,6 +401,13 @@ const AttendanceRegularizationPage = () => {
                             onClick={() => handleOpenLogs(item)}
                           >
                             📜 Logs
+                          </button>
+
+                          <button
+                            className="reset-btn"
+                            onClick={() => handleOpenReset(item)}
+                          >
+                            🔄 Reset
                           </button>
                         </div>
                       </td>
@@ -504,6 +561,79 @@ const AttendanceRegularizationPage = () => {
 
                   <button className="save-btn" onClick={handleSubmit}>
                     Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ====================================================== */}
+          {/* RESET MODAL */}
+          {/* ====================================================== */}
+
+          {showResetModal && (
+            <div className="modal-overlay">
+              <div className="modal-box reset-modal">
+                <div className="modal-header">
+                  <h2>Reset Attendance</h2>
+
+                  <button onClick={() => setShowResetModal(false)}>✖</button>
+                </div>
+
+                <div className="reset-warning">
+                  <p>
+                    This will remove the current check-in / check-out for{" "}
+                    <strong>
+                      {resetTarget?.employee?.name || "Employee"}
+                    </strong>
+                    {" "}
+                    on{" "}
+                    <strong>
+                      {resetTarget?.date
+                        ? new Date(resetTarget.date).toLocaleDateString()
+                        : "-"}
+                    </strong>
+                    .
+                  </p>
+
+                  <ul>
+                    <li>Check-in & check-out times will be cleared</li>
+                    <li>Status will be set to ABSENT</li>
+                    <li>Raw attendance logs will be deleted</li>
+                    <li>Employee can check in / out again afterwards</li>
+                  </ul>
+                </div>
+
+                <div className="form-group full">
+                  <label>Reason (optional)</label>
+
+                  <textarea
+                    rows={3}
+                    placeholder="e.g. Mistaken check-in by employee"
+                    value={resetReason}
+                    onChange={(e) => setResetReason(e.target.value)}
+                  />
+                </div>
+
+                {resetError && (
+                  <div className="reset-error">{resetError}</div>
+                )}
+
+                <div className="modal-footer">
+                  <button
+                    className="cancel-btn"
+                    onClick={() => setShowResetModal(false)}
+                    disabled={resetting}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="reset-confirm-btn"
+                    onClick={handleReset}
+                    disabled={resetting}
+                  >
+                    {resetting ? "Resetting..." : "Confirm Reset"}
                   </button>
                 </div>
               </div>
@@ -929,7 +1059,8 @@ const AttendanceRegularizationPage = () => {
             }
 
             .edit-btn,
-            .log-btn {
+            .log-btn,
+            .reset-btn {
               border: none;
 
               height: 40px;
@@ -946,7 +1077,8 @@ const AttendanceRegularizationPage = () => {
             }
 
             .edit-btn:hover,
-            .log-btn:hover {
+            .log-btn:hover,
+            .reset-btn:hover {
               transform: translateY(-1px);
             }
 
@@ -960,6 +1092,18 @@ const AttendanceRegularizationPage = () => {
               background: #f3f4f6;
 
               color: #111827;
+            }
+
+            .reset-btn {
+              background: #fef2f2;
+
+              color: #dc2626;
+
+              border: 1px solid #fee2e2;
+            }
+
+            .reset-btn:hover {
+              background: #fee2e2;
             }
 
             .modal-overlay {
@@ -1120,6 +1264,92 @@ const AttendanceRegularizationPage = () => {
               background: #111827;
 
               color: white;
+            }
+
+            .reset-modal {
+              max-width: 520px;
+            }
+
+            .reset-warning {
+              background: #fef2f2;
+
+              border: 1px solid #fecaca;
+
+              border-radius: 14px;
+
+              padding: 16px;
+
+              margin-bottom: 18px;
+            }
+
+            .reset-warning p {
+              color: #991b1b;
+
+              font-size: 14px;
+
+              line-height: 1.6;
+            }
+
+            .reset-warning ul {
+              margin: 12px 0 0;
+
+              padding-left: 18px;
+
+              display: flex;
+
+              flex-direction: column;
+
+              gap: 6px;
+            }
+
+            .reset-warning li {
+              color: #7f1d1d;
+
+              font-size: 13px;
+            }
+
+            .reset-error {
+              background: #fee2e2;
+
+              color: #991b1b;
+
+              border: 1px solid #fecaca;
+
+              border-radius: 12px;
+
+              padding: 10px 14px;
+
+              font-size: 13px;
+
+              font-weight: 600;
+            }
+
+            .reset-confirm-btn {
+              height: 48px;
+
+              border-radius: 12px;
+
+              padding: 0 18px;
+
+              font-weight: 700;
+
+              cursor: pointer;
+
+              border: none;
+
+              background: #dc2626;
+
+              color: white;
+            }
+
+            .reset-confirm-btn:hover {
+              background: #b91c1c;
+            }
+
+            .reset-confirm-btn:disabled {
+              opacity: 0.6;
+
+              cursor: not-allowed;
             }
 
             .timeline {
