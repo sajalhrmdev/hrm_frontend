@@ -24,12 +24,19 @@ import AuthInitializer from "@/authMe/AuthInitializer";
 import HelpChatWidget from "@/components/help-chatbot/ChatWidget";
 
 export const metadata: Metadata = {
-  title: "Smarthr Admin Template",
-  description: "Smarthr Admin Template",
+  title: "HRM",
+  description: "HRM",
+  manifest: "/manifest.json",
+  themeColor: "#ffffff",
+  applicationName: "HRM",
+  appleWebApp: {
+    capable: true,
+    title: "HRM",
+  },
   icons: {
     icon: "favicon.png",
     shortcut: "favicon.png", // Add shortcut icon for better support
-    apple: "favicon.png", // Optional: for Apple devices (place in `public/`)
+    apple: "/icon-192.png", // home-screen icon for Apple devices
   },
 };
 
