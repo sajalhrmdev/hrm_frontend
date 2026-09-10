@@ -24,11 +24,16 @@ const Attendance = () => {
   const submitTriggeredRef = useRef(false);
   const closedFramesRef = useRef(0);
   const detectingRef = useRef(false);
+  const earBaselineRef = useRef<number | null>(null);
+  const earSamplesRef = useRef<number[]>([]);
+  const closedAtRef = useRef<number | null>(null);
+  const modeStartRef = useRef(0);
 
   const [attendanceMode, setAttendanceMode] = useState(false);
   const [eyeClosed, setEyeClosed] = useState(false);
   const [blinkVerified, setBlinkVerified] = useState(false);
   const [instruction, setInstruction] = useState("Face camera to continue");
+  const [showSkipBlink, setShowSkipBlink] = useState(false);
   const [time, setTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [attendance, setAttendance] = useState<any>(null);
@@ -101,9 +106,13 @@ const Attendance = () => {
     blinkVerifiedRef.current = false;
     submitTriggeredRef.current = false;
     closedFramesRef.current = 0;
+    earBaselineRef.current = null;
+    earSamplesRef.current = [];
+    closedAtRef.current = null;
 
     setEyeClosed(false);
     setBlinkVerified(false);
+    setShowSkipBlink(false);
   };
 
   useEffect(() => {
@@ -134,6 +143,13 @@ const Attendance = () => {
   useEffect(() => {
     if (!attendanceMode) return;
 
+    // fresh calibration for every attempt
+    earSamplesRef.current = [];
+    earBaselineRef.current = null;
+    closedAtRef.current = null;
+    modeStartRef.current = Date.now();
+    setShowSkipBlink(false);
+
     let stopped = false;
 
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -161,9 +177,18 @@ const Attendance = () => {
           return;
         }
 
-        setInstruction("Please blink your eyes");
-
         const points = faces[0].keypoints as FacePoint[];
+
+        // face-size hint: tiny face in frame = unreliable EAR on mobile
+        let tooFar = false;
+        try {
+          const xs = points.map((p) => p.x);
+          const faceW = Math.max(...xs) - Math.min(...xs);
+          const vw = video.videoWidth || 1;
+          tooFar = faceW / vw < 0.15;
+        } catch {
+          tooFar = false;
+        }
 
         const leftEye = LEFT_EYE.map((i) => points[i]).filter(Boolean);
         const rightEye = RIGHT_EYE.map((i) => points[i]).filter(Boolean);
@@ -174,13 +199,39 @@ const Attendance = () => {
         const rightEAR = eyeAspectRatio(rightEye);
         const ear = (leftEAR + rightEAR) / 2;
 
-        const CLOSED_THRESHOLD = 0.26;
-        const OPEN_THRESHOLD = 0.3;
+        // adaptive baseline: mean of open-state EARs (device/distance independent)
+        if (!eyeClosedRef.current && ear > 0.12 && ear < 0.6) {
+          const samples = earSamplesRef.current;
+          samples.push(ear);
+          if (samples.length > 20) samples.shift();
+          if (samples.length >= 6) {
+            earBaselineRef.current =
+              samples.reduce((a, b) => a + b, 0) / samples.length;
+          }
+        }
 
-        if (!eyeClosedRef.current && ear < CLOSED_THRESHOLD) {
+        const baseline = earBaselineRef.current;
+        const CLOSED_THRESHOLD = baseline
+          ? Math.max(0.16, baseline * 0.75)
+          : 0.26;
+        const OPEN_THRESHOLD = baseline ? baseline * 0.88 : 0.3;
+
+        if (!eyeClosedRef.current && ear < CLOSED_THRESHOLD && ear < 0.38) {
           closedFramesRef.current = 1;
           eyeClosedRef.current = true;
+          closedAtRef.current = Date.now();
           setEyeClosed(true);
+        }
+
+        // un-stick a false "closed" latch (bad threshold / drift)
+        if (
+          eyeClosedRef.current &&
+          closedAtRef.current &&
+          Date.now() - closedAtRef.current > 2500
+        ) {
+          eyeClosedRef.current = false;
+          closedAtRef.current = null;
+          setEyeClosed(false);
         }
 
         if (
@@ -191,6 +242,18 @@ const Attendance = () => {
           blinkVerifiedRef.current = true;
           setBlinkVerified(true);
           setInstruction("Verifying...");
+        } else if (!blinkVerifiedRef.current) {
+          setInstruction(
+            tooFar ? "Move closer to camera" : "Please blink your eyes",
+          );
+        }
+
+        // give up -> offer NORMAL fallback after 30s of trying
+        if (
+          !blinkVerifiedRef.current &&
+          Date.now() - modeStartRef.current > 30000
+        ) {
+          setShowSkipBlink(true);
         }
       } catch (e) {
         detectingRef.current = false;
@@ -461,6 +524,26 @@ const Attendance = () => {
               </div>
             </div>
           )}
+
+          {attendanceMode &&
+            showSkipBlink &&
+            allowedMethods.includes("NORMAL") && (
+              <div className="text-center mb-2">
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setAttendanceMode(false);
+                    resetBlinkState();
+                    setSelectedMethod("NORMAL");
+                    setMethodChosen(true);
+                    setInstruction("Trying without blink check...");
+                    handleNormalAttendance();
+                  }}
+                >
+                  Skip blink check — use Normal instead
+                </button>
+              </div>
+            )}
 
           <div className="d-flex justify-content-center my-3 align-items-center gap-3">
             <div className="position-relative">
