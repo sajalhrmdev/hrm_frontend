@@ -138,7 +138,7 @@ const HolidayCalendarPage = () => {
         {/* TITLE */}
 
         <div className="text-center mb-4">
-          <h1 className="fw-bold display-5 mb-2">Holiday Calendar</h1>
+          <h1 className="fw-bold mb-2 holiday-page-title">Holiday Calendar</h1>
 
           <div
             style={{
@@ -296,6 +296,10 @@ const HolidayCalendarPage = () => {
       {/* STYLE */}
 
       <style jsx>{`
+        .holiday-page-title {
+          font-size: 2.5rem;
+        }
+
         .page-wrapper {
           display: flex;
 
@@ -537,24 +541,132 @@ const HolidayCalendarPage = () => {
         }
 
         @media (max-width: 768px) {
-          .calendar-grid {
-            gap: 8px;
+          .holiday-page-title {
+            font-size: 1.6rem;
           }
 
-          .calendar-day {
-            min-height: 60px;
-
-            font-size: 16px;
+          .calendar-wrapper {
+            padding: 14px;
           }
 
-          .week-day {
-            padding: 10px;
-
-            font-size: 12px;
+          .calendar-top {
+            margin-bottom: 18px;
           }
 
           .month-title {
             font-size: 22px;
+          }
+
+          .nav-btn {
+            width: 38px;
+
+            height: 38px;
+
+            font-size: 16px;
+          }
+
+          .calendar-grid {
+            gap: 6px;
+          }
+
+          .calendar-day {
+            min-height: 52px;
+
+            font-size: 15px;
+          }
+
+          .empty-day {
+            min-height: 52px;
+          }
+
+          .week-day {
+            padding: 8px 2px;
+
+            font-size: 11px;
+          }
+
+          .holiday-dot {
+            width: 6px;
+
+            height: 6px;
+
+            bottom: 6px;
+          }
+
+          .holiday-list-header {
+            padding: 12px;
+
+            font-size: 18px;
+          }
+
+          .holiday-row {
+            gap: 12px;
+
+            padding: 10px;
+          }
+
+          .holiday-date {
+            width: 36px;
+
+            height: 36px;
+
+            font-size: 14px;
+          }
+
+          .holiday-name {
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .holiday-page-title {
+            font-size: 1.35rem;
+          }
+
+          .calendar-wrapper {
+            padding: 10px;
+
+            border-radius: 8px;
+          }
+
+          .calendar-grid {
+            gap: 4px;
+          }
+
+          .calendar-day {
+            min-height: 44px;
+
+            font-size: 13px;
+
+            border-radius: 4px;
+          }
+
+          .empty-day {
+            min-height: 44px;
+          }
+
+          .week-day {
+            padding: 6px 0;
+
+            font-size: 10px;
+
+            border-radius: 4px;
+          }
+
+          .month-title {
+            font-size: 18px;
+          }
+
+          .nav-btn {
+            width: 34px;
+
+            height: 34px;
+
+            font-size: 14px;
+          }
+
+          .holiday-list-header {
+            font-size: 16px;
           }
         }
       `}</style>

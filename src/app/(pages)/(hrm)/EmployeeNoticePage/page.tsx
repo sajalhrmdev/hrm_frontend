@@ -1424,47 +1424,31 @@ const EmployeeNoticePage: React.FC = () => {
           }
 
           /* ================================================= */
+          /* DESKTOP TUNE (keeps current desktop look) */
+          /* ================================================= */
 
-          @media(max-width:768px){
+          .lux-main-title{
 
-            .lux-header-right{
+            font-size:58px;
 
-              width:100%;
-
-              justify-content:space-between;
-            }
-
-            .lux-card-top{
-
-              flex-direction:column;
-
-              align-items:flex-start;
-            }
+            max-width:100%;
           }
 
-            .lux-main-title{
+          .lux-desc{
 
-              font-size:58px;
+            max-width:100%;
+          }
 
-              max-width:100%;
-            }
+          .lux-title{
 
-            .lux-desc{
+            font-size:52px;
+          }
 
-              max-width:100%;
-            }
+          .lux-card{
 
-            .lux-title{
+            padding:38px;
 
-              font-size:52px;
-            }
-
-            .lux-card{
-
-              padding:38px;
-
-              min-height:auto;
-            }
+            min-height:auto;
           }
 
           /* ================================================= */
@@ -1476,26 +1460,261 @@ const EmployeeNoticePage: React.FC = () => {
               padding:20px;
             }
 
+            .lux-header{
+
+              margin-bottom:28px;
+            }
+
+            .lux-title{
+
+              font-size:40px;
+
+              letter-spacing:-2px;
+
+              line-height:1;
+            }
+
+            .lux-subtitle{
+
+              font-size:16px;
+
+              margin-top:12px;
+            }
+
+            .lux-header-right{
+
+              width:100%;
+
+              justify-content:space-between;
+            }
+
+            .lux-tabs{
+
+              gap:8px;
+
+              margin-bottom:20px;
+            }
+
+            .lux-tab{
+
+              padding:10px 16px;
+
+              font-size:13px;
+            }
+
+            .lux-card{
+
+              padding:24px;
+
+              border-radius:28px;
+            }
+
+            .lux-card-top{
+
+              flex-direction:column;
+
+              align-items:flex-start;
+            }
+
+            .lux-priority{
+
+              padding:10px 18px;
+
+              font-size:12px;
+            }
+
             .lux-main-title{
 
-              font-size:42px;
+              font-size:34px;
+
+              letter-spacing:-1.5px;
+
+              margin-top:24px;
             }
 
             .lux-desc{
 
               font-size:16px;
+
+              line-height:1.7;
+
+              margin-top:20px;
             }
 
-            .lux-title{
+            .lux-card-footer{
 
-              font-size:42px;
+              margin-top:28px;
+            }
+
+            .lux-date{
+
+              margin-top:0;
+
+              padding:14px 18px;
+
+              border-radius:18px;
+
+              flex-wrap:wrap;
+            }
+
+            .lux-attachment{
+
+              margin-top:0;
+
+              padding:14px 24px;
+
+              border-radius:18px;
             }
 
             .lux-nav-btn{
 
-              width:58px;
+              width:52px;
 
-              height:58px;
+              height:52px;
+
+              border-radius:18px;
+            }
+
+            .lux-indicators{
+
+              margin-top:24px;
+
+              gap:10px;
+            }
+
+            .lux-empty{
+
+              padding:48px 24px;
+
+              border-radius:28px;
+            }
+
+            .lux-empty h2{
+
+              font-size:28px;
+            }
+
+            .lux-empty p{
+
+              font-size:15px;
+            }
+          }
+
+          /* ================================================= */
+
+          @media(max-width:480px){
+
+            .lux-notice-page{
+
+              padding:12px;
+            }
+
+            .lux-notice-page::before{
+
+              width:380px;
+
+              height:380px;
+            }
+
+            .lux-notice-page::after{
+
+              width:340px;
+
+              height:340px;
+            }
+
+            .lux-title{
+
+              font-size:32px;
+
+              letter-spacing:-1px;
+            }
+
+            .lux-subtitle{
+
+              font-size:14px;
+            }
+
+            .lux-tabs{
+
+              gap:6px;
+            }
+
+            .lux-tab{
+
+              padding:8px 14px;
+
+              font-size:12px;
+            }
+
+            .lux-card{
+
+              padding:18px;
+
+              border-radius:22px;
+            }
+
+            .lux-main-title{
+
+              font-size:27px;
+
+              letter-spacing:-1px;
+
+              margin-top:20px;
+            }
+
+            .lux-desc{
+
+              font-size:15px;
+
+              margin-top:16px;
+            }
+
+            .lux-card-footer{
+
+              margin-top:22px;
+
+              gap:14px;
+            }
+
+            .lux-date{
+
+              padding:12px 16px;
+
+              font-size:14px;
+            }
+
+            .lux-attachment{
+
+              width:100%;
+
+              justify-content:center;
+
+              padding:14px 16px;
+            }
+
+            .lux-nav-btn{
+
+              width:46px;
+
+              height:46px;
+
+              border-radius:16px;
+            }
+
+            .lux-stat{
+
+              padding:10px 16px;
+            }
+
+            .lux-empty{
+
+              padding:36px 16px;
+            }
+
+            .lux-empty h2{
+
+              font-size:24px;
             }
           }
 
