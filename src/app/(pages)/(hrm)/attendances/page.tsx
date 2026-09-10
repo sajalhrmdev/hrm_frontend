@@ -23,6 +23,7 @@ const Attendance = () => {
   const blinkVerifiedRef = useRef(false);
   const submitTriggeredRef = useRef(false);
   const closedFramesRef = useRef(0);
+  const detectingRef = useRef(false);
 
   const [attendanceMode, setAttendanceMode] = useState(false);
   const [eyeClosed, setEyeClosed] = useState(false);
@@ -115,7 +116,7 @@ const Attendance = () => {
         {
           runtime: "tfjs",
           maxFaces: 1,
-          refineLandmarks: true,
+          refineLandmarks: false,
         },
       );
 
@@ -133,15 +134,27 @@ const Attendance = () => {
   useEffect(() => {
     if (!attendanceMode) return;
 
-    const interval = setInterval(async () => {
+    let stopped = false;
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const tick = async () => {
       try {
         if (!webcamRef.current || !detectorRef.current) return;
         if (blinkVerifiedRef.current || submitTriggeredRef.current) return;
 
+        // 🔒 busy guard: never overlap two inferences (mobile GPUs are slow —
+        // overlapping calls pile up and each gets slower, missing blinks)
+        if (detectingRef.current) return;
+
         const video = webcamRef.current.video as HTMLVideoElement | null;
         if (!video || video.readyState < 2) return;
 
+        detectingRef.current = true;
+
         const faces = await detectorRef.current.estimateFaces(video);
+
+        detectingRef.current = false;
 
         if (!faces.length) {
           setInstruction("Look at camera");
@@ -180,11 +193,24 @@ const Attendance = () => {
           setInstruction("Verifying...");
         }
       } catch (e) {
-        console.error(e);
-      }
-    }, 100);
+        detectingRef.current = false;
 
-    return () => clearInterval(interval);
+        console.error(e);
+      } finally {
+        // adaptive pace: next tick only after this one finished (+60ms breather)
+        if (!stopped) {
+          timer = setTimeout(tick, 60);
+        }
+      }
+    };
+
+    timer = setTimeout(tick, 60);
+
+    return () => {
+      stopped = true;
+
+      if (timer) clearTimeout(timer);
+    };
   }, [attendanceMode, blinkVerified]);
 
   useEffect(() => {
@@ -480,6 +506,8 @@ const Attendance = () => {
                   height={140}
                   videoConstraints={{
                     facingMode: "user",
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
                   }}
                   style={{
                     width: "100%",
