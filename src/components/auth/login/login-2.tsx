@@ -193,12 +193,12 @@ const Login2Component = () => {
                   <label className="form-group__label" htmlFor="login-password">
                     Password
                   </label>
-                  <Link
-                    href={routes.forgotPassword2}
-                    className="form-group__link"
-                  >
-                    Forgot password?
-                  </Link>
+                    <Link
+                      href={routes.forgotPassword}
+                      className="form-group__link"
+                    >
+                      Forgot password?
+                    </Link>
                 </div>
                 <div className="input-field">
                   <i className="ti ti-lock input-field__icon" />
