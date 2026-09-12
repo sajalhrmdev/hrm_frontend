@@ -9,7 +9,13 @@ type AttendanceStatus =
   | "ABSENT"
   | "LEAVE"
   | "HALF_DAY"
+  | "HALF_DAY_LEAVE"
+  | "PAID_LEAVE"
+  | "UNPAID_LEAVE"
   | "HOLIDAY"
+  | "WEEKLY_OFF"
+  | "ON_DUTY"
+  | "WORK_FROM_HOME"
   | "UNKNOWN";
 
 interface Employee {
@@ -73,7 +79,13 @@ function normalizeStatus(status?: string): AttendanceStatus {
     case "ABSENT":
     case "LEAVE":
     case "HALF_DAY":
+    case "HALF_DAY_LEAVE":
+    case "PAID_LEAVE":
+    case "UNPAID_LEAVE":
     case "HOLIDAY":
+    case "WEEKLY_OFF":
+    case "ON_DUTY":
+    case "WORK_FROM_HOME":
       return status;
     default:
       return "UNKNOWN";
@@ -88,10 +100,21 @@ function getShortText(status?: AttendanceStatus) {
       return "A";
     case "LEAVE":
       return "L";
+    case "PAID_LEAVE":
+      return "PL";
+    case "UNPAID_LEAVE":
+      return "UL";
     case "HALF_DAY":
+    case "HALF_DAY_LEAVE":
       return "HD";
     case "HOLIDAY":
       return "H";
+    case "WEEKLY_OFF":
+      return "WO";
+    case "ON_DUTY":
+      return "OD";
+    case "WORK_FROM_HOME":
+      return "WFH";
     default:
       return "-";
   }
@@ -104,11 +127,21 @@ function getCellClass(status?: AttendanceStatus) {
     case "ABSENT":
       return "attendance-absent";
     case "LEAVE":
+    case "PAID_LEAVE":
       return "attendance-leave";
+    case "UNPAID_LEAVE":
+      return "attendance-unpaidleave";
     case "HALF_DAY":
+    case "HALF_DAY_LEAVE":
       return "attendance-halfday";
     case "HOLIDAY":
       return "attendance-holiday";
+    case "WEEKLY_OFF":
+      return "attendance-weeklyoff";
+    case "ON_DUTY":
+      return "attendance-onduty";
+    case "WORK_FROM_HOME":
+      return "attendance-wfh";
     default:
       return "attendance-empty";
   }
@@ -229,9 +262,12 @@ const MonthlyAttendanceReport: React.FC = () => {
               totals.absent += 1;
               break;
             case "LEAVE":
+            case "PAID_LEAVE":
+            case "UNPAID_LEAVE":
               totals.leave += 1;
               break;
             case "HALF_DAY":
+            case "HALF_DAY_LEAVE":
               totals.halfDay += 1;
               break;
             case "HOLIDAY":
@@ -426,7 +462,11 @@ const MonthlyAttendanceReport: React.FC = () => {
                   <span className="legend-item legend-absent">A = Absent</span>
                   <span className="legend-item legend-halfday">HD = Half Day</span>
                   <span className="legend-item legend-holiday">H = Holiday</span>
-                  <span className="legend-item legend-leave">L = Leave</span>
+                  <span className="legend-item legend-leave">L/PL = Leave/Paid Leave</span>
+                  <span className="legend-item legend-unpaidleave">UL = Unpaid Leave</span>
+                  <span className="legend-item legend-weeklyoff">WO = Weekly Off</span>
+                  <span className="legend-item legend-onduty">OD = On Duty</span>
+                  <span className="legend-item legend-wfh">WFH = Work From Home</span>
                 </div>
 
                 {/* <div className="summary-grid mt-4">
@@ -639,6 +679,26 @@ const MonthlyAttendanceReport: React.FC = () => {
             color: #d97706;
           }
 
+          .legend-unpaidleave {
+            background: #f3e8ff;
+            color: #7c3aed;
+          }
+
+          .legend-weeklyoff {
+            background: #e2e8f0;
+            color: #475569;
+          }
+
+          .legend-onduty {
+            background: #ccfbf1;
+            color: #0f766e;
+          }
+
+          .legend-wfh {
+            background: #cffafe;
+            color: #0e7490;
+          }
+
           .summary-grid {
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -818,6 +878,26 @@ const MonthlyAttendanceReport: React.FC = () => {
           .attendance-holiday {
             background: #dbeafe;
             color: #2563eb;
+          }
+
+          .attendance-unpaidleave {
+            background: #f3e8ff;
+            color: #7c3aed;
+          }
+
+          .attendance-weeklyoff {
+            background: #e2e8f0;
+            color: #475569;
+          }
+
+          .attendance-onduty {
+            background: #ccfbf1;
+            color: #0f766e;
+          }
+
+          .attendance-wfh {
+            background: #cffafe;
+            color: #0e7490;
           }
 
           .attendance-empty {
