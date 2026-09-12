@@ -89,8 +89,10 @@ export default function OfficeLocationsPage() {
       setShowModal(false);
 
       getLocations();
-    } catch (error) {
-      console.log(error);
+    } catch (err: any) {
+      console.log(err);
+
+      alert(err?.response?.data?.message || "Update failed");
     }
   };
 
