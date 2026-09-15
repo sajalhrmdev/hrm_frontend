@@ -133,8 +133,19 @@ const EmployeeAttendanceTab = ({
     return m === 0 ? `${h}h` : `${h}h ${m}m`;
   };
 
+  const getISTDate = (date: string) => {
+    return new Date(
+      new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    );
+  };
+
   const getDay = (date: string) => {
-    return Number(String(date).split("T")[0].split("-")[2]);
+    return getISTDate(date).getDate();
+  };
+
+  const formatISTDate = (date: string) => {
+    const d = getISTDate(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
   const statusTheme = (status: string) =>
@@ -341,7 +352,7 @@ const EmployeeAttendanceTab = ({
                 const content = `
                       <div>
                         <b>Date:</b>
-                        ${String(d.record.date).split("T")[0]}
+                        ${formatISTDate(d.record.date)}
                         <br/>
                         <b>Status:</b>
                         ${statusTheme(d.record.status).label}

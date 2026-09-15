@@ -101,6 +101,17 @@ const MonthlyAttendance: React.FC = () => {
   // CALENDAR GENERATE
   // ============================================
 
+  const getISTDate = (date: string) => {
+    return new Date(
+      new Date(date).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    );
+  };
+
+  const formatISTDate = (date: string) => {
+    const d = getISTDate(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+
   const generateCalendar = (): (CalendarDay | null)[] => {
     const daysInMonth = new Date(year, month, 0).getDate();
 
@@ -109,7 +120,7 @@ const MonthlyAttendance: React.FC = () => {
     const map: Record<number, Attendance> = {};
 
     data.forEach((d) => {
-      const day = new Date(d.date).getDate();
+      const day = getISTDate(d.date).getDate();
 
       map[day] = d;
     });
@@ -244,7 +255,7 @@ const MonthlyAttendance: React.FC = () => {
                     <div>
 
                       <b>Date:</b>
-                      ${d.record.date.split("T")[0]}
+                      ${formatISTDate(d.record.date)}
 
                       <br/>
 

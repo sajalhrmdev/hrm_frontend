@@ -55,6 +55,7 @@ export const routePermissions: Record<string, string> = {
   "/CompanySettings": "Sidebar CompanySettings",
   "/location": "Sidebar Location",
   "/BrandingSettings": "Sidebar Branding",
+  "/email": "Sidebar EmailSettings",
   "/professional-tax-settings": "Sidebar ProfessionalTax",
   "/import": "Sidebar Import",
 };

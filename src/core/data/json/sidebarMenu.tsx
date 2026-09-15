@@ -718,6 +718,7 @@ export const SidebarDataTest = [
             link: routes.emailSetting,
             base: "email",
             customSubmenuTwo: false,
+            permission: "Sidebar EmailSettings",
           },
           {
             label: "Branding",
