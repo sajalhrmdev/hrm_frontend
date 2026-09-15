@@ -88,7 +88,7 @@ const EmployeeLeaveTab = ({
 
           axiosInstance.get(
 
-            `/leave/balance?year=${currentYear}`
+            `/leave/balance/employee/${employeeId}?year=${currentYear}`
           ),
 
           axiosInstance.get(
