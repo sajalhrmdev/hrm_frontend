@@ -392,6 +392,12 @@ const PayrollRunPage = () => {
 
   const [showModal, setShowModal] = useState(false);
 
+  const [deleteTarget, setDeleteTarget] = useState<PayrollRun | null>(null);
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [deleteError, setDeleteError] = useState("");
+
   // ============================================
   // FORM DATA
   // ============================================
@@ -486,9 +492,60 @@ const PayrollRunPage = () => {
     } catch (err: any) {
       console.log(err);
 
-      alert(err?.response?.data?.message || "Failed to generate payroll");
+      const status = err?.response?.status;
+
+      const serverMessage =
+        err?.response?.data?.message || err?.message || "";
+
+      alert(
+        status
+          ? `Generate failed (HTTP ${status}): ${serverMessage || "Unknown server error"}`
+          : `Generate failed (no response — request timed out or connection lost): ${serverMessage || "Please retry"}`,
+      );
     } finally {
       setGenerateLoadingId(null);
+    }
+  };
+
+  // ============================================
+  // DELETE PAYROLL RUN (DRAFT ONLY)
+  // ============================================
+
+  const openDeleteModal = (run: PayrollRun) => {
+    setDeleteTarget(run);
+    setDeleteError("");
+  };
+
+  const closeDeleteModal = () => {
+    if (deleteLoading) return;
+    setDeleteTarget(null);
+    setDeleteError("");
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    try {
+      setDeleteLoading(true);
+      setDeleteError("");
+
+      const res = await axiosInstance.delete(
+        `/payroll/run/${deleteTarget.id}`,
+      );
+
+      alert(res?.data?.message || "Payroll run deleted successfully");
+
+      setDeleteTarget(null);
+
+      fetchRuns();
+    } catch (err: any) {
+      console.log(err);
+
+      setDeleteError(
+        err?.response?.data?.message || "Failed to delete payroll run",
+      );
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -645,6 +702,17 @@ const PayrollRunPage = () => {
                                 >
                                   👁 View
                                 </button>
+
+                                {/* DELETE (DRAFT ONLY) */}
+
+                                {item.status === "DRAFT" && (
+                                  <button
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => openDeleteModal(item)}
+                                  >
+                                    🗑 Delete
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -762,6 +830,84 @@ const PayrollRunPage = () => {
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ====================================== */}
+          {/* DELETE CONFIRM MODAL (DRAFT ONLY) */}
+          {/* ====================================== */}
+
+          {deleteTarget && (
+            <div
+              className="modal d-block"
+              tabIndex={-1}
+              style={{
+                background: "rgba(0,0,0,0.5)",
+              }}
+            >
+              <div className="modal-dialog">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title text-danger">
+                      Delete Payroll Run?
+                    </h5>
+
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={closeDeleteModal}
+                      disabled={deleteLoading}
+                    />
+                  </div>
+
+                  <div className="modal-body">
+                    <p className="mb-1">
+                      Period:{" "}
+                      <strong>
+                        {formatDate(deleteTarget.periodStart)} →{" "}
+                        {formatDate(deleteTarget.periodEnd)}
+                      </strong>
+                    </p>
+
+                    <p className="mb-1">
+                      Title:{" "}
+                      <strong>{deleteTarget.title || "-"}</strong>
+                    </p>
+
+                    <p className="mb-0 text-muted">
+                      Generated payrolls, snap components, adjustments and
+                      linked goals will be removed. This cannot be undone.
+                      Finalized runs cannot be deleted.
+                    </p>
+
+                    {deleteError && (
+                      <div className="alert alert-danger mt-3 mb-0">
+                        {deleteError}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={closeDeleteModal}
+                      disabled={deleteLoading}
+                    >
+                      Cancel
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={handleDelete}
+                      disabled={deleteLoading}
+                    >
+                      {deleteLoading ? "Deleting..." : "Delete Run"}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
