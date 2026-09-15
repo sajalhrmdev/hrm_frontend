@@ -6,6 +6,7 @@ import { SkeletonPage } from "@/core/common/Skeleton";
 
 type CompanyForm = {
   name: string;
+  slug: string;
   email: string;
   phone: string;
   address: string;
@@ -18,6 +19,7 @@ export default function CompanySettings() {
 
   const [form, setForm] = useState<CompanyForm>({
     name: "",
+    slug: "",
     email: "",
     phone: "",
     address: "",
@@ -32,6 +34,7 @@ export default function CompanySettings() {
 
       setForm({
         name: res.data.data.name || "",
+        slug: res.data.data.slug || "",
         email: res.data.data.email || "",
         phone: res.data.data.phone || "",
         address: res.data.data.address || "",
@@ -66,9 +69,9 @@ export default function CompanySettings() {
       await axiosInstance.put("/company/myCompany", form);
 
       alert("Company settings updated successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
-      alert("Failed to update company");
+      alert(error?.response?.data?.message || "Failed to update company");
     } finally {
       setSaving(false);
     }
@@ -106,6 +109,24 @@ export default function CompanySettings() {
                         onChange={handleChange}
                         placeholder="Company Name"
                       />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Company Slug</label>
+
+                      <input
+                        type="text"
+                        name="slug"
+                        value={form.slug}
+                        onChange={handleChange}
+                        placeholder="company-slug"
+                      />
+
+                      <small className="slug-note">
+                        Letters, numbers, space and hyphen allowed. The public
+                        mobile-theme link works by company ID, so changing the
+                        slug is safe.
+                      </small>
                     </div>
 
                     <div className="form-group">
@@ -265,6 +286,13 @@ export default function CompanySettings() {
           outline: none;
           border-color: #2563eb;
           box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .slug-note {
+          display: block;
+          margin-top: 6px;
+          font-size: 12px;
+          color: #6b7280;
         }
 
         .status-wrapper {
