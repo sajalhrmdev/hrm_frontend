@@ -31,6 +31,8 @@ type Employee = {
 
   phone: string;
 
+  userId?: number | null;
+
   employeeCode?: string;
 
   joiningDate?: string;
@@ -76,6 +78,16 @@ const EmployeeProfilePage = () => {
 
   const [activeTab, setActiveTab] = useState("basic");
 
+  const [showUnlinkModal, setShowUnlinkModal] = useState(false);
+
+  const [showLinkModal, setShowLinkModal] = useState(false);
+
+  const [linkEmail, setLinkEmail] = useState("");
+
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const [actionError, setActionError] = useState("");
+
   // ============================================
   // FETCH EMPLOYEE
   // ============================================
@@ -99,6 +111,77 @@ const EmployeeProfilePage = () => {
       fetchEmployee();
     }
   }, [employeeId]);
+
+  // ============================================
+  // USERLESS (unlink / link login)
+  // ============================================
+
+  const openUnlinkModal = () => {
+    setActionError("");
+    setShowUnlinkModal(true);
+  };
+
+  const openLinkModal = () => {
+    setActionError("");
+    setLinkEmail("");
+    setShowLinkModal(true);
+  };
+
+  const closeModals = () => {
+    if (actionLoading) return;
+    setShowUnlinkModal(false);
+    setShowLinkModal(false);
+    setActionError("");
+  };
+
+  const handleUnlink = async () => {
+    try {
+      setActionLoading(true);
+      setActionError("");
+
+      const res = await axiosInstance.patch(
+        `/employee/${employeeId}/unlink-user`,
+      );
+
+      alert(res?.data?.message || "Employee is now userless");
+
+      setShowUnlinkModal(false);
+
+      fetchEmployee();
+    } catch (err: any) {
+      console.log(err);
+
+      setActionError(
+        err?.response?.data?.message || "Failed to make userless",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleLink = async () => {
+    try {
+      setActionLoading(true);
+      setActionError("");
+
+      const res = await axiosInstance.patch(
+        `/employee/${employeeId}/link-user`,
+        { email: linkEmail.trim() },
+      );
+
+      alert(res?.data?.message || "User linked successfully");
+
+      setShowLinkModal(false);
+
+      fetchEmployee();
+    } catch (err: any) {
+      console.log(err);
+
+      setActionError(err?.response?.data?.message || "Failed to link user");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // ============================================
   // LOADING
@@ -214,6 +297,28 @@ const EmployeeProfilePage = () => {
                         ? new Date(employee.joiningDate).toLocaleDateString()
                         : "-"}
                     </div>
+
+                    {canEdit && !isOwnProfile && (
+                      <div className="mt-3">
+                        {employee.userId ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={openUnlinkModal}
+                          >
+                            Make Userless
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-success"
+                            onClick={openLinkModal}
+                          >
+                            Link User
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -497,6 +602,144 @@ const EmployeeProfilePage = () => {
             )}
           </div>
         </div>
+
+        {/* ====================================== */}
+        {/* UNLINK (MAKE USERLESS) MODAL */}
+        {/* ====================================== */}
+
+        {showUnlinkModal && (
+          <div
+            className="modal d-block"
+            tabIndex={-1}
+            style={{ background: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title text-danger">
+                    Make Userless?
+                  </h5>
+
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={closeModals}
+                    disabled={actionLoading}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <p className="mb-1">
+                    Employee: <strong>{employee.name}</strong>
+                  </p>
+
+                  <ul className="mb-0 text-muted">
+                    <li>Login disabled (memberships deactivated)</li>
+                    <li>Attendance, leave, payroll & face data stay safe</li>
+                    <li>Admin marks attendance from the userless page</li>
+                    <li>Reversible anytime via Link User</li>
+                  </ul>
+
+                  {actionError && (
+                    <div className="alert alert-danger mt-3 mb-0">
+                      {actionError}
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={closeModals}
+                    disabled={actionLoading}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={handleUnlink}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? "Working..." : "Make Userless"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ====================================== */}
+        {/* LINK USER MODAL */}
+        {/* ====================================== */}
+
+        {showLinkModal && (
+          <div
+            className="modal d-block"
+            tabIndex={-1}
+            style={{ background: "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title text-success">Link User</h5>
+
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={closeModals}
+                    disabled={actionLoading}
+                  />
+                </div>
+
+                <div className="modal-body">
+                  <p className="mb-2">
+                    Employee: <strong>{employee.name}</strong>
+                  </p>
+
+                  <label className="form-label">User email</label>
+
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="user@example.com"
+                    value={linkEmail}
+                    onChange={(e) => setLinkEmail(e.target.value)}
+                    disabled={actionLoading}
+                  />
+
+                  {actionError && (
+                    <div className="alert alert-danger mt-3 mb-0">
+                      {actionError}
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={closeModals}
+                    disabled={actionLoading}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={handleLink}
+                    disabled={actionLoading || !linkEmail.trim()}
+                  >
+                    {actionLoading ? "Working..." : "Link User"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
