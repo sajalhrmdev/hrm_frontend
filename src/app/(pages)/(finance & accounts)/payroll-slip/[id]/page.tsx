@@ -275,6 +275,7 @@ const PayrollSlipPage = () => {
       </table>
 
       {/* MAIN TABLE */}
+      <div className="slip-table-scroll">
       <table className="slip-main-table">
         <thead>
           <tr className="slip-main-header">
@@ -324,6 +325,7 @@ const PayrollSlipPage = () => {
           </tr>
         </tfoot>
       </table>
+      </div>
 
       {/* EMPLOYER CONTRIBUTION */}
       {employerContributions.length > 0 && (
@@ -767,6 +769,75 @@ const PayrollSlipPage = () => {
         .slip-words-label {
           font-weight: 700;
           color: #1a237e;
+        }
+
+        /* MAIN TABLE SCROLL (mobile) */
+        .slip-table-scroll {
+          overflow-x: visible;
+          margin-bottom: 16px;
+        }
+        .slip-table-scroll .slip-main-table {
+          margin-bottom: 0;
+        }
+
+        /* ============ MOBILE (screen only, print untouched) ============ */
+        @media screen and (max-width: 640px) {
+          .slip-wrapper {
+            margin: 64px auto 12px;
+            padding: 16px 12px;
+          }
+          .slip-header {
+            gap: 10px;
+          }
+          .slip-logo {
+            height: 44px;
+          }
+          .slip-header-right {
+            width: 0;
+          }
+          .slip-company-name {
+            font-size: 17px;
+          }
+          .slip-company-address {
+            font-size: 10.5px;
+          }
+          .slip-company-contact {
+            flex-wrap: wrap;
+            font-size: 10.5px;
+          }
+          .slip-info-table td {
+            padding: 5px 6px;
+            font-size: 10.5px;
+          }
+          .slip-table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+          }
+          .slip-table-scroll .slip-main-table {
+            min-width: 560px;
+            border: none;
+          }
+          .slip-empr-flex {
+            flex-direction: column;
+          }
+          .slip-empr-flex .slip-leave-table {
+            max-width: 100%;
+          }
+          .slip-ctc-box {
+            min-width: 0;
+          }
+          .slip-days-cell {
+            flex: 1 1 30%;
+            min-width: 0;
+          }
+          .slip-days-cell:nth-child(10n) {
+            border-right: 1px solid #e0e0e0;
+          }
+          .slip-net-amount {
+            font-size: 17px;
+          }
         }
 
         /* ============ PRINT STYLES ============ */

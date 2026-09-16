@@ -404,6 +404,21 @@ const Attendance = () => {
       hour12: true,
     });
 
+  // Start attendance via the check-in/out circle (method must be chosen first)
+  const beginAttendance = () => {
+    if (!methodChosen || attendanceMode || loading) return;
+
+    if (selectedMethod === "NORMAL") {
+      handleNormalAttendance();
+    } else {
+      setAttendanceMode(true);
+      resetBlinkState();
+      setInstruction("Please look at camera");
+    }
+  };
+
+  const circleDisabled = !methodChosen || attendanceMode || loading;
+
   const formatDate = (date: Date) => date.toDateString();
 
   const progress = useFakeProgress(loading);
@@ -473,24 +488,6 @@ const Attendance = () => {
             </div>
           )}
 
-          {!attendanceMode && (
-            <button
-              className="btn btn-primary"
-              disabled={allowedMethods.length > 1 && !methodChosen}
-              onClick={() => {
-                if (selectedMethod === "NORMAL") {
-                  handleNormalAttendance();
-                } else {
-                  setAttendanceMode(true);
-                  resetBlinkState();
-                  setInstruction("Please look at camera");
-                }
-              }}
-            >
-              Start Attendance
-            </button>
-          )}
-
           {attendanceMode && (
             <div
               className="text-center mt-1 mb-1"
@@ -549,7 +546,15 @@ const Attendance = () => {
             <div className="position-relative">
               <button
                 type="button"
-                disabled
+                disabled={circleDisabled}
+                onClick={beginAttendance}
+                title={
+                  !methodChosen
+                    ? "Choose Face or Normal first"
+                    : nextAction === "CHECK_IN"
+                      ? "Tap to check in"
+                      : "Tap to check out"
+                }
                 className={`btn rounded-circle d-flex align-items-center justify-content-center shadow ${
                   nextAction === "CHECK_IN" ? "btn-success" : "btn-danger"
                 }`}
@@ -560,6 +565,7 @@ const Attendance = () => {
                   border: "6px solid #e9ecef",
                   transition: "0.3s",
                   zIndex: 2,
+                  cursor: circleDisabled ? "not-allowed" : "pointer",
                 }}
               >
                 {loading
@@ -601,6 +607,31 @@ const Attendance = () => {
               </div>
             )}
           </div>
+
+          {!methodChosen && !attendanceMode && (
+            <div
+              className="text-center mb-2 mt-1"
+              style={{
+                animation: "pulseInstruction 1.5s infinite",
+              }}
+            >
+              <div
+                className="d-inline-flex align-items-center gap-1 px-3 py-1"
+                style={{
+                  background: "#fef9c3",
+                  color: "#92400e",
+                  border: "1px solid #fcd34d",
+                  borderRadius: "999px",
+                  fontWeight: 600,
+                  fontSize: "12px",
+                }}
+              >
+                <span style={{ fontSize: "13px" }}>👆</span>
+
+                <span>Choose Face or Normal above, then tap the circle</span>
+              </div>
+            </div>
+          )}
 
           <div className="text-center mb-1">
             <span

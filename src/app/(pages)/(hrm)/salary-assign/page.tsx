@@ -6,8 +6,6 @@ import axiosInstance from "@/utils/axiosInstance";
 
 import { Empty, Select, Skeleton } from "antd";
 
-import { AnimatePresence, motion } from "framer-motion";
-
 import { toast } from "react-toastify";
 
 import { Wallet, Search, Users, Layers } from "lucide-react";
@@ -22,16 +20,10 @@ type Employee = {
   employeeCode?: string;
 };
 
-const initials = (name: string) =>
-  name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join("");
-
 const EmployeeSalaryAssign = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+
+  const [employeesTotal, setEmployeesTotal] = useState<number | null>(null);
 
   const [componentsCount, setComponentsCount] = useState(0);
 
@@ -72,13 +64,24 @@ const EmployeeSalaryAssign = () => {
       const list: Employee[] = res.data.data.employees || [];
 
       if (isSearch) {
+        // server results REPLACE the list so the dropdown narrows to matches
         setEmployees((prev) => {
-          const map = new Map(prev.map((e) => [e.id, e]));
-          list.forEach((e) => map.set(e.id, e));
-          return Array.from(map.values());
+          const selected = prev.find((e) => String(e.id) === employeeId);
+          if (!selected) return list;
+          if (list.some((e) => e.id === selected.id)) return list;
+          return [selected, ...list];
         });
       } else {
-        setEmployees(list);
+        setEmployees((prev) => {
+          // keep the currently-selected employee visible after reset
+          const selected = prev.find((e) => String(e.id) === employeeId);
+          if (!selected) return list;
+          if (list.some((e) => e.id === selected.id)) return list;
+          return [selected, ...list];
+        });
+
+        const total = res.data.data.pagination?.total;
+        if (typeof total === "number") setEmployeesTotal(total);
       }
     } catch (err: any) {
       if (err?.name !== "CanceledError" && err?.code !== "ERR_CANCELED") {
@@ -165,7 +168,9 @@ const EmployeeSalaryAssign = () => {
                   </div>
                   <div className="mini-stat-meta">
                     <div className="mini-stat-label">Employees</div>
-                    <div className="mini-stat-value">{employees.length}</div>
+                    <div className="mini-stat-value">
+                      {employeesTotal ?? employees.length}
+                    </div>
                   </div>
                 </div>
 
@@ -208,7 +213,10 @@ const EmployeeSalaryAssign = () => {
                   onSearch={(v) => setEmpSearch(v)}
                   loading={empSearchLoading}
                   placeholder="Search employee by name or code"
-                  optionFilterProp="label"
+                  filterOption={false}
+                  notFoundContent={
+                    empSearchLoading ? "Searching..." : "No employee found"
+                  }
                   options={employees.map((emp) => ({
                     value: String(emp.id),
                     label: `${emp.name}${
@@ -219,32 +227,6 @@ const EmployeeSalaryAssign = () => {
                 />
               )}
 
-              <AnimatePresence>
-                {selectedEmployee && (
-                  <motion.div
-                    className="emp-profile"
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <span className="emp-avatar">
-                      {initials(selectedEmployee.name)}
-                    </span>
-
-                    <div className="emp-profile-meta">
-                      <div className="emp-profile-name">
-                        {selectedEmployee.name}
-                      </div>
-                      <div className="emp-profile-code">
-                        {selectedEmployee.employeeCode || "No employee code"}
-                      </div>
-                    </div>
-
-                    <span className="loaded-tag">Selected</span>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
 
             {/* EDITOR */}
